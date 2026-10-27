@@ -37,7 +37,7 @@
     "cpm": "Correct characters / min",
     "duration": "Duration",
     "errors": "Uncorrected errors",
-    "comparison": "Compared with your last {n} sessions: {wpm} WPM, {accuracy} accuracy points.",
+    "comparison": "Compared with {n, plural, one {your previous session} other {your last # sessions}}: {wpm} WPM, {accuracy} accuracy points.",
     "firstSession": "First session: your average will appear next time.",
     "mistakes": "Mistyped words",
     "noMistakes": "No mistakes, well done!"

@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"log"
+	"os"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -18,9 +19,13 @@ import (
 var assets embed.FS
 
 func main() {
-	dbPath, err := store.DefaultPath()
-	if err != nil {
-		log.Fatal(err)
+	// DACTYLO_DB permet d'utiliser une autre base (tests, essais).
+	dbPath := os.Getenv("DACTYLO_DB")
+	if dbPath == "" {
+		var err error
+		if dbPath, err = store.DefaultPath(); err != nil {
+			log.Fatal(err)
+		}
 	}
 	s, err := store.Open(context.Background(), dbPath)
 	if err != nil {

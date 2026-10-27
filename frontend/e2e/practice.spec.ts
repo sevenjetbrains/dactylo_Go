@@ -53,6 +53,12 @@ test('session complète : frappe, touche morte, correction, écran de fin', asyn
   ]);
   expect(keys.some((k) => k.typed === '\b')).toBe(true);
   expect(keys.at(-1)).toMatchObject({ typed: '.', position: TEXT.length - 1 });
+
+  // Ctrl+R depuis l'écran de fin : la nouvelle zone de saisie doit réagir
+  await page.keyboard.press('Control+r');
+  await expect(page.getByLabel('Zone de frappe')).toBeFocused();
+  await page.keyboard.type(TEXT);
+  await expect(page.getByRole('heading', { name: 'Session terminée' })).toBeVisible();
 });
 
 test('Échap met en pause, Ctrl+R recommence', async ({ page }) => {

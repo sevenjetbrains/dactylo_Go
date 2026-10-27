@@ -165,17 +165,22 @@
     }
   }
 
+  // Attaché à l'élément lui-même : la zone de saisie est recréée après
+  // l'écran de fin (Ctrl+R) et doit recevoir à nouveau les écouteurs.
+  function typingInput(el: HTMLTextAreaElement) {
+    const detach = attachTypingInput(el, { onChar, onBackspace });
+    el.focus();
+    return detach;
+  }
+
   onMount(() => {
-    const detach = attachTypingInput(textarea!, { onChar, onBackspace });
     const batchTimer = setInterval(() => void flush(), BATCH_MS);
     const tickTimer = setInterval(() => {
       if (status !== 'typing') return;
       elapsed = clock.elapsed();
       if (limitMs !== undefined && elapsed >= limitMs) void finish();
     }, TICK_MS);
-    textarea!.focus();
     return () => {
-      detach();
       clearInterval(batchTimer);
       clearInterval(tickTimer);
     };
@@ -232,6 +237,7 @@
 
       <textarea
         bind:this={textarea}
+        {@attach typingInput}
         class="absolute h-px w-px opacity-0"
         aria-label={$_('practice.inputLabel')}
         autocomplete="off"

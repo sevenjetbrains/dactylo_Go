@@ -37,7 +37,7 @@
     "cpm": "Caractères justes / min",
     "duration": "Durée",
     "errors": "Erreurs non corrigées",
-    "comparison": "Par rapport à la moyenne de vos {n} dernières sessions : {wpm} MPM, {accuracy} points de précision.",
+    "comparison": "Par rapport à {n, plural, one {votre session précédente} other {la moyenne de vos # dernières sessions}} : {wpm} MPM, {accuracy} points de précision.",
     "firstSession": "Première session : votre moyenne s'affichera dès la prochaine.",
     "mistakes": "Mots fautifs",
     "noMistakes": "Aucune faute, bravo !"

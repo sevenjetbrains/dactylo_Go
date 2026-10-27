@@ -59,5 +59,9 @@ svelte-i18n.
   `pnpm lint`, `pnpm check`, `pnpm test`, `pnpm format`,
   `pnpm test:e2e` (Playwright, Edge local, liaisons simulées dans
   `frontend/e2e/mock-backend.ts`).
+- Essai sur l'application réelle (vrai backend Go, base jetable) :
+  `$env:DACTYLO_DB = "<fichier jetable>"; wails dev -browser=false`, puis
+  dans `frontend/` : `pnpm exec playwright test -c playwright.real.config.ts`.
+  Ne jamais lancer d'essai automatisé sur la base de l'utilisateur.
 - Classes CSS maison : éviter les noms d'utilitaires Tailwind (`fixed`,
   `block`, `hidden`...) ; préfixer (ex. `ch-ok`).
