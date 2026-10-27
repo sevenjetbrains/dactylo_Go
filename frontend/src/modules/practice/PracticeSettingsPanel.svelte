@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { _ } from 'svelte-i18n';
-  import { practiceSettings as s } from './settings.svelte';
+  import { _, locale } from 'svelte-i18n';
+  import { typingSettings as s } from '$shared/typing/settings.svelte';
 </script>
 
 <fieldset class="border-line bg-panel rounded-lg border p-5">
@@ -48,6 +48,15 @@
     <label class="flex items-center gap-2 text-sm">
       <input type="checkbox" bind:checked={s.showLiveBar} />
       {$_('practice.settings.showLiveBar')}
+    </label>
+
+    <label class="flex flex-col gap-2 text-sm sm:col-span-2">
+      <span class="text-muted">
+        {$_('practice.settings.slowThreshold', {
+          values: { n: s.slowThreshold.toLocaleString($locale ?? 'fr') },
+        })}
+      </span>
+      <input type="range" min="1.2" max="3" step="0.1" bind:value={s.slowThreshold} />
     </label>
 
     <label class="flex items-center gap-2 text-sm sm:col-span-2">

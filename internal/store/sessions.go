@@ -34,8 +34,9 @@ func (s *Store) CreateSession(ctx context.Context, profileID, textID int64, mode
 	if settings == "" {
 		settings = "{}"
 	}
+	// textID = 0 : exercice généré (révision), sans texte de la bibliothèque
 	res, err := s.DB.ExecContext(ctx,
-		"INSERT INTO sessions (profile_id, text_id, mode, started_at, settings) VALUES (?, ?, ?, ?, ?)",
+		"INSERT INTO sessions (profile_id, text_id, mode, started_at, settings) VALUES (?, NULLIF(?, 0), ?, ?, ?)",
 		profileID, textID, mode, formatTime(startedAt), settings)
 	if err != nil {
 		return 0, fmt.Errorf("création de la session : %w", err)
@@ -110,9 +111,9 @@ func (s *Store) FinishSession(ctx context.Context, id int64, endedAt time.Time, 
 	defer func() { _ = tx.Rollback() }()
 
 	res, err := tx.ExecContext(ctx, `
-		UPDATE sessions SET ended_at = ?, wpm_gross = ?, wpm_net = ?, cpm = ?, accuracy = ?
+		UPDATE sessions SET ended_at = ?, wpm_gross = ?, wpm_net = ?, cpm = ?, accuracy = ?, duration_ms = ?
 		WHERE id = ? AND ended_at IS NULL`,
-		formatTime(endedAt), sum.WPMGross, sum.WPMNet, sum.CPM, sum.Accuracy, id)
+		formatTime(endedAt), sum.WPMGross, sum.WPMNet, sum.CPM, sum.Accuracy, sum.DurationMs, id)
 	if err != nil {
 		return err
 	}

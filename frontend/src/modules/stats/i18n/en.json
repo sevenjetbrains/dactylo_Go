@@ -1,0 +1,40 @@
+{
+  "menu": "Statistics",
+  "title": "Statistics",
+  "empty": "Finish a first session to see your progress charts.",
+  "tiles": {
+    "sessions": "Sessions",
+    "time": "Practice time",
+    "best": "Best (net WPM)",
+    "streak": "Streak"
+  },
+  "days": "{n, plural, =0 {0 days} one {# day} other {# days}}",
+  "charts": {
+    "wpm": "Net WPM per session",
+    "accuracy": "Accuracy per session (%)"
+  },
+  "heatmap": {
+    "title": "Keyboard heatmap (last 50 sessions)",
+    "metric": "Measure shown",
+    "metrics": { "errors": "Errors", "speed": "Slowness" },
+    "tooltip": "{key}: {count} keystrokes, {rate}% errors, {ms} ms on average",
+    "noData": "fewer than {n} keystrokes",
+    "asTable": "Show keys as a table"
+  },
+  "cols": {
+    "key": "Key",
+    "count": "Keystrokes",
+    "errorRate": "Errors",
+    "avgMs": "Average delay (ms)"
+  },
+  "bigrams": {
+    "title": "Slowest letter pairs",
+    "empty": "Not enough keystrokes yet.",
+    "value": "{ms} ms · ×{n}"
+  },
+  "export": {
+    "button": "Export as CSV",
+    "dialogTitle": "Export sessions",
+    "done": "{n} session(s) exported to {path}"
+  }
+}

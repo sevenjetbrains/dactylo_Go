@@ -21,9 +21,9 @@ jobs:
       # Ubuntu 24.04 fournit webkit2gtk 4.1 uniquement.
       WAILS_TAGS: ${{ startsWith(matrix.os, 'ubuntu') && 'webkit2_41' || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
           cache: true
@@ -32,7 +32,7 @@ jobs:
         with:
           package_json_file: frontend/package.json
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: pnpm
@@ -94,7 +94,7 @@ jobs:
       - name: wails build
         shell: bash
         run: wails build -clean -trimpath -ldflags "-s -w" ${WAILS_TAGS:+-tags $WAILS_TAGS}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: dactylo-${{ matrix.os }}
           path: build/bin/

@@ -1,0 +1,43 @@
+{
+  "shortcuts": "Esc: pause · Ctrl+R: restart · Ctrl+Enter: next",
+  "startHint": "Start typing: the timer starts on the first key.",
+  "paused": "Paused — type to resume",
+  "clickToFocus": "Click here to continue",
+  "inputLabel": "Typing area",
+  "saveError": "Could not save: {error}",
+  "live": {
+    "wpm": "WPM",
+    "accuracy": "Accuracy",
+    "elapsed": "Time",
+    "remaining": "Remaining",
+    "progress": "Progress"
+  },
+  "result": {
+    "title": "Session complete",
+    "wpmNet": "Net WPM",
+    "wpmGross": "Gross WPM",
+    "accuracy": "Accuracy",
+    "cpm": "Correct characters / min",
+    "duration": "Duration",
+    "errors": "Uncorrected errors",
+    "comparison": "Compared with {n, plural, one {your previous session} other {your last # sessions}}: {wpm} WPM, {accuracy} accuracy points.",
+    "firstSession": "First session: your average will appear next time.",
+    "mistakes": "Mistyped words",
+    "noMistakes": "No mistakes, well done!"
+  },
+  "errorTypes": {
+    "accent": "accent",
+    "case": "capital",
+    "punctuation": "punctuation",
+    "missing_letter": "missing letter",
+    "extra_letter": "extra letter",
+    "transposition": "swapped letters",
+    "substitution": "wrong letter",
+    "omitted_word": "missing word"
+  },
+  "actions": {
+    "restart": "Restart",
+    "next": "Next",
+    "finish": "Finish now"
+  }
+}

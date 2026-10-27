@@ -16,7 +16,8 @@ type fakePicker struct {
 	err  error
 }
 
-func (f *fakePicker) PickPDF(string) (string, error) { return f.path, f.err }
+func (f *fakePicker) PickPDF(string) (string, error)         { return f.path, f.err }
+func (f *fakePicker) SaveCSV(string, string) (string, error) { return f.path, f.err }
 
 func userTexts(t *testing.T, f *fixture, q TextQuery) []string {
 	t.Helper()

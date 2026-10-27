@@ -4,11 +4,11 @@
   import { router } from '$app/router.svelte';
   import {
     DURATIONS,
-    practiceSettings,
+    typingSettings,
     type ExerciseSplit,
     type SessionType,
-  } from './settings.svelte';
-  import TypingSession from './TypingSession.svelte';
+  } from '$shared/typing/settings.svelte';
+  import TypingSession from '$shared/typing/TypingSession.svelte';
 
   const textId = $derived(Number(router.query.get('text')) || 0);
   const exParam = $derived(router.query.get('ex'));
@@ -18,7 +18,7 @@
   const session = $derived.by(() => {
     void round; // recharger aussi quand on relance la même adresse
     if (!textId) return null;
-    return load(textId, exParam, practiceSettings.exerciseSplit, practiceSettings.exerciseSize);
+    return load(textId, exParam, typingSettings.exerciseSplit, typingSettings.exerciseSize);
   });
   const texts = $derived(textId ? null : ListTexts({ search: '', tag: '', sort: 'recent' }));
 
@@ -118,6 +118,7 @@
           end={s.seg.end}
           content={s.content}
           onNext={next}
+          back={{ href: '#/practice', label: $_('practice.actions.chooseText') }}
         />
       {/key}
     {:catch}
@@ -134,26 +135,26 @@
         <span class="text-muted">{$_('practice.sessionType.mode')}</span>
         <select
           class="border-line bg-panel rounded-md border px-3 py-1.5"
-          bind:value={practiceSettings.sessionType}
+          bind:value={typingSettings.sessionType}
         >
           {#each sessionTypes as st (st)}
             <option value={st}>{$_(`practice.sessionType.${st}`)}</option>
           {/each}
         </select>
       </label>
-      {#if practiceSettings.sessionType === 'time'}
+      {#if typingSettings.sessionType === 'time'}
         <label class="flex flex-col gap-1 text-sm">
           <span class="text-muted">{$_('practice.sessionType.duration')}</span>
           <select
             class="border-line bg-panel rounded-md border px-3 py-1.5"
-            bind:value={practiceSettings.durationMin}
+            bind:value={typingSettings.durationMin}
           >
             {#each DURATIONS as d (d)}
               <option value={d}>{$_('practice.sessionType.minutes', { values: { n: d } })}</option>
             {/each}
           </select>
         </label>
-      {:else if practiceSettings.sessionType === 'words'}
+      {:else if typingSettings.sessionType === 'words'}
         <label class="flex flex-col gap-1 text-sm">
           <span class="text-muted">{$_('practice.sessionType.words')}</span>
           <input
@@ -162,7 +163,7 @@
             max="5000"
             step="5"
             class="border-line bg-panel w-28 rounded-md border px-3 py-1.5"
-            bind:value={practiceSettings.wordCount}
+            bind:value={typingSettings.wordCount}
           />
         </label>
       {/if}
@@ -170,24 +171,24 @@
         <span class="text-muted">{$_('practice.exercise.split')}</span>
         <select
           class="border-line bg-panel rounded-md border px-3 py-1.5"
-          bind:value={practiceSettings.exerciseSplit}
+          bind:value={typingSettings.exerciseSplit}
         >
           {#each splits as sp (sp)}
             <option value={sp}>{$_(`practice.exercise.splits.${sp}`)}</option>
           {/each}
         </select>
       </label>
-      {#if practiceSettings.exerciseSplit !== 'none'}
+      {#if typingSettings.exerciseSplit !== 'none'}
         <label class="flex flex-col gap-1 text-sm">
           <span class="text-muted">
-            {$_(`practice.exercise.size.${practiceSettings.exerciseSplit}`)}
+            {$_(`practice.exercise.size.${typingSettings.exerciseSplit}`)}
           </span>
           <input
             type="number"
             min="1"
             max="100"
             class="border-line bg-panel w-24 rounded-md border px-3 py-1.5"
-            bind:value={practiceSettings.exerciseSize}
+            bind:value={typingSettings.exerciseSize}
           />
         </label>
       {/if}

@@ -1,0 +1,52 @@
+{
+  "menu": "Révisions",
+  "title": "Révisions",
+  "subtitle": "Les mots mal écrits ou tapés lentement reviennent à intervalles croissants, jusqu'à être maîtrisés.",
+  "dueToday": "{n, plural, =0 {Aucun mot à réviser aujourd'hui} one {# mot à réviser aujourd'hui} other {# mots à réviser aujourd'hui}}",
+  "counts": "{learning} en cours d'apprentissage · {mastered} maîtrisé(s)",
+  "kind": "Type d'exercice",
+  "kinds": {
+    "shuffled": "Mots mélangés",
+    "repeated": "Mots répétés",
+    "sentences": "Phrases de la bibliothèque",
+    "dictation": "Dictée des mots (Phase 4)"
+  },
+  "repeat": "Répétitions",
+  "start": "Réviser maintenant",
+  "startLearning": "S'entraîner sur les mots en cours",
+  "sessionTitle": "Révision ({n, plural, one {# mot} other {# mots}})",
+  "backToList": "Retour aux révisions",
+  "filterLabel": "Filtrer les mots",
+  "filters": {
+    "due": "À réviser",
+    "learning": "En cours",
+    "mastered": "Maîtrisés",
+    "all": "Tous"
+  },
+  "empty": {
+    "due": "Rien à réviser aujourd'hui. Les mots mal écrits pendant vos sessions apparaîtront ici le lendemain.",
+    "learning": "Aucun mot en cours d'apprentissage.",
+    "mastered": "Aucun mot maîtrisé pour l'instant.",
+    "all": "Aucun mot difficile pour l'instant."
+  },
+  "addLabel": "Ajouter un mot",
+  "add": "Ajouter",
+  "cols": {
+    "word": "Mot",
+    "encounters": "Rencontres",
+    "errors": "Erreurs",
+    "forms": "Formes tapées",
+    "mistake": "Faute dominante",
+    "lastError": "Dernière erreur",
+    "mastery": "Maîtrise",
+    "next": "Prochaine révision",
+    "actions": "Actions"
+  },
+  "slowOnly": "tapé lentement",
+  "today": "aujourd'hui",
+  "masteredLabel": "Maîtrisé",
+  "markMastered": "Maîtrisé",
+  "markMasteredLabel": "Marquer « {word} » comme maîtrisé",
+  "remove": "Retirer",
+  "removeLabel": "Retirer « {word} » de la liste"
+}

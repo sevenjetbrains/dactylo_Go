@@ -7,12 +7,6 @@
   "addText": "Coller un premier texte",
   "length": "{n} caractères",
   "textNotFound": "Ce texte n'existe plus.",
-  "shortcuts": "Échap : pause · Ctrl+R : recommencer · Ctrl+Entrée : suivant",
-  "startHint": "Commencez à taper : le chronomètre démarre à la première touche.",
-  "paused": "En pause — tapez pour reprendre",
-  "clickToFocus": "Cliquez ici pour continuer",
-  "inputLabel": "Zone de frappe",
-  "saveError": "Enregistrement impossible : {error}",
   "exercise": {
     "nav": "Exercices du texte",
     "label": "Exercice",
@@ -21,8 +15,15 @@
     "restartText": "Reprendre le texte au début",
     "resumed": "Reprise là où vous vous étiez arrêté.",
     "split": "Découper le texte",
-    "splits": { "none": "Texte entier", "paragraph": "Par paragraphe", "lines": "Par lignes" },
-    "size": { "paragraph": "Paragraphes par exercice", "lines": "Lignes par exercice" }
+    "splits": {
+      "none": "Texte entier",
+      "paragraph": "Par paragraphe",
+      "lines": "Par lignes"
+    },
+    "size": {
+      "paragraph": "Paragraphes par exercice",
+      "lines": "Lignes par exercice"
+    }
   },
   "sessionType": {
     "label": "Type de session",
@@ -33,41 +34,8 @@
     "duration": "Durée",
     "minutes": "{n} min"
   },
-  "live": {
-    "wpm": "MPM",
-    "accuracy": "Précision",
-    "elapsed": "Temps",
-    "remaining": "Restant",
-    "progress": "Progression"
-  },
-  "result": {
-    "title": "Session terminée",
-    "wpmNet": "MPM net",
-    "wpmGross": "MPM brut",
-    "accuracy": "Précision",
-    "cpm": "Caractères justes / min",
-    "duration": "Durée",
-    "errors": "Erreurs non corrigées",
-    "comparison": "Par rapport à {n, plural, one {votre session précédente} other {la moyenne de vos # dernières sessions}} : {wpm} MPM, {accuracy} points de précision.",
-    "firstSession": "Première session : votre moyenne s'affichera dès la prochaine.",
-    "mistakes": "Mots fautifs",
-    "noMistakes": "Aucune faute, bravo !"
-  },
   "actions": {
-    "restart": "Recommencer",
-    "next": "Suivant",
-    "finish": "Terminer maintenant",
     "chooseText": "Choisir un autre texte"
-  },
-  "errorTypes": {
-    "accent": "accent",
-    "case": "majuscule",
-    "punctuation": "ponctuation",
-    "missing_letter": "lettre manquante",
-    "extra_letter": "lettre en trop",
-    "transposition": "inversion",
-    "substitution": "lettre erronée",
-    "omitted_word": "mot oublié"
   },
   "settings": {
     "title": "Mode Copie",
@@ -81,6 +49,7 @@
     "blocking": "Bloquante (corriger avant d'avancer)",
     "allowBackspace": "Autoriser le retour arrière",
     "showLiveBar": "Afficher le bandeau MPM / précision",
-    "foldTypography": "Accepter ' pour ’, \" pour « » et - pour –"
+    "foldTypography": "Accepter ' pour ’, \" pour « » et - pour –",
+    "slowThreshold": "Mot lent au-delà de {n} fois votre vitesse moyenne (mots difficiles)"
   }
 }

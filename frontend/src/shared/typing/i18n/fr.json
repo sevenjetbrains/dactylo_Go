@@ -1,0 +1,43 @@
+{
+  "shortcuts": "Échap : pause · Ctrl+R : recommencer · Ctrl+Entrée : suivant",
+  "startHint": "Commencez à taper : le chronomètre démarre à la première touche.",
+  "paused": "En pause — tapez pour reprendre",
+  "clickToFocus": "Cliquez ici pour continuer",
+  "inputLabel": "Zone de frappe",
+  "saveError": "Enregistrement impossible : {error}",
+  "live": {
+    "wpm": "MPM",
+    "accuracy": "Précision",
+    "elapsed": "Temps",
+    "remaining": "Restant",
+    "progress": "Progression"
+  },
+  "result": {
+    "title": "Session terminée",
+    "wpmNet": "MPM net",
+    "wpmGross": "MPM brut",
+    "accuracy": "Précision",
+    "cpm": "Caractères justes / min",
+    "duration": "Durée",
+    "errors": "Erreurs non corrigées",
+    "comparison": "Par rapport à {n, plural, one {votre session précédente} other {la moyenne de vos # dernières sessions}} : {wpm} MPM, {accuracy} points de précision.",
+    "firstSession": "Première session : votre moyenne s'affichera dès la prochaine.",
+    "mistakes": "Mots fautifs",
+    "noMistakes": "Aucune faute, bravo !"
+  },
+  "errorTypes": {
+    "accent": "accent",
+    "case": "majuscule",
+    "punctuation": "ponctuation",
+    "missing_letter": "lettre manquante",
+    "extra_letter": "lettre en trop",
+    "transposition": "inversion",
+    "substitution": "lettre erronée",
+    "omitted_word": "mot oublié"
+  },
+  "actions": {
+    "restart": "Recommencer",
+    "next": "Suivant",
+    "finish": "Terminer maintenant"
+  }
+}

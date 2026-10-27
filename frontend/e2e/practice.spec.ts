@@ -11,7 +11,7 @@ async function open(page: Page, hash: string, texts = [{ title: 'Essai', content
 test('accueil et navigation', async ({ page }) => {
   await open(page, '/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Bienvenue');
-  await expect(page.getByTestId('system-info')).toContainText('schéma de données v3');
+  await expect(page.getByTestId('system-info')).toContainText(/schéma de données v[0-9]+/);
   await page.screenshot({ path: 'test-results/screens/home.png' });
 
   await page.getByRole('link', { name: /Copie/ }).first().click();

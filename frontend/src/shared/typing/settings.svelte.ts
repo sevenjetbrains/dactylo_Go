@@ -17,6 +17,7 @@ export interface PracticeSettings {
   wordCount: number;
   exerciseSplit: ExerciseSplit; // F-24
   exerciseSize: number; // paragraphes ou lignes par exercice
+  slowThreshold: number; // F-40 : mot « lent » au-delà de N fois la vitesse moyenne
 }
 
 export const DURATIONS = [1, 2, 5, 10] as const;
@@ -34,8 +35,10 @@ export const DEFAULTS: PracticeSettings = {
   wordCount: 50,
   exerciseSplit: 'paragraph',
   exerciseSize: 1,
+  slowThreshold: 1.5,
 };
 
+// clé historique (Phase 1), conservée pour ne pas perdre les réglages
 const STORAGE_KEY = 'dactylo.practice.settings';
 
 const clamp = (n: unknown, min: number, max: number, fallback: number) =>
@@ -69,6 +72,10 @@ export function sanitize(raw: unknown): PracticeSettings {
       DEFAULTS.exerciseSplit,
     ),
     exerciseSize: clamp(r.exerciseSize, 1, 100, DEFAULTS.exerciseSize),
+    slowThreshold:
+      typeof r.slowThreshold === 'number' && Number.isFinite(r.slowThreshold)
+        ? Math.min(3, Math.max(1.2, Math.round(r.slowThreshold * 10) / 10))
+        : DEFAULTS.slowThreshold,
   };
 }
 
@@ -82,11 +89,11 @@ function load(): PracticeSettings {
 
 // Réglages partagés par l'écran de frappe et le panneau Réglages ;
 // mémorisés localement (ils iront dans profiles.settings avec F-50/F-51).
-export const practiceSettings: PracticeSettings = $state(load());
+export const typingSettings: PracticeSettings = $state(load());
 
 $effect.root(() => {
   $effect(() => {
-    const json = JSON.stringify(practiceSettings);
+    const json = JSON.stringify(typingSettings);
     try {
       localStorage.setItem(STORAGE_KEY, json);
     } catch {

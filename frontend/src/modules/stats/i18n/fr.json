@@ -1,0 +1,40 @@
+{
+  "menu": "Statistiques",
+  "title": "Statistiques",
+  "empty": "Terminez une première session pour voir vos courbes de progression.",
+  "tiles": {
+    "sessions": "Sessions",
+    "time": "Temps d'entraînement",
+    "best": "Record (MPM net)",
+    "streak": "Série"
+  },
+  "days": "{n, plural, =0 {0 jour} one {# jour} other {# jours}}",
+  "charts": {
+    "wpm": "MPM net par session",
+    "accuracy": "Précision par session (%)"
+  },
+  "heatmap": {
+    "title": "Carte de chaleur du clavier (50 dernières sessions)",
+    "metric": "Mesure affichée",
+    "metrics": { "errors": "Erreurs", "speed": "Lenteur" },
+    "tooltip": "{key} : {count} frappes, {rate} % d'erreurs, {ms} ms en moyenne",
+    "noData": "moins de {n} frappes",
+    "asTable": "Voir les touches en tableau"
+  },
+  "cols": {
+    "key": "Touche",
+    "count": "Frappes",
+    "errorRate": "Erreurs",
+    "avgMs": "Délai moyen (ms)"
+  },
+  "bigrams": {
+    "title": "Enchaînements les plus lents",
+    "empty": "Pas encore assez de frappes.",
+    "value": "{ms} ms · ×{n}"
+  },
+  "export": {
+    "button": "Exporter en CSV",
+    "dialogTitle": "Exporter les sessions",
+    "done": "{n} session(s) exportée(s) dans {path}"
+  }
+}

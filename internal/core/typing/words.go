@@ -109,7 +109,9 @@ func MistypedWords(text []rune, scored []Scored) []WordError {
 
 // CoreWord retire la ponctuation en début et fin de mot (« l'été, » → « l'été »).
 func CoreWord(w string) string {
-	return strings.TrimFunc(w, func(r rune) bool { return unicode.IsPunct(r) || unicode.IsSymbol(r) })
+	return strings.TrimFunc(w, func(r rune) bool {
+		return unicode.IsPunct(r) || unicode.IsSymbol(r) || unicode.IsSpace(r)
+	})
 }
 
 // Classify donne le type dominant de la faute entre le mot attendu et le

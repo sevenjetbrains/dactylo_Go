@@ -12,6 +12,9 @@ type SessionCompletedPayload struct {
 	TextID    int64         `json:"textId"`
 	Mode      string        `json:"mode"`
 	Summary   stats.Summary `json:"summary"`
+	// Mots entièrement tapés, avec leur résultat (F-40) : le module
+	// Révision s'en sert pour tenir la liste des mots difficiles.
+	Words []typing.WordAttempt `json:"words"`
 }
 
 // WordMistypedPayload accompagne WordMistyped (un événement par mot fautif).

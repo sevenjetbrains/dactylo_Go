@@ -110,6 +110,19 @@ export function installMockBackend(args: {
           return pages.flatMap((p) => p.lines).join(' ');
         },
       },
+      ReviewService: {
+        Summary: async () => ({ due: 0, learning: 0, mastered: 0 }),
+        ListWords: async () => [],
+      },
+      StatsService: {
+        Dashboard: async () => ({
+          points: [],
+          totals: { sessions: 0, totalMs: 0, bestWpm: 0 },
+          streak: 0,
+          keys: [],
+          bigrams: [],
+        }),
+      },
       PracticeService: {
         StartSession: async (req: { textId: number; start: number; end: number }) => {
           log('StartSession', req);

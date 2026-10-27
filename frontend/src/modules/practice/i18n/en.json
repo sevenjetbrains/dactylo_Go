@@ -7,12 +7,6 @@
   "addText": "Paste a first text",
   "length": "{n} characters",
   "textNotFound": "This text no longer exists.",
-  "shortcuts": "Esc: pause · Ctrl+R: restart · Ctrl+Enter: next",
-  "startHint": "Start typing: the timer starts on the first key.",
-  "paused": "Paused — type to resume",
-  "clickToFocus": "Click here to continue",
-  "inputLabel": "Typing area",
-  "saveError": "Could not save: {error}",
   "exercise": {
     "nav": "Text exercises",
     "label": "Exercise",
@@ -21,8 +15,15 @@
     "restartText": "Restart the text from the beginning",
     "resumed": "Resuming where you left off.",
     "split": "Split the text",
-    "splits": { "none": "Whole text", "paragraph": "By paragraph", "lines": "By lines" },
-    "size": { "paragraph": "Paragraphs per exercise", "lines": "Lines per exercise" }
+    "splits": {
+      "none": "Whole text",
+      "paragraph": "By paragraph",
+      "lines": "By lines"
+    },
+    "size": {
+      "paragraph": "Paragraphs per exercise",
+      "lines": "Lines per exercise"
+    }
   },
   "sessionType": {
     "label": "Session type",
@@ -33,41 +34,8 @@
     "duration": "Duration",
     "minutes": "{n} min"
   },
-  "live": {
-    "wpm": "WPM",
-    "accuracy": "Accuracy",
-    "elapsed": "Time",
-    "remaining": "Remaining",
-    "progress": "Progress"
-  },
-  "result": {
-    "title": "Session complete",
-    "wpmNet": "Net WPM",
-    "wpmGross": "Gross WPM",
-    "accuracy": "Accuracy",
-    "cpm": "Correct characters / min",
-    "duration": "Duration",
-    "errors": "Uncorrected errors",
-    "comparison": "Compared with {n, plural, one {your previous session} other {your last # sessions}}: {wpm} WPM, {accuracy} accuracy points.",
-    "firstSession": "First session: your average will appear next time.",
-    "mistakes": "Mistyped words",
-    "noMistakes": "No mistakes, well done!"
-  },
   "actions": {
-    "restart": "Restart",
-    "next": "Next",
-    "finish": "Finish now",
     "chooseText": "Choose another text"
-  },
-  "errorTypes": {
-    "accent": "accent",
-    "case": "capital",
-    "punctuation": "punctuation",
-    "missing_letter": "missing letter",
-    "extra_letter": "extra letter",
-    "transposition": "swapped letters",
-    "substitution": "wrong letter",
-    "omitted_word": "missing word"
   },
   "settings": {
     "title": "Copy mode",
@@ -81,6 +49,7 @@
     "blocking": "Blocking (fix before moving on)",
     "allowBackspace": "Allow backspace",
     "showLiveBar": "Show the WPM / accuracy bar",
-    "foldTypography": "Accept ' for ’, \" for « » and - for –"
+    "foldTypography": "Accept ' for ’, \" for « » and - for –",
+    "slowThreshold": "Word is slow beyond {n} times your average speed (difficult words)"
   }
 }

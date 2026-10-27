@@ -37,6 +37,8 @@ func New(s *store.Store, bus *events.Bus) (*App, error) {
 		NewSystemService(s),
 		NewTextService(s, bus, profileID, dialogPicker{a}),
 		NewPracticeService(s, bus, profileID),
+		NewReviewService(s, bus, profileID),
+		NewStatsService(s, profileID, dialogPicker{a}),
 		// Nouveaux services de modules : une ligne ici.
 	}
 	return a, nil
@@ -66,6 +68,17 @@ func (d dialogPicker) PickPDF(title string) (string, error) {
 	return runtime.OpenFileDialog(d.app.ctx, runtime.OpenDialogOptions{
 		Title:   title,
 		Filters: []runtime.FileFilter{{DisplayName: "PDF (*.pdf)", Pattern: "*.pdf"}},
+	})
+}
+
+func (d dialogPicker) SaveCSV(title, defaultName string) (string, error) {
+	if d.app.ctx == nil {
+		return "", errors.New("fenêtre non prête")
+	}
+	return runtime.SaveFileDialog(d.app.ctx, runtime.SaveDialogOptions{
+		Title:           title,
+		DefaultFilename: defaultName,
+		Filters:         []runtime.FileFilter{{DisplayName: "CSV (*.csv)", Pattern: "*.csv"}},
 	})
 }
 

@@ -27,22 +27,32 @@ type SessionResult struct {
 	Average   store.Averages     `json:"average"`
 }
 
-// StartRequest ouvre une session sur un exercice : les runes [Start, End)
-// du texte (End = 0 : jusqu'à la fin).
+// Modes de session (colonne sessions.mode).
+const (
+	ModeCopy   = "copy"
+	ModeReview = "review"
+)
+
+// StartRequest ouvre une session. Sur un texte de la bibliothèque : les
+// runes [Start, End) du texte (End = 0 : jusqu'à la fin). Sans texte
+// (TextID = 0) : Content est l'exercice généré, en mode révision.
 type StartRequest struct {
 	TextID   int64  `json:"textId"`
 	Start    int    `json:"start"`
 	End      int    `json:"end"`
+	Content  string `json:"content"`
 	Settings string `json:"settings"` // JSON des réglages utilisés
 }
 
 type activeSession struct {
-	profileID int64
-	textID    int64
-	full      []rune // texte complet
-	start     int    // début de l'exercice dans le texte
-	text      []rune // exercice tapé ; les positions des frappes y sont relatives
-	opts      typing.MatchOptions
+	profileID     int64
+	textID        int64
+	mode          string
+	full          []rune // texte complet
+	start         int    // début de l'exercice dans le texte
+	text          []rune // exercice tapé ; les positions des frappes y sont relatives
+	opts          typing.MatchOptions
+	slowThreshold float64
 }
 
 // PracticeService gère les sessions du mode Copie : création, frappes
@@ -66,11 +76,21 @@ func NewPracticeService(s *store.Store, bus *events.Bus, profileID int64) *Pract
 // conservés avec les bornes de l'exercice ; seul foldTypography est lu ici.
 func (p *PracticeService) StartSession(req StartRequest) (int64, error) {
 	ctx := context.Background()
-	t, err := p.store.GetText(ctx, req.TextID)
-	if err != nil {
-		return 0, fmt.Errorf("texte %d : %w", req.TextID, err)
+	mode := ModeCopy
+	var full []rune
+	if req.TextID == 0 {
+		content := text.CleanForPractice(req.Content)
+		if content == "" {
+			return 0, errors.New("exercice vide")
+		}
+		mode, full, req.Start, req.End = ModeReview, []rune(content), 0, 0
+	} else {
+		t, err := p.store.GetText(ctx, req.TextID)
+		if err != nil {
+			return 0, fmt.Errorf("texte %d : %w", req.TextID, err)
+		}
+		full = []rune(t.Content)
 	}
-	full := []rune(t.Content)
 	end := req.End
 	if end == 0 {
 		end = len(full)
@@ -86,20 +106,24 @@ func (p *PracticeService) StartSession(req StartRequest) (int64, error) {
 		}
 	}
 	fold, _ := settings["foldTypography"].(bool)
+	slow, _ := settings["slowThreshold"].(float64)
 	settings["segment"] = map[string]int{"start": req.Start, "end": end}
+	if mode == ModeReview {
+		settings["content"] = string(full) // l'exercice généré reste rejouable
+	}
 	raw, err := json.Marshal(settings)
 	if err != nil {
 		return 0, err
 	}
 
-	id, err := p.store.CreateSession(ctx, p.profileID, req.TextID, "copy", string(raw), p.now())
+	id, err := p.store.CreateSession(ctx, p.profileID, req.TextID, mode, string(raw), p.now())
 	if err != nil {
 		return 0, err
 	}
 	p.mu.Lock()
 	p.active[id] = &activeSession{
-		profileID: p.profileID, textID: req.TextID, full: full, start: req.Start,
-		text: full[req.Start:end], opts: typing.MatchOptions{FoldTypography: fold},
+		profileID: p.profileID, textID: req.TextID, mode: mode, full: full, start: req.Start,
+		text: full[req.Start:end], opts: typing.MatchOptions{FoldTypography: fold}, slowThreshold: slow,
 	}
 	p.mu.Unlock()
 	return id, nil
@@ -148,13 +172,14 @@ func (p *PracticeService) FinishSession(sessionID int64, durationMs int64) (Sess
 		return SessionResult{}, err
 	}
 
-	avg, err := p.store.RecentAverages(ctx, a.profileID, "copy", sessionID, AverageWindow)
+	avg, err := p.store.RecentAverages(ctx, a.profileID, a.mode, sessionID, AverageWindow)
 	if err != nil {
 		return SessionResult{}, err
 	}
 
 	p.bus.Publish(events.Event{Name: events.SessionCompleted, Payload: events.SessionCompletedPayload{
-		SessionID: sessionID, ProfileID: a.profileID, TextID: a.textID, Mode: "copy", Summary: sum,
+		SessionID: sessionID, ProfileID: a.profileID, TextID: a.textID, Mode: a.mode, Summary: sum,
+		Words: typing.WordAttempts(a.text, scored, a.slowThreshold),
 	}})
 	for _, m := range mistakes {
 		p.bus.Publish(events.Event{Name: events.WordMistyped, Payload: events.WordMistypedPayload{
@@ -169,7 +194,7 @@ func (p *PracticeService) FinishSession(sessionID int64, durationMs int64) (Sess
 // tapé en entier, sinon début du dernier mot atteint.
 func (p *PracticeService) saveProgress(ctx context.Context, a *activeSession, scored []typing.Scored) error {
 	reached := typing.Replay(scored).Reached
-	if reached == 0 {
+	if reached == 0 || a.textID == 0 {
 		return nil
 	}
 	pos := a.start + len(a.text)

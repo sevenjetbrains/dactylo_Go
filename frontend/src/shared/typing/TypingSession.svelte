@@ -6,26 +6,29 @@
   import { Clock } from './clock';
   import { TypingEngine, wordEnds } from './engine';
   import { attachTypingInput } from './input';
-  import { practiceSettings } from './settings.svelte';
+  import { typingSettings } from './settings.svelte';
   import LiveBar from './LiveBar.svelte';
   import ResultScreen from './ResultScreen.svelte';
   import TypingArea from './TypingArea.svelte';
 
   let {
-    textId,
+    textId = 0,
     title,
     start = 0,
     end = 0,
     content,
     onNext,
+    back,
   }: {
-    textId: number;
+    /** Texte de la bibliothèque ; 0 = exercice généré (révision), tapé en entier. */
+    textId?: number;
     title: string;
     /** Bornes de l'exercice dans le texte (en caractères) ; content = texte[start, end). */
     start?: number;
     end?: number;
     content: string;
     onNext: () => void;
+    back?: { href: string; label: string };
   } = $props();
 
   const BATCH_MS = 2000; // envoi des frappes (section 3.2)
@@ -34,7 +37,7 @@
   type Status = 'ready' | 'typing' | 'paused' | 'finishing' | 'done';
 
   // Réglages figés pour la durée de la session (Ctrl+R applique les nouveaux).
-  let opts = $state.raw($state.snapshot(practiceSettings));
+  let opts = $state.raw(snapshotSettings());
   let engine = $state.raw(makeEngine());
   let tick = $state(0);
   let status: Status = $state('ready');
@@ -59,6 +62,12 @@
     };
   });
 
+  /** Un exercice généré se tape toujours en entier. */
+  function snapshotSettings() {
+    const s = $state.snapshot(typingSettings);
+    return textId === 0 ? { ...s, sessionType: 'text' as const } : s;
+  }
+
   function makeEngine(): TypingEngine {
     const end =
       opts.sessionType === 'words'
@@ -73,7 +82,13 @@
   }
 
   function ensureSession(): Promise<number> {
-    sessionId ??= StartSession({ textId, start, end, settings: JSON.stringify(opts) });
+    sessionId ??= StartSession({
+      textId,
+      start,
+      end,
+      content: textId === 0 ? content : '',
+      settings: JSON.stringify(opts),
+    });
     return sessionId;
   }
 
@@ -136,7 +151,7 @@
   /** Recommence : la session en cours reste enregistrée mais non terminée. */
   function restart() {
     void flush();
-    opts = $state.snapshot(practiceSettings);
+    opts = snapshotSettings();
     engine = makeEngine();
     clock = new Clock();
     sessionId = null;
@@ -204,15 +219,15 @@
 <div class="flex flex-col gap-6">
   <header class="flex items-baseline justify-between gap-4">
     <h1 class="truncate text-xl font-semibold">{title}</h1>
-    <p class="text-muted shrink-0 text-xs">{$_('practice.shortcuts')}</p>
+    <p class="text-muted shrink-0 text-xs">{$_('typing.shortcuts')}</p>
   </header>
 
   {#if error}
-    <p role="alert" class="text-error text-sm">{$_('practice.saveError', { values: { error } })}</p>
+    <p role="alert" class="text-error text-sm">{$_('typing.saveError', { values: { error } })}</p>
   {/if}
 
   {#if status === 'done' && result}
-    <ResultScreen {result} onRestart={restart} {onNext} />
+    <ResultScreen {result} onRestart={restart} {onNext} {back} />
   {:else}
     {#if opts.showLiveBar}
       <LiveBar
@@ -241,7 +256,7 @@
         <div
           class="bg-panel/85 absolute inset-0 flex items-center justify-center rounded-lg text-sm font-medium"
         >
-          {status === 'paused' ? $_('practice.paused') : $_('practice.clickToFocus')}
+          {status === 'paused' ? $_('typing.paused') : $_('typing.clickToFocus')}
         </div>
       {/if}
 
@@ -249,7 +264,7 @@
         bind:this={textarea}
         {@attach typingInput}
         class="absolute h-px w-px opacity-0"
-        aria-label={$_('practice.inputLabel')}
+        aria-label={$_('typing.inputLabel')}
         autocomplete="off"
         autocapitalize="off"
         spellcheck="false"
@@ -258,11 +273,11 @@
     </div>
 
     {#if status === 'ready'}
-      <p class="text-muted text-sm">{$_('practice.startHint')}</p>
+      <p class="text-muted text-sm">{$_('typing.startHint')}</p>
     {:else if status !== 'finishing'}
       <div>
         <button class="text-muted text-sm underline" onclick={() => void finish()}>
-          {$_('practice.actions.finish')}
+          {$_('typing.actions.finish')}
         </button>
       </div>
     {/if}

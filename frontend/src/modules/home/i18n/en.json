@@ -4,13 +4,21 @@
   "subtitle": "Train your typing speed and spelling, fully offline.",
   "soon": "Coming soon",
   "modes": {
-    "copy": { "title": "Copy", "desc": "Retype a text, checked character by character." },
+    "copy": {
+      "title": "Copy",
+      "desc": "Retype a text, checked character by character."
+    },
     "dictation": {
       "title": "Dictation",
       "desc": "Listen to the text and write it without seeing it."
     },
-    "review": { "title": "Review", "desc": "Practise the words that trouble you." }
+    "review": {
+      "title": "Review",
+      "desc": "Practise the words that trouble you."
+    }
   },
   "system": "Version {version} · {platform} · data schema v{schema}",
-  "systemError": "Database unavailable: {error}"
+  "systemError": "Database unavailable: {error}",
+  "due": "{n, plural, one {# word to review today} other {# words to review today}}",
+  "reviewNow": "Review now"
 }

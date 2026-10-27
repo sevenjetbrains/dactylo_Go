@@ -1,0 +1,52 @@
+{
+  "menu": "Review",
+  "title": "Review",
+  "subtitle": "Misspelled or slowly typed words come back at growing intervals until they are mastered.",
+  "dueToday": "{n, plural, =0 {No words to review today} one {# word to review today} other {# words to review today}}",
+  "counts": "{learning} being learned · {mastered} mastered",
+  "kind": "Exercise type",
+  "kinds": {
+    "shuffled": "Shuffled words",
+    "repeated": "Repeated words",
+    "sentences": "Sentences from the library",
+    "dictation": "Word dictation (Phase 4)"
+  },
+  "repeat": "Repetitions",
+  "start": "Review now",
+  "startLearning": "Practise the words being learned",
+  "sessionTitle": "Review ({n, plural, one {# word} other {# words}})",
+  "backToList": "Back to review",
+  "filterLabel": "Filter words",
+  "filters": {
+    "due": "Due",
+    "learning": "Learning",
+    "mastered": "Mastered",
+    "all": "All"
+  },
+  "empty": {
+    "due": "Nothing to review today. Words you misspell during sessions show up here the next day.",
+    "learning": "No words being learned.",
+    "mastered": "No mastered words yet.",
+    "all": "No difficult words yet."
+  },
+  "addLabel": "Add a word",
+  "add": "Add",
+  "cols": {
+    "word": "Word",
+    "encounters": "Seen",
+    "errors": "Errors",
+    "forms": "Typed forms",
+    "mistake": "Main mistake",
+    "lastError": "Last error",
+    "mastery": "Mastery",
+    "next": "Next review",
+    "actions": "Actions"
+  },
+  "slowOnly": "typed slowly",
+  "today": "today",
+  "masteredLabel": "Mastered",
+  "markMastered": "Mastered",
+  "markMasteredLabel": "Mark “{word}” as mastered",
+  "remove": "Remove",
+  "removeLabel": "Remove “{word}” from the list"
+}

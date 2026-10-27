@@ -2,6 +2,8 @@ import { addMessages, init, locale } from 'svelte-i18n';
 import type { Dictionary, ModuleDefinition } from '$app/types';
 import fr from './fr.json';
 import en from './en.json';
+import typingFr from '$shared/typing/i18n/fr.json';
+import typingEn from '$shared/typing/i18n/en.json';
 
 export const LOCALES = ['fr', 'en'] as const;
 export type Locale = (typeof LOCALES)[number];
@@ -27,6 +29,9 @@ export function setupI18n(
 ): void {
   addMessages('fr', fr as Dictionary);
   addMessages('en', en as Dictionary);
+  // composants partagés (zone de frappe, résultats)
+  addMessages('fr', { typing: typingFr as Dictionary });
+  addMessages('en', { typing: typingEn as Dictionary });
   for (const m of modules) {
     for (const [lang, dict] of Object.entries(m.messages ?? {})) {
       if (dict) addMessages(lang, { [m.id]: dict });

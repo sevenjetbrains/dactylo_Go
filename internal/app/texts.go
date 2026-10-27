@@ -66,10 +66,11 @@ type ExercisePlan struct {
 	ResumeStart int            `json:"resumeStart"`
 }
 
-// FilePicker ouvre la boîte de dialogue système de choix de fichier.
-// Le service ne lit jamais un chemin venu de l'interface (NF-11).
+// FilePicker ouvre les boîtes de dialogue système de fichier. Les services
+// ne lisent ni n'écrivent jamais un chemin venu de l'interface (NF-11).
 type FilePicker interface {
-	PickPDF(title string) (path string, err error) // "" si annulé
+	PickPDF(title string) (path string, err error)              // "" si annulé
+	SaveCSV(title, defaultName string) (path string, err error) // "" si annulé
 }
 
 // TextService gère la bibliothèque de textes.
