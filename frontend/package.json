@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "chart.js": "^4.6.1",
+    "pdfjs-dist": "^6.4.299",
     "svelte-i18n": "^4.0.1"
   },
   "packageManager": "pnpm@9.15.9"

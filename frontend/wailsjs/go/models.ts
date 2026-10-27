@@ -1,5 +1,59 @@
 export namespace app {
 	
+	export class ExercisePlan {
+	    segments: text.Segment[];
+	    length: number;
+	    position: number;
+	    resume: text.Segment;
+	    resumeStart: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new ExercisePlan(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.segments = this.convertValues(source["segments"], text.Segment);
+	        this.length = source["length"];
+	        this.position = source["position"];
+	        this.resume = this.convertValues(source["resume"], text.Segment);
+	        this.resumeStart = source["resumeStart"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class PDFFile {
+	    cancelled: boolean;
+	    name: string;
+	    data: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new PDFFile(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cancelled = source["cancelled"];
+	        this.name = source["name"];
+	        this.data = source["data"];
+	    }
+	}
 	export class SessionResult {
 	    sessionId: number;
 	    textId: number;
@@ -38,6 +92,24 @@ export namespace app {
 		    return a;
 		}
 	}
+	export class StartRequest {
+	    textId: number;
+	    start: number;
+	    end: number;
+	    settings: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new StartRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.textId = source["textId"];
+	        this.start = source["start"];
+	        this.end = source["end"];
+	        this.settings = source["settings"];
+	    }
+	}
 	export class SystemInfo {
 	    version: string;
 	    platform: string;
@@ -61,6 +133,9 @@ export namespace app {
 	    content: string;
 	    language: string;
 	    tags: string[];
+	    source: string;
+	    sourceFile: string;
+	    pages: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new TextInput(source);
@@ -72,6 +147,59 @@ export namespace app {
 	        this.content = source["content"];
 	        this.language = source["language"];
 	        this.tags = source["tags"];
+	        this.source = source["source"];
+	        this.sourceFile = source["sourceFile"];
+	        this.pages = source["pages"];
+	    }
+	}
+	export class TextList {
+	    texts: store.TextSummary[];
+	    tags: string[];
+	    total: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new TextList(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.texts = this.convertValues(source["texts"], store.TextSummary);
+	        this.tags = source["tags"];
+	        this.total = source["total"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class TextQuery {
+	    search: string;
+	    tag: string;
+	    sort: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TextQuery(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.search = source["search"];
+	        this.tag = source["tag"];
+	        this.sort = source["sort"];
 	    }
 	}
 
@@ -136,6 +264,8 @@ export namespace store {
 	    content: string;
 	    language: string;
 	    source: string;
+	    sourceFile: string;
+	    pages: string;
 	    tags: string[];
 	    createdAt: string;
 	
@@ -150,6 +280,8 @@ export namespace store {
 	        this.content = source["content"];
 	        this.language = source["language"];
 	        this.source = source["source"];
+	        this.sourceFile = source["sourceFile"];
+	        this.pages = source["pages"];
 	        this.tags = source["tags"];
 	        this.createdAt = source["createdAt"];
 	    }
@@ -159,10 +291,14 @@ export namespace store {
 	    title: string;
 	    language: string;
 	    source: string;
+	    sourceFile: string;
+	    pages: string;
 	    tags: string[];
 	    length: number;
 	    preview: string;
 	    createdAt: string;
+	    bestWpm?: number;
+	    position: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new TextSummary(source);
@@ -174,10 +310,67 @@ export namespace store {
 	        this.title = source["title"];
 	        this.language = source["language"];
 	        this.source = source["source"];
+	        this.sourceFile = source["sourceFile"];
+	        this.pages = source["pages"];
 	        this.tags = source["tags"];
 	        this.length = source["length"];
 	        this.preview = source["preview"];
 	        this.createdAt = source["createdAt"];
+	        this.bestWpm = source["bestWpm"];
+	        this.position = source["position"];
+	    }
+	}
+
+}
+
+export namespace text {
+	
+	export class CleanOptions {
+	    removePageNumbers: boolean;
+	    removeRepeatedLines: boolean;
+	    joinHyphenated: boolean;
+	    normalizeApostrophes: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new CleanOptions(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.removePageNumbers = source["removePageNumbers"];
+	        this.removeRepeatedLines = source["removeRepeatedLines"];
+	        this.joinHyphenated = source["joinHyphenated"];
+	        this.normalizeApostrophes = source["normalizeApostrophes"];
+	    }
+	}
+	export class ImportPage {
+	    number: number;
+	    lines: string[];
+	
+	    static createFrom(source: any = {}) {
+	        return new ImportPage(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.number = source["number"];
+	        this.lines = source["lines"];
+	    }
+	}
+	export class Segment {
+	    index: number;
+	    start: number;
+	    end: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Segment(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.index = source["index"];
+	        this.start = source["start"];
+	        this.end = source["end"];
 	    }
 	}
 

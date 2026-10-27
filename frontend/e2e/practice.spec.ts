@@ -4,14 +4,14 @@ import { installMockBackend } from './mock-backend';
 const TEXT = 'Le chat être là.';
 
 async function open(page: Page, hash: string, texts = [{ title: 'Essai', content: TEXT }]) {
-  await page.addInitScript(installMockBackend, texts);
+  await page.addInitScript(installMockBackend, { texts });
   await page.goto('/#' + hash);
 }
 
 test('accueil et navigation', async ({ page }) => {
   await open(page, '/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Bienvenue');
-  await expect(page.getByTestId('system-info')).toContainText('schéma de données v2');
+  await expect(page.getByTestId('system-info')).toContainText('schéma de données v3');
   await page.screenshot({ path: 'test-results/screens/home.png' });
 
   await page.getByRole('link', { name: /Copie/ }).first().click();
@@ -99,6 +99,7 @@ test('texte de 10 000 mots : frappe fluide (NF-01)', async ({ page }) => {
 
 test('bibliothèque : coller un texte', async ({ page }) => {
   await open(page, '/library', []);
+  await page.getByRole('button', { name: 'Coller un texte' }).click();
   await page.getByLabel('Texte', { exact: true }).fill('Un texte collé pour l’exercice.');
   await page.getByLabel('Titre (facultatif)').fill('Collé');
   await page.getByRole('button', { name: 'Enregistrer' }).click();

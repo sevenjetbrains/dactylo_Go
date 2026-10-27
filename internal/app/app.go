@@ -4,6 +4,7 @@ package app
 
 import (
 	"context"
+	"errors"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
@@ -34,7 +35,7 @@ func New(s *store.Store, bus *events.Bus) (*App, error) {
 	a := &App{Store: s, Bus: bus}
 	a.servicesFor = []any{
 		NewSystemService(s),
-		NewTextService(s, bus),
+		NewTextService(s, bus, profileID, dialogPicker{a}),
 		NewPracticeService(s, bus, profileID),
 		// Nouveaux services de modules : une ligne ici.
 	}
@@ -52,6 +53,19 @@ func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
 	a.stopRelay = a.Bus.SubscribeAll(func(e events.Event) {
 		runtime.EventsEmit(a.ctx, e.Name, e.Payload)
+	})
+}
+
+// dialogPicker ouvre la boîte de dialogue système de Wails.
+type dialogPicker struct{ app *App }
+
+func (d dialogPicker) PickPDF(title string) (string, error) {
+	if d.app.ctx == nil {
+		return "", errors.New("fenêtre non prête")
+	}
+	return runtime.OpenFileDialog(d.app.ctx, runtime.OpenDialogOptions{
+		Title:   title,
+		Filters: []runtime.FileFilter{{DisplayName: "PDF (*.pdf)", Pattern: "*.pdf"}},
 	})
 }
 

@@ -10,6 +10,7 @@ import (
 
 	"dactylo/internal/core/events"
 	"dactylo/internal/core/stats"
+	"dactylo/internal/core/text"
 	"dactylo/internal/core/typing"
 	"dactylo/internal/store"
 )
@@ -26,10 +27,21 @@ type SessionResult struct {
 	Average   store.Averages     `json:"average"`
 }
 
+// StartRequest ouvre une session sur un exercice : les runes [Start, End)
+// du texte (End = 0 : jusqu'à la fin).
+type StartRequest struct {
+	TextID   int64  `json:"textId"`
+	Start    int    `json:"start"`
+	End      int    `json:"end"`
+	Settings string `json:"settings"` // JSON des réglages utilisés
+}
+
 type activeSession struct {
 	profileID int64
 	textID    int64
-	text      []rune
+	full      []rune // texte complet
+	start     int    // début de l'exercice dans le texte
+	text      []rune // exercice tapé ; les positions des frappes y sont relatives
 	opts      typing.MatchOptions
 }
 
@@ -50,26 +62,45 @@ func NewPracticeService(s *store.Store, bus *events.Bus, profileID int64) *Pract
 	return &PracticeService{store: s, bus: bus, profileID: profileID, now: time.Now, active: map[int64]*activeSession{}}
 }
 
-// StartSession ouvre une session sur un texte. settings est le JSON des
-// réglages utilisés, conservé tel quel ; seul foldTypography est lu ici.
-func (p *PracticeService) StartSession(textID int64, settings string) (int64, error) {
+// StartSession ouvre une session sur un exercice. Les réglages sont
+// conservés avec les bornes de l'exercice ; seul foldTypography est lu ici.
+func (p *PracticeService) StartSession(req StartRequest) (int64, error) {
 	ctx := context.Background()
-	t, err := p.store.GetText(ctx, textID)
+	t, err := p.store.GetText(ctx, req.TextID)
 	if err != nil {
-		return 0, fmt.Errorf("texte %d : %w", textID, err)
+		return 0, fmt.Errorf("texte %d : %w", req.TextID, err)
 	}
-	var opts typing.MatchOptions
-	if settings != "" {
-		if err := json.Unmarshal([]byte(settings), &opts); err != nil {
+	full := []rune(t.Content)
+	end := req.End
+	if end == 0 {
+		end = len(full)
+	}
+	if req.Start < 0 || req.Start >= end || end > len(full) {
+		return 0, fmt.Errorf("exercice hors du texte : [%d, %d)", req.Start, end)
+	}
+
+	settings := map[string]any{}
+	if req.Settings != "" {
+		if err := json.Unmarshal([]byte(req.Settings), &settings); err != nil {
 			return 0, fmt.Errorf("réglages invalides : %w", err)
 		}
 	}
-	id, err := p.store.CreateSession(ctx, p.profileID, textID, "copy", settings, p.now())
+	fold, _ := settings["foldTypography"].(bool)
+	settings["segment"] = map[string]int{"start": req.Start, "end": end}
+	raw, err := json.Marshal(settings)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := p.store.CreateSession(ctx, p.profileID, req.TextID, "copy", string(raw), p.now())
 	if err != nil {
 		return 0, err
 	}
 	p.mu.Lock()
-	p.active[id] = &activeSession{profileID: p.profileID, textID: textID, text: []rune(t.Content), opts: opts}
+	p.active[id] = &activeSession{
+		profileID: p.profileID, textID: req.TextID, full: full, start: req.Start,
+		text: full[req.Start:end], opts: typing.MatchOptions{FoldTypography: fold},
+	}
 	p.mu.Unlock()
 	return id, nil
 }
@@ -113,6 +144,10 @@ func (p *PracticeService) FinishSession(sessionID int64, durationMs int64) (Sess
 	delete(p.active, sessionID)
 	p.mu.Unlock()
 
+	if err := p.saveProgress(ctx, a, scored); err != nil {
+		return SessionResult{}, err
+	}
+
 	avg, err := p.store.RecentAverages(ctx, a.profileID, "copy", sessionID, AverageWindow)
 	if err != nil {
 		return SessionResult{}, err
@@ -128,6 +163,20 @@ func (p *PracticeService) FinishSession(sessionID int64, durationMs int64) (Sess
 	}
 
 	return SessionResult{SessionID: sessionID, TextID: a.textID, Summary: sum, Mistakes: mistakes, Average: avg}, nil
+}
+
+// saveProgress mémorise où reprendre (F-24) : fin de l'exercice s'il a été
+// tapé en entier, sinon début du dernier mot atteint.
+func (p *PracticeService) saveProgress(ctx context.Context, a *activeSession, scored []typing.Scored) error {
+	reached := typing.Replay(scored).Reached
+	if reached == 0 {
+		return nil
+	}
+	pos := a.start + len(a.text)
+	if reached < len(a.text) {
+		pos = text.WordStart(a.full, a.start+reached)
+	}
+	return p.store.SetProgress(ctx, a.profileID, a.textID, pos)
 }
 
 func (p *PracticeService) session(id int64) (*activeSession, error) {

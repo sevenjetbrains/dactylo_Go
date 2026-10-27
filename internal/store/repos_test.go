@@ -47,9 +47,33 @@ func TestTextsCRUD(t *testing.T) {
 		t.Errorf("GetText = %+v", got)
 	}
 
-	list, err := s.ListTexts(ctx)
-	if err != nil || len(list) != 1 || list[0].Length != 14 || list[0].Preview != "Maître corbeau" {
-		t.Errorf("ListTexts = %+v, %v", list, err)
+	pid, _ := s.EnsureDefaultProfile(ctx)
+	list, err := s.ListTexts(ctx, pid)
+	if err != nil || len(list) == 0 || list[0].ID != id { // le plus récent d'abord
+		t.Fatalf("ListTexts : %v", err)
+	}
+	if l := list[0]; l.Length != 14 || l.Preview != "Maître corbeau" || l.BestWPM != nil ||
+		l.Position != 0 || l.Content != "Maître corbeau" {
+		t.Errorf("résumé = %+v", l)
+	}
+
+	got.Title, got.Content, got.Tags = "Fable 2", "Maître renard", nil
+	if err := s.UpdateText(ctx, got); err != nil {
+		t.Fatal(err)
+	}
+	if u, _ := s.GetText(ctx, id); u.Title != "Fable 2" || u.Content != "Maître renard" || len(u.Tags) != 0 {
+		t.Errorf("après modification = %+v", u)
+	}
+	if err := s.UpdateText(ctx, Text{ID: 999, Title: "x", Content: "y"}); !errors.Is(err, ErrNotFound) {
+		t.Errorf("modification d'un texte absent : %v", err)
+	}
+
+	pdfID, err := s.CreateText(ctx, Text{Title: "Livre", Content: "abc", Source: "pdf", SourceFile: "livre.pdf", Pages: "3-5"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p, _ := s.GetText(ctx, pdfID); p.Source != "pdf" || p.SourceFile != "livre.pdf" || p.Pages != "3-5" {
+		t.Errorf("texte PDF = %+v", p)
 	}
 
 	if err := s.DeleteText(ctx, id); err != nil {
@@ -107,6 +131,35 @@ func TestSessionLifecycle(t *testing.T) {
 	}
 	if _, err := s.GetSession(ctx, 999); !errors.Is(err, ErrNotFound) {
 		t.Errorf("session absente : %v", err)
+	}
+}
+
+func TestProgressAndBestScore(t *testing.T) {
+	s, ctx := openMem(t), context.Background()
+	pid, _ := s.EnsureDefaultProfile(ctx)
+	tid, _ := s.CreateText(ctx, Text{Title: "t", Content: "abcdef"})
+
+	if pos, err := s.GetProgress(ctx, pid, tid); err != nil || pos != 0 {
+		t.Fatalf("progression initiale = %d, %v", pos, err)
+	}
+	if err := s.SetProgress(ctx, pid, tid, 3); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.SetProgress(ctx, pid, tid, 5); err != nil { // mise à jour
+		t.Fatal(err)
+	}
+	if pos, _ := s.GetProgress(ctx, pid, tid); pos != 5 {
+		t.Errorf("progression = %d, want 5", pos)
+	}
+
+	now := time.Now()
+	for _, wpm := range []float64{20, 35} {
+		sid, _ := s.CreateSession(ctx, pid, tid, "copy", "", now)
+		_ = s.FinishSession(ctx, sid, now, stats.Summary{WPMNet: wpm}, nil)
+	}
+	list, _ := s.ListTexts(ctx, pid)
+	if list[0].BestWPM == nil || *list[0].BestWPM != 35 || list[0].Position != 5 {
+		t.Errorf("résumé = %+v", list[0])
 	}
 }
 

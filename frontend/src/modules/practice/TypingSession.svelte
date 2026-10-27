@@ -14,9 +14,19 @@
   let {
     textId,
     title,
+    start = 0,
+    end = 0,
     content,
     onNext,
-  }: { textId: number; title: string; content: string; onNext: () => void } = $props();
+  }: {
+    textId: number;
+    title: string;
+    /** Bornes de l'exercice dans le texte (en caractères) ; content = texte[start, end). */
+    start?: number;
+    end?: number;
+    content: string;
+    onNext: () => void;
+  } = $props();
 
   const BATCH_MS = 2000; // envoi des frappes (section 3.2)
   const TICK_MS = 200;
@@ -63,7 +73,7 @@
   }
 
   function ensureSession(): Promise<number> {
-    sessionId ??= StartSession(textId, JSON.stringify({ ...opts, startedFrom: 'practice' }));
+    sessionId ??= StartSession({ textId, start, end, settings: JSON.stringify(opts) });
     return sessionId;
   }
 

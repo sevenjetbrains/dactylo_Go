@@ -2,6 +2,7 @@ import type { Correction } from './engine';
 
 export type SessionType = 'text' | 'time' | 'words';
 export type LinePosition = 'top' | 'center';
+export type ExerciseSplit = 'none' | 'paragraph' | 'lines';
 
 export interface PracticeSettings {
   fontSize: number; // F-01 : 14 à 32 px
@@ -14,6 +15,8 @@ export interface PracticeSettings {
   sessionType: SessionType; // F-06
   durationMin: number; // 1, 2, 5, 10
   wordCount: number;
+  exerciseSplit: ExerciseSplit; // F-24
+  exerciseSize: number; // paragraphes ou lignes par exercice
 }
 
 export const DURATIONS = [1, 2, 5, 10] as const;
@@ -29,6 +32,8 @@ export const DEFAULTS: PracticeSettings = {
   sessionType: 'text',
   durationMin: 1,
   wordCount: 50,
+  exerciseSplit: 'paragraph',
+  exerciseSize: 1,
 };
 
 const STORAGE_KEY = 'dactylo.practice.settings';
@@ -58,6 +63,12 @@ export function sanitize(raw: unknown): PracticeSettings {
     sessionType: pick(r.sessionType, ['text', 'time', 'words'] as const, DEFAULTS.sessionType),
     durationMin: pick(r.durationMin, DURATIONS, DEFAULTS.durationMin as 1),
     wordCount: clamp(r.wordCount, 5, 5000, DEFAULTS.wordCount),
+    exerciseSplit: pick(
+      r.exerciseSplit,
+      ['none', 'paragraph', 'lines'] as const,
+      DEFAULTS.exerciseSplit,
+    ),
+    exerciseSize: clamp(r.exerciseSize, 1, 100, DEFAULTS.exerciseSize),
   };
 }
 

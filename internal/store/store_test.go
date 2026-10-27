@@ -4,6 +4,8 @@ import (
 	"context"
 	"path/filepath"
 	"testing"
+
+	"dactylo/internal/core/text"
 )
 
 var expectedTables = []string{
@@ -34,6 +36,29 @@ func TestOpenAppliesMigrations(t *testing.T) {
 	}
 	if v < 1 {
 		t.Errorf("version de schéma = %d, attendu >= 1", v)
+	}
+}
+
+func TestBuiltinTextsAreNFCAndClean(t *testing.T) {
+	s := openMem(t)
+	rows, err := s.DB.Query("SELECT title, content FROM texts WHERE source = 'builtin'")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = rows.Close() }()
+	n := 0
+	for rows.Next() {
+		var title, content string
+		if err := rows.Scan(&title, &content); err != nil {
+			t.Fatal(err)
+		}
+		n++
+		if content != text.NFC(content) || content != text.CleanForPractice(content) {
+			t.Errorf("%q : contenu non normalisé", title)
+		}
+	}
+	if n < 8 {
+		t.Errorf("textes intégrés = %d, attendu >= 8", n)
 	}
 }
 

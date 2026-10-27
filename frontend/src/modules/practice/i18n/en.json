@@ -7,12 +7,23 @@
   "addText": "Paste a first text",
   "length": "{n} characters",
   "textNotFound": "This text no longer exists.",
-  "shortcuts": "Esc: pause · Ctrl+R: restart · Ctrl+Enter: next text",
+  "shortcuts": "Esc: pause · Ctrl+R: restart · Ctrl+Enter: next",
   "startHint": "Start typing: the timer starts on the first key.",
   "paused": "Paused — type to resume",
   "clickToFocus": "Click here to continue",
   "inputLabel": "Typing area",
   "saveError": "Could not save: {error}",
+  "exercise": {
+    "nav": "Text exercises",
+    "label": "Exercise",
+    "option": "{n} / {total}",
+    "progress": "Text read: {pct}%",
+    "restartText": "Restart the text from the beginning",
+    "resumed": "Resuming where you left off.",
+    "split": "Split the text",
+    "splits": { "none": "Whole text", "paragraph": "By paragraph", "lines": "By lines" },
+    "size": { "paragraph": "Paragraphs per exercise", "lines": "Lines per exercise" }
+  },
   "sessionType": {
     "label": "Session type",
     "mode": "Exercise length",
@@ -44,7 +55,7 @@
   },
   "actions": {
     "restart": "Restart",
-    "next": "Next text",
+    "next": "Next",
     "finish": "Finish now",
     "chooseText": "Choose another text"
   },

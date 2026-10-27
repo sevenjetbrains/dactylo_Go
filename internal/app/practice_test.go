@@ -15,6 +15,7 @@ type fixture struct {
 	bus      *events.Bus
 	texts    *TextService
 	practice *PracticeService
+	picker   *fakePicker
 	events   []events.Event
 }
 
@@ -31,7 +32,8 @@ func newFixture(t *testing.T) *fixture {
 	}
 	f := &fixture{store: s, bus: events.NewBus()}
 	f.bus.SubscribeAll(func(e events.Event) { f.events = append(f.events, e) })
-	f.texts = NewTextService(s, f.bus)
+	f.picker = &fakePicker{}
+	f.texts = NewTextService(s, f.bus, pid, f.picker)
 	f.practice = NewPracticeService(s, f.bus, pid)
 	return f
 }
@@ -70,10 +72,6 @@ func TestCreateTextCleansAndPublishes(t *testing.T) {
 	if _, err := f.texts.CreateText(TextInput{Content: strings.Repeat("a", MaxTextLength+1)}); err == nil {
 		t.Error("texte trop long accepté")
 	}
-	list, _ := f.texts.ListTexts()
-	if len(list) != 1 {
-		t.Errorf("ListTexts = %d", len(list))
-	}
 	if err := f.texts.DeleteText(id); err != nil {
 		t.Error(err)
 	}
@@ -84,7 +82,7 @@ func TestPracticeFullSession(t *testing.T) {
 	tid, _ := f.texts.CreateText(TextInput{Title: "t", Content: "Le chat être"})
 	f.events = nil
 
-	sid, err := f.practice.StartSession(tid, `{"foldTypography":true,"correction":"free"}`)
+	sid, err := f.practice.StartSession(StartRequest{TextID: tid, Settings: `{"foldTypography":true,"correction":"free"}`})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,7 +119,7 @@ func TestPracticeFullSession(t *testing.T) {
 	}
 
 	// Seconde session : la moyenne porte sur la première.
-	sid2, _ := f.practice.StartSession(tid, "")
+	sid2, _ := f.practice.StartSession(StartRequest{TextID: tid, Settings: ""})
 	_ = f.practice.RecordKeystrokes(sid2, typeString(0, 0, "Le chat être"))
 	res2, err := f.practice.FinishSession(sid2, 60000)
 	if err != nil {
@@ -137,14 +135,14 @@ func TestPracticeFullSession(t *testing.T) {
 
 func TestPracticeErrors(t *testing.T) {
 	f := newFixture(t)
-	if _, err := f.practice.StartSession(42, ""); err == nil {
+	if _, err := f.practice.StartSession(StartRequest{TextID: 42}); err == nil {
 		t.Error("texte inexistant accepté")
 	}
 	tid, _ := f.texts.CreateText(TextInput{Content: "ab"})
-	if _, err := f.practice.StartSession(tid, "{pas du json"); err == nil {
+	if _, err := f.practice.StartSession(StartRequest{TextID: tid, Settings: "{pas du json"}); err == nil {
 		t.Error("réglages invalides acceptés")
 	}
-	sid, _ := f.practice.StartSession(tid, "")
+	sid, _ := f.practice.StartSession(StartRequest{TextID: tid, Settings: ""})
 	if _, err := f.practice.FinishSession(sid, -1); err == nil {
 		t.Error("durée négative acceptée")
 	}

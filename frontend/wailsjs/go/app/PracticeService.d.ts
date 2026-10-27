@@ -7,4 +7,4 @@ export function FinishSession(arg1:number,arg2:number):Promise<app.SessionResult
 
 export function RecordKeystrokes(arg1:number,arg2:Array<typing.Keystroke>):Promise<void>;
 
-export function StartSession(arg1:number,arg2:string):Promise<number>;
+export function StartSession(arg1:app.StartRequest):Promise<number>;

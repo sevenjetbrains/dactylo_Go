@@ -4,7 +4,7 @@ import (
 	"strings"
 	"unicode"
 
-	"golang.org/x/text/unicode/norm"
+	"dactylo/internal/core/text"
 )
 
 // Span délimite un mot dans le texte, en runes : [Start, End).
@@ -120,7 +120,7 @@ func Classify(expected, typed string) string {
 		return ErrOmittedWord
 	case strings.EqualFold(expected, typed):
 		return ErrCase
-	case strings.EqualFold(stripAccents(expected), stripAccents(typed)):
+	case strings.EqualFold(text.StripAccents(expected), text.StripAccents(typed)):
 		return ErrAccent
 	case CoreWord(expected) != expected || CoreWord(typed) != typed:
 		if CoreWord(expected) == CoreWord(typed) {
@@ -137,16 +137,6 @@ func Classify(expected, typed string) string {
 		return ErrTransposition
 	}
 	return ErrSubstitution
-}
-
-func stripAccents(s string) string {
-	var b strings.Builder
-	for _, r := range norm.NFD.String(s) {
-		if !unicode.Is(unicode.Mn, r) {
-			b.WriteRune(r)
-		}
-	}
-	return b.String()
 }
 
 // isOneDeletion indique si short s'obtient en retirant une rune de long.

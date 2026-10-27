@@ -7,12 +7,23 @@
   "addText": "Coller un premier texte",
   "length": "{n} caractères",
   "textNotFound": "Ce texte n'existe plus.",
-  "shortcuts": "Échap : pause · Ctrl+R : recommencer · Ctrl+Entrée : texte suivant",
+  "shortcuts": "Échap : pause · Ctrl+R : recommencer · Ctrl+Entrée : suivant",
   "startHint": "Commencez à taper : le chronomètre démarre à la première touche.",
   "paused": "En pause — tapez pour reprendre",
   "clickToFocus": "Cliquez ici pour continuer",
   "inputLabel": "Zone de frappe",
   "saveError": "Enregistrement impossible : {error}",
+  "exercise": {
+    "nav": "Exercices du texte",
+    "label": "Exercice",
+    "option": "{n} / {total}",
+    "progress": "Texte parcouru : {pct} %",
+    "restartText": "Reprendre le texte au début",
+    "resumed": "Reprise là où vous vous étiez arrêté.",
+    "split": "Découper le texte",
+    "splits": { "none": "Texte entier", "paragraph": "Par paragraphe", "lines": "Par lignes" },
+    "size": { "paragraph": "Paragraphes par exercice", "lines": "Lignes par exercice" }
+  },
   "sessionType": {
     "label": "Type de session",
     "mode": "Durée de l'exercice",
@@ -44,7 +55,7 @@
   },
   "actions": {
     "restart": "Recommencer",
-    "next": "Texte suivant",
+    "next": "Suivant",
     "finish": "Terminer maintenant",
     "chooseText": "Choisir un autre texte"
   },

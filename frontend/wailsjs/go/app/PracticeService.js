@@ -10,6 +10,6 @@ export function RecordKeystrokes(arg1, arg2) {
   return window['go']['app']['PracticeService']['RecordKeystrokes'](arg1, arg2);
 }
 
-export function StartSession(arg1, arg2) {
-  return window['go']['app']['PracticeService']['StartSession'](arg1, arg2);
+export function StartSession(arg1) {
+  return window['go']['app']['PracticeService']['StartSession'](arg1);
 }
