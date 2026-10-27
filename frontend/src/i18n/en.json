@@ -1,0 +1,9 @@
+{
+  "app": {
+    "name": "Dactylo",
+    "tagline": "Typing and spelling",
+    "notFound": "This page does not exist.",
+    "backHome": "Back to home",
+    "mainNav": "Main navigation"
+  }
+}

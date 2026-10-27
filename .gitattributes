@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.ico binary
+*.png binary
+*.woff2 binary
+
+frontend/wailsjs/** linguist-generated=true
+frontend/pnpm-lock.yaml linguist-generated=true

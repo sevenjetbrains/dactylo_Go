@@ -1,0 +1,20 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "Dactylo",
+  "outputfilename": "dactylo",
+  "frontend:install": "pnpm install",
+  "frontend:build": "pnpm build",
+  "frontend:dev:watcher": "pnpm dev",
+  "frontend:dev:serverUrl": "auto",
+  "wailsjsdir": "./frontend",
+  "author": {
+    "name": "Mankour",
+    "email": "ali.mankour93@gmail.com"
+  },
+  "info": {
+    "companyName": "Dactylo",
+    "productName": "Dactylo",
+    "productVersion": "0.1.0",
+    "comments": "Entraînement à la dactylographie et à l'orthographe"
+  }
+}

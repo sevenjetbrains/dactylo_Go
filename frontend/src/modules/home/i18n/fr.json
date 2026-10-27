@@ -1,0 +1,13 @@
+{
+  "menu": "Accueil",
+  "title": "Bienvenue",
+  "subtitle": "Entraînez votre vitesse de frappe et votre orthographe, entièrement hors-ligne.",
+  "soon": "Bientôt",
+  "modes": {
+    "copy": { "title": "Copie", "desc": "Recopiez un texte, corrigé caractère par caractère." },
+    "dictation": { "title": "Dictée", "desc": "Écoutez le texte et écrivez-le sans le voir." },
+    "review": { "title": "Révisions", "desc": "Retravaillez les mots qui vous posent problème." }
+  },
+  "system": "Version {version} · {platform} · schéma de données v{schema}",
+  "systemError": "Base de données indisponible : {error}"
+}

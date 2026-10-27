@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    env:
+      # Ubuntu 24.04 fournit webkit2gtk 4.1 uniquement.
+      WAILS_TAGS: ${{ startsWith(matrix.os, 'ubuntu') && 'webkit2_41' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Dépendances Linux (GTK, WebKit)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: sudo apt-get update && sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
+
+      # --- Frontend ---
+      - name: pnpm install
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+      - name: pnpm lint
+        working-directory: frontend
+        run: pnpm lint
+      - name: pnpm check
+        working-directory: frontend
+        run: pnpm check
+      - name: pnpm test
+        working-directory: frontend
+        run: pnpm test
+      - name: pnpm build (requis par go:embed)
+        working-directory: frontend
+        run: pnpm build
+
+      # --- Go ---
+      - name: gofmt
+        if: startsWith(matrix.os, 'ubuntu')
+        run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
+      - name: golangci-lint
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.15.0
+          args: --build-tags=webkit2_41
+      - name: go test
+        shell: bash
+        run: go test -tags "$WAILS_TAGS" -coverprofile=coverage.out ./...
+      - name: Couverture du cœur métier >= 80 % (NF-10)
+        shell: bash
+        run: |
+          go test -coverprofile=core.out ./internal/core/...
+          total=$(go tool cover -func=core.out | awk '/^total:/ {gsub("%","",$3); print $3}')
+          echo "Couverture internal/core : ${total}%"
+          awk -v t="$total" 'BEGIN { exit (t >= 80 ? 0 : 1) }'
+
+      # --- Application ---
+      - name: Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.17.0
+      - name: wails build
+        shell: bash
+        run: wails build -clean -trimpath -ldflags "-s -w" ${WAILS_TAGS:+-tags $WAILS_TAGS}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dactylo-${{ matrix.os }}
+          path: build/bin/
+          retention-days: 7

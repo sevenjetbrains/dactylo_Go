@@ -1,0 +1,9 @@
+{
+  "menu": "Settings",
+  "title": "Settings",
+  "appearance": "Appearance",
+  "theme": "Theme",
+  "themes": { "system": "System", "light": "Light", "dark": "Dark" },
+  "language": "Interface language",
+  "languages": { "fr": "Français", "en": "English" }
+}

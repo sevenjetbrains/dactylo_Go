@@ -1,0 +1,9 @@
+{
+  "menu": "Réglages",
+  "title": "Réglages",
+  "appearance": "Apparence",
+  "theme": "Thème",
+  "themes": { "system": "Système", "light": "Clair", "dark": "Sombre" },
+  "language": "Langue de l'interface",
+  "languages": { "fr": "Français", "en": "English" }
+}

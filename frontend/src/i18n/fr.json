@@ -1,0 +1,9 @@
+{
+  "app": {
+    "name": "Dactylo",
+    "tagline": "Frappe et orthographe",
+    "notFound": "Cette page n'existe pas.",
+    "backHome": "Retour à l'accueil",
+    "mainNav": "Navigation principale"
+  }
+}
