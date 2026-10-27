@@ -27,7 +27,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	a := app.New(s, events.NewBus())
+	a, err := app.New(s, events.NewBus())
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	err = wails.Run(&options.App{
 		Title:     "Dactylo",

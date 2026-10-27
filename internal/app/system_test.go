@@ -32,7 +32,10 @@ func TestNewRegistersServices(t *testing.T) {
 	if err != nil {
 		t.Fatalf("store.Open: %v", err)
 	}
-	a := New(s, events.NewBus())
+	a, err := New(s, events.NewBus())
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
 	defer a.Shutdown(context.Background())
 
 	if len(a.Services()) == 0 {

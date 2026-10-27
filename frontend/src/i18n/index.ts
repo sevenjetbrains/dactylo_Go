@@ -1,4 +1,4 @@
-import { addMessages, getLocaleFromNavigator, init, locale } from 'svelte-i18n';
+import { addMessages, init, locale } from 'svelte-i18n';
 import type { Dictionary, ModuleDefinition } from '$app/types';
 import fr from './fr.json';
 import en from './en.json';
@@ -32,8 +32,8 @@ export function setupI18n(
       if (dict) addMessages(lang, { [m.id]: dict });
     }
   }
-  const nav = getLocaleFromNavigator()?.slice(0, 2);
-  const start = initial ?? storedLocale() ?? (nav === 'en' ? 'en' : 'fr');
+  // Français par défaut (F-51), quelle que soit la langue du système.
+  const start = initial ?? storedLocale() ?? 'fr';
   init({ fallbackLocale: 'fr', initialLocale: start });
   applyDirection(start);
 }

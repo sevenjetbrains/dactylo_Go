@@ -1,0 +1,20 @@
+{
+  "menu": "Bibliothèque",
+  "title": "Bibliothèque",
+  "form": {
+    "heading": "Coller un texte",
+    "title": "Titre (facultatif)",
+    "titlePlaceholder": "Les premiers mots du texte par défaut",
+    "content": "Texte",
+    "tags": "Étiquettes, séparées par des virgules",
+    "tagsPlaceholder": "ex. poésie, débutant",
+    "language": "Langue",
+    "save": "Enregistrer",
+    "empty": "Collez un texte avant d'enregistrer."
+  },
+  "list": "Mes textes ({n})",
+  "empty": "Aucun texte pour l'instant.",
+  "practice": "S'entraîner",
+  "delete": "Supprimer",
+  "confirmDelete": "Confirmer ?"
+}

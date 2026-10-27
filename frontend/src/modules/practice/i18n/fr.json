@@ -1,0 +1,75 @@
+{
+  "menu": "Copie",
+  "title": "Mode Copie",
+  "subtitle": "Recopiez le texte affiché. Chaque caractère est corrigé en direct.",
+  "chooseText": "Choisir un texte",
+  "noTexts": "Votre bibliothèque est vide.",
+  "addText": "Coller un premier texte",
+  "length": "{n} caractères",
+  "textNotFound": "Ce texte n'existe plus.",
+  "shortcuts": "Échap : pause · Ctrl+R : recommencer · Ctrl+Entrée : texte suivant",
+  "startHint": "Commencez à taper : le chronomètre démarre à la première touche.",
+  "paused": "En pause — tapez pour reprendre",
+  "clickToFocus": "Cliquez ici pour continuer",
+  "inputLabel": "Zone de frappe",
+  "saveError": "Enregistrement impossible : {error}",
+  "sessionType": {
+    "label": "Type de session",
+    "mode": "Durée de l'exercice",
+    "text": "Texte entier",
+    "time": "Durée fixe",
+    "words": "Nombre de mots",
+    "duration": "Durée",
+    "minutes": "{n} min"
+  },
+  "live": {
+    "wpm": "MPM",
+    "accuracy": "Précision",
+    "elapsed": "Temps",
+    "remaining": "Restant",
+    "progress": "Progression"
+  },
+  "result": {
+    "title": "Session terminée",
+    "wpmNet": "MPM net",
+    "wpmGross": "MPM brut",
+    "accuracy": "Précision",
+    "cpm": "Caractères justes / min",
+    "duration": "Durée",
+    "errors": "Erreurs non corrigées",
+    "comparison": "Par rapport à la moyenne de vos {n} dernières sessions : {wpm} MPM, {accuracy} points de précision.",
+    "firstSession": "Première session : votre moyenne s'affichera dès la prochaine.",
+    "mistakes": "Mots fautifs",
+    "noMistakes": "Aucune faute, bravo !"
+  },
+  "actions": {
+    "restart": "Recommencer",
+    "next": "Texte suivant",
+    "finish": "Terminer maintenant",
+    "chooseText": "Choisir un autre texte"
+  },
+  "errorTypes": {
+    "accent": "accent",
+    "case": "majuscule",
+    "punctuation": "ponctuation",
+    "missing_letter": "lettre manquante",
+    "extra_letter": "lettre en trop",
+    "transposition": "inversion",
+    "substitution": "lettre erronée",
+    "omitted_word": "mot oublié"
+  },
+  "settings": {
+    "title": "Mode Copie",
+    "fontSize": "Taille du texte : {n} px",
+    "visibleLines": "Lignes visibles : {n}",
+    "linePosition": "Ligne active",
+    "top": "En haut",
+    "center": "Au centre",
+    "correction": "Correction",
+    "free": "Libre (on avance, l'erreur est comptée)",
+    "blocking": "Bloquante (corriger avant d'avancer)",
+    "allowBackspace": "Autoriser le retour arrière",
+    "showLiveBar": "Afficher le bandeau MPM / précision",
+    "foldTypography": "Accepter ' pour ’, \" pour « » et - pour –"
+  }
+}

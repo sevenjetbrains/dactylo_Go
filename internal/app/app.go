@@ -25,14 +25,20 @@ type App struct {
 	servicesFor []any
 }
 
-// New crée l'application et ses services.
-func New(s *store.Store, bus *events.Bus) *App {
+// New crée l'application et ses services, et s'assure qu'un profil existe.
+func New(s *store.Store, bus *events.Bus) (*App, error) {
+	profileID, err := s.EnsureDefaultProfile(context.Background())
+	if err != nil {
+		return nil, err
+	}
 	a := &App{Store: s, Bus: bus}
 	a.servicesFor = []any{
 		NewSystemService(s),
+		NewTextService(s, bus),
+		NewPracticeService(s, bus, profileID),
 		// Nouveaux services de modules : une ligne ici.
 	}
-	return a
+	return a, nil
 }
 
 // Services renvoie les objets à lier à l'interface (options.App.Bind).

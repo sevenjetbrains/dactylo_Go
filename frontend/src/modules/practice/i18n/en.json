@@ -1,0 +1,75 @@
+{
+  "menu": "Copy",
+  "title": "Copy mode",
+  "subtitle": "Retype the text shown. Every character is checked as you type.",
+  "chooseText": "Choose a text",
+  "noTexts": "Your library is empty.",
+  "addText": "Paste a first text",
+  "length": "{n} characters",
+  "textNotFound": "This text no longer exists.",
+  "shortcuts": "Esc: pause · Ctrl+R: restart · Ctrl+Enter: next text",
+  "startHint": "Start typing: the timer starts on the first key.",
+  "paused": "Paused — type to resume",
+  "clickToFocus": "Click here to continue",
+  "inputLabel": "Typing area",
+  "saveError": "Could not save: {error}",
+  "sessionType": {
+    "label": "Session type",
+    "mode": "Exercise length",
+    "text": "Whole text",
+    "time": "Fixed time",
+    "words": "Word count",
+    "duration": "Duration",
+    "minutes": "{n} min"
+  },
+  "live": {
+    "wpm": "WPM",
+    "accuracy": "Accuracy",
+    "elapsed": "Time",
+    "remaining": "Remaining",
+    "progress": "Progress"
+  },
+  "result": {
+    "title": "Session complete",
+    "wpmNet": "Net WPM",
+    "wpmGross": "Gross WPM",
+    "accuracy": "Accuracy",
+    "cpm": "Correct characters / min",
+    "duration": "Duration",
+    "errors": "Uncorrected errors",
+    "comparison": "Compared with your last {n} sessions: {wpm} WPM, {accuracy} accuracy points.",
+    "firstSession": "First session: your average will appear next time.",
+    "mistakes": "Mistyped words",
+    "noMistakes": "No mistakes, well done!"
+  },
+  "actions": {
+    "restart": "Restart",
+    "next": "Next text",
+    "finish": "Finish now",
+    "chooseText": "Choose another text"
+  },
+  "errorTypes": {
+    "accent": "accent",
+    "case": "capital",
+    "punctuation": "punctuation",
+    "missing_letter": "missing letter",
+    "extra_letter": "extra letter",
+    "transposition": "swapped letters",
+    "substitution": "wrong letter",
+    "omitted_word": "missing word"
+  },
+  "settings": {
+    "title": "Copy mode",
+    "fontSize": "Text size: {n} px",
+    "visibleLines": "Visible lines: {n}",
+    "linePosition": "Active line",
+    "top": "Top",
+    "center": "Centre",
+    "correction": "Correction",
+    "free": "Free (move on, the error is counted)",
+    "blocking": "Blocking (fix before moving on)",
+    "allowBackspace": "Allow backspace",
+    "showLiveBar": "Show the WPM / accuracy bar",
+    "foldTypography": "Accept ' for ’, \" for « » and - for –"
+  }
+}

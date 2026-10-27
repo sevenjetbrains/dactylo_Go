@@ -1,0 +1,20 @@
+{
+  "menu": "Library",
+  "title": "Library",
+  "form": {
+    "heading": "Paste a text",
+    "title": "Title (optional)",
+    "titlePlaceholder": "Defaults to the first words of the text",
+    "content": "Text",
+    "tags": "Tags, comma separated",
+    "tagsPlaceholder": "e.g. poetry, beginner",
+    "language": "Language",
+    "save": "Save",
+    "empty": "Paste a text before saving."
+  },
+  "list": "My texts ({n})",
+  "empty": "No texts yet.",
+  "practice": "Practise",
+  "delete": "Delete",
+  "confirmDelete": "Confirm?"
+}

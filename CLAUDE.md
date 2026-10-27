@@ -56,4 +56,8 @@ svelte-i18n.
 - Base de développement : `%APPDATA%\Dactylo\dactylo.db` (Windows).
 - Commandes : `wails dev` (dev), `wails build` (exécutable),
   `go test ./...`, `golangci-lint run`, et dans `frontend/` :
-  `pnpm lint`, `pnpm check`, `pnpm test`, `pnpm format`.
+  `pnpm lint`, `pnpm check`, `pnpm test`, `pnpm format`,
+  `pnpm test:e2e` (Playwright, Edge local, liaisons simulées dans
+  `frontend/e2e/mock-backend.ts`).
+- Classes CSS maison : éviter les noms d'utilitaires Tailwind (`fixed`,
+  `block`, `hidden`...) ; préfixer (ex. `ch-ok`).

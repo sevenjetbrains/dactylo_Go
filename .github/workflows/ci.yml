@@ -58,6 +58,14 @@ jobs:
       - name: pnpm build (requis par go:embed)
         working-directory: frontend
         run: pnpm build
+      - name: Tests de bout en bout (Playwright)
+        if: startsWith(matrix.os, 'ubuntu')
+        working-directory: frontend
+        env:
+          PW_CHANNEL: chromium
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          pnpm test:e2e
 
       # --- Go ---
       - name: gofmt

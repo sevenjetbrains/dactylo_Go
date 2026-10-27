@@ -1,17 +1,24 @@
 import { normalizePath } from './registry';
 
 // Routage par hash : compatible avec le serveur d'assets embarqué de Wails.
-let current = $state(normalizePath(window.location.hash));
+let hash = $state(window.location.hash);
 
 window.addEventListener('hashchange', () => {
-  current = normalizePath(window.location.hash);
+  hash = window.location.hash;
 });
 
 export const router = {
   get path(): string {
-    return current;
+    return normalizePath(hash);
+  },
+  /** Paramètres après « ? » (ex. #/practice?text=12). */
+  get query(): URLSearchParams {
+    const i = hash.indexOf('?');
+    // Copie en lecture seule, recréée à chaque lecture depuis `hash` (réactif).
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+    return new URLSearchParams(i >= 0 ? hash.slice(i + 1) : '');
   },
   navigate(to: string): void {
-    window.location.hash = normalizePath(to);
+    window.location.hash = to.startsWith('#') ? to.slice(1) : to;
   },
 };

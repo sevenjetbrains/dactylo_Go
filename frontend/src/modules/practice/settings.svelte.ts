@@ -1,0 +1,85 @@
+import type { Correction } from './engine';
+
+export type SessionType = 'text' | 'time' | 'words';
+export type LinePosition = 'top' | 'center';
+
+export interface PracticeSettings {
+  fontSize: number; // F-01 : 14 à 32 px
+  visibleLines: number; // F-03 : 1 à 10
+  linePosition: LinePosition;
+  correction: Correction; // F-04
+  allowBackspace: boolean;
+  showLiveBar: boolean; // F-05
+  foldTypography: boolean;
+  sessionType: SessionType; // F-06
+  durationMin: number; // 1, 2, 5, 10
+  wordCount: number;
+}
+
+export const DURATIONS = [1, 2, 5, 10] as const;
+
+export const DEFAULTS: PracticeSettings = {
+  fontSize: 22,
+  visibleLines: 3,
+  linePosition: 'top',
+  correction: 'free',
+  allowBackspace: true,
+  showLiveBar: true,
+  foldTypography: true,
+  sessionType: 'text',
+  durationMin: 1,
+  wordCount: 50,
+};
+
+const STORAGE_KEY = 'dactylo.practice.settings';
+
+const clamp = (n: unknown, min: number, max: number, fallback: number) =>
+  typeof n === 'number' && Number.isFinite(n)
+    ? Math.min(max, Math.max(min, Math.round(n)))
+    : fallback;
+
+/** Valide des réglages lus (stockage, ancienne version) en complétant par les défauts. */
+export function sanitize(raw: unknown): PracticeSettings {
+  const r = (raw && typeof raw === 'object' ? raw : {}) as Partial<
+    Record<keyof PracticeSettings, unknown>
+  >;
+  const pick = <T>(v: unknown, allowed: readonly T[], d: T): T =>
+    allowed.includes(v as T) ? (v as T) : d;
+  return {
+    fontSize: clamp(r.fontSize, 14, 32, DEFAULTS.fontSize),
+    visibleLines: clamp(r.visibleLines, 1, 10, DEFAULTS.visibleLines),
+    linePosition: pick(r.linePosition, ['top', 'center'] as const, DEFAULTS.linePosition),
+    correction: pick(r.correction, ['free', 'blocking'] as const, DEFAULTS.correction),
+    allowBackspace:
+      typeof r.allowBackspace === 'boolean' ? r.allowBackspace : DEFAULTS.allowBackspace,
+    showLiveBar: typeof r.showLiveBar === 'boolean' ? r.showLiveBar : DEFAULTS.showLiveBar,
+    foldTypography:
+      typeof r.foldTypography === 'boolean' ? r.foldTypography : DEFAULTS.foldTypography,
+    sessionType: pick(r.sessionType, ['text', 'time', 'words'] as const, DEFAULTS.sessionType),
+    durationMin: pick(r.durationMin, DURATIONS, DEFAULTS.durationMin as 1),
+    wordCount: clamp(r.wordCount, 5, 5000, DEFAULTS.wordCount),
+  };
+}
+
+function load(): PracticeSettings {
+  try {
+    return sanitize(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}'));
+  } catch {
+    return { ...DEFAULTS };
+  }
+}
+
+// Réglages partagés par l'écran de frappe et le panneau Réglages ;
+// mémorisés localement (ils iront dans profiles.settings avec F-50/F-51).
+export const practiceSettings: PracticeSettings = $state(load());
+
+$effect.root(() => {
+  $effect(() => {
+    const json = JSON.stringify(practiceSettings);
+    try {
+      localStorage.setItem(STORAGE_KEY, json);
+    } catch {
+      // stockage indisponible : réglages non mémorisés
+    }
+  });
+});

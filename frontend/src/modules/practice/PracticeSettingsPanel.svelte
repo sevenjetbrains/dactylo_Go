@@ -1,0 +1,58 @@
+<script lang="ts">
+  import { _ } from 'svelte-i18n';
+  import { practiceSettings as s } from './settings.svelte';
+</script>
+
+<fieldset class="border-line bg-panel rounded-lg border p-5">
+  <legend class="px-1 font-semibold">{$_('practice.settings.title')}</legend>
+
+  <div class="mt-2 grid gap-5 sm:grid-cols-2">
+    <label class="flex flex-col gap-2 text-sm">
+      <span class="text-muted">
+        {$_('practice.settings.fontSize', { values: { n: s.fontSize } })}
+      </span>
+      <input type="range" min="14" max="32" step="1" bind:value={s.fontSize} />
+    </label>
+
+    <label class="flex flex-col gap-2 text-sm">
+      <span class="text-muted">
+        {$_('practice.settings.visibleLines', { values: { n: s.visibleLines } })}
+      </span>
+      <input type="range" min="1" max="10" step="1" bind:value={s.visibleLines} />
+    </label>
+
+    <label class="flex flex-col gap-2 text-sm">
+      <span class="text-muted">{$_('practice.settings.linePosition')}</span>
+      <select
+        class="border-line bg-panel rounded-md border px-3 py-1.5"
+        bind:value={s.linePosition}
+      >
+        <option value="top">{$_('practice.settings.top')}</option>
+        <option value="center">{$_('practice.settings.center')}</option>
+      </select>
+    </label>
+
+    <label class="flex flex-col gap-2 text-sm">
+      <span class="text-muted">{$_('practice.settings.correction')}</span>
+      <select class="border-line bg-panel rounded-md border px-3 py-1.5" bind:value={s.correction}>
+        <option value="free">{$_('practice.settings.free')}</option>
+        <option value="blocking">{$_('practice.settings.blocking')}</option>
+      </select>
+    </label>
+
+    <label class="flex items-center gap-2 text-sm">
+      <input type="checkbox" bind:checked={s.allowBackspace} />
+      {$_('practice.settings.allowBackspace')}
+    </label>
+
+    <label class="flex items-center gap-2 text-sm">
+      <input type="checkbox" bind:checked={s.showLiveBar} />
+      {$_('practice.settings.showLiveBar')}
+    </label>
+
+    <label class="flex items-center gap-2 text-sm sm:col-span-2">
+      <input type="checkbox" bind:checked={s.foldTypography} />
+      {$_('practice.settings.foldTypography')}
+    </label>
+  </div>
+</fieldset>
