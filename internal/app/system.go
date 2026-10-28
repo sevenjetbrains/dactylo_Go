@@ -1,3 +1,5 @@
+// Service d'informations système (version, plateforme, base).
+
 package app
 
 import (

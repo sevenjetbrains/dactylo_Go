@@ -97,6 +97,7 @@ export function sanitize(raw: unknown): PracticeSettings {
   };
 }
 
+/** Réglages du cache local, sinon les défauts. */
 function load(): PracticeSettings {
   try {
     return sanitize(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}'));

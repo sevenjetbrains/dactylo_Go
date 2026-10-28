@@ -31,6 +31,7 @@ export function installMockBackend(args: {
   let nextSession = 1;
   let nextText = texts.length + 1;
   const calls: Record<string, unknown[]> = {};
+  // Mémorise chaque appel pour les vérifications des essais (window.__calls).
   const log = (name: string, a: unknown) => (calls[name] ??= []).push(a);
   (window as unknown as { __calls: typeof calls }).__calls = calls;
 

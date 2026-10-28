@@ -37,6 +37,7 @@ const STORAGE_KEY = 'dactylo.dictation.settings';
 const num = (v: unknown, min: number, max: number, d: number) =>
   typeof v === 'number' && Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : d;
 
+/** Valide des réglages lus en complétant par les défauts. */
 export function sanitizeDictation(raw: unknown): DictationSettings {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
   const d = DICTATION_DEFAULTS;
@@ -58,6 +59,7 @@ export function sanitizeDictation(raw: unknown): DictationSettings {
   };
 }
 
+/** Réglages du cache local, sinon les défauts. */
 function load(): DictationSettings {
   try {
     return sanitizeDictation(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}'));

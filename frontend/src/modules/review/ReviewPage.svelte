@@ -1,3 +1,7 @@
+<!--
+  Mots difficiles et révisions : liste, filtres, ajout manuel, exercices
+  de révision (F-40 à F-45).
+-->
 <script lang="ts">
   import { _, locale } from 'svelte-i18n';
   import {
@@ -37,6 +41,7 @@
   const lang = $derived($locale ?? 'fr');
   const today = localDay(new Date());
 
+  /** Recharge le résumé et la liste des mots. */
   async function refresh() {
     try {
       [summary, words] = await Promise.all([Summary(), ListWords(filter)]);
@@ -60,10 +65,12 @@
       : BuildExercise(sessionKind, repeatParam);
   });
 
+  /** Lance l'exercice de révision choisi. */
   function start() {
     router.navigate(`/review?session=${kind}&repeat=${repeat}`);
   }
 
+  /** Ajoute un mot difficile à la main. */
   async function add(e: SubmitEvent) {
     e.preventDefault();
     try {
@@ -76,11 +83,13 @@
     }
   }
 
+  /** Applique une action à un mot (maîtrisé, retirer…) puis recharge. */
   async function act(fn: (id: number) => Promise<void>, id: number) {
     await fn(id);
     await refresh();
   }
 
+  /** Date de prochaine révision : « aujourd'hui » ou jour et mois. */
   function formatDate(s: string): string {
     if (!s) return '—';
     const d = parseDay(s);

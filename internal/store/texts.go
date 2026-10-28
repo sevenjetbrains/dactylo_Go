@@ -1,3 +1,5 @@
+// Accès aux textes de la bibliothèque et à la progression de lecture.
+
 package store
 
 import (
@@ -83,6 +85,7 @@ func (s *Store) UpdateText(ctx context.Context, t Text) error {
 	return nil
 }
 
+// prepare complète les valeurs par défaut d'un texte et encode ses étiquettes.
 func prepare(t Text) (Text, string, error) {
 	if t.Tags == nil {
 		t.Tags = []string{}
@@ -185,6 +188,7 @@ func (s *Store) SetProgress(ctx context.Context, profileID, textID int64, positi
 	return err
 }
 
+// decodeTags lit les étiquettes enregistrées en JSON.
 func decodeTags(raw string) []string {
 	tags := []string{}
 	_ = json.Unmarshal([]byte(raw), &tags)

@@ -1,3 +1,7 @@
+<!--
+  Import d'un PDF : choix des pages avec miniatures, nettoyage, aperçu
+  et enregistrement (F-21, F-22).
+-->
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { _ } from 'svelte-i18n';
@@ -43,12 +47,14 @@
   // cache des lignes extraites par page : pas d'état réactif
   // eslint-disable-next-line svelte/prefer-svelte-reactivity
   const pageCache = new Map<number, string[]>();
+  /** Lignes d'une page du PDF (mises en cache). */
   async function linesOf(n: number): Promise<string[]> {
     if (!doc) return [];
     if (!pageCache.has(n)) pageCache.set(n, await pageLines(doc, n));
     return pageCache.get(n)!;
   }
 
+  /** Choisit un PDF via la boîte de dialogue système et l'ouvre. */
   async function open() {
     error = '';
     busy = true;
@@ -121,9 +127,11 @@
 
   // Miniatures
   const thumbs = $derived(selected && numPages ? thumbWindow(selected[0]!, numPages) : []);
+  /** Dessine la miniature d'une page. */
   function thumb(canvas: HTMLCanvasElement, page: number) {
     if (doc) void renderPage(doc, page, canvas, 44).catch(() => {});
   }
+  /** Clic sur une miniature : une page, puis une plage de pages. */
   function pickPage(p: number) {
     const s = selected;
     if (s && s.length === 1 && s[0] !== p) {
@@ -133,6 +141,7 @@
     }
   }
 
+  /** Enregistre le texte nettoyé dans la bibliothèque. */
   async function save() {
     busy = true;
     try {

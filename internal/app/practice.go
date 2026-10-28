@@ -1,3 +1,6 @@
+// Service du mode Copie : démarrage, enregistrement des frappes par lots,
+// fin de session, abandon et reprise (F-01 à F-07, NF-06).
+
 package app
 
 import (
@@ -44,6 +47,8 @@ type StartRequest struct {
 	Settings string `json:"settings"` // JSON des réglages utilisés
 }
 
+// activeSession est une session de copie en cours, gardée en mémoire pour
+// corriger les frappes reçues par lots.
 type activeSession struct {
 	profileID     int64
 	textID        int64
@@ -279,6 +284,7 @@ func (p *PracticeService) saveProgress(ctx context.Context, a *activeSession, sc
 	return p.store.SetProgress(ctx, a.profileID, a.textID, pos)
 }
 
+// session renvoie la session en cours, ou une erreur si elle est inconnue.
 func (p *PracticeService) session(id int64) (*activeSession, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()

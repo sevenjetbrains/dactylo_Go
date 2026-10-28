@@ -1,3 +1,5 @@
+// Démarrage de l'interface : styles, thème, traductions des modules, puis montage.
+
 import './style.css';
 import { mount } from 'svelte';
 import App from '$app/App.svelte';

@@ -1,6 +1,7 @@
 // Génère un PDF minimal (police Helvetica, encodage WinAnsi) pour les tests.
 // Chaque page est une liste de lignes ; une page vide simule un scan.
 
+// Échappe une chaîne pour un objet texte PDF.
 function pdfString(s: string): string {
   let out = '';
   for (const ch of s) {
@@ -13,6 +14,7 @@ function pdfString(s: string): string {
   return out;
 }
 
+// Fabrique un PDF minimal (une ligne de texte par entrée), en base 64.
 export function makePdf(pages: string[][]): string {
   const objects: string[] = [];
   const pageIds: number[] = [];

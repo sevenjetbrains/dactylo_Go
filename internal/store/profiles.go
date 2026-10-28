@@ -1,3 +1,5 @@
+// Accès aux profils et aux réglages généraux de l'application.
+
 package store
 
 import (
@@ -20,6 +22,7 @@ type Profile struct {
 
 const profileColumns = "id, name, keyboard_layout, settings, created_at"
 
+// scanProfile lit une ligne de la table profiles.
 func scanProfile(row interface{ Scan(...any) error }) (Profile, error) {
 	var p Profile
 	err := row.Scan(&p.ID, &p.Name, &p.KeyboardLayout, &p.Settings, &p.CreatedAt)

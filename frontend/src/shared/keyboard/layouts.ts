@@ -31,6 +31,7 @@ type KeyOpts = {
   width?: number;
 };
 
+/** Définit une touche : libellé, doigt, caractères de chaque niveau. */
 function key(label: string, finger: Finger, opts: KeyOpts = {}): KeyDef {
   const base = opts.base ?? label;
   const shift = opts.shift ?? [];
@@ -299,6 +300,7 @@ export interface Stroke {
 const CIRCUMFLEX = 'âêîôû';
 const DIAERESIS = 'äëïöüÿ';
 
+/** Gestes pour taper un caractère : touche, Maj, AltGr, touche morte. */
 export function strokeFor(ch: string, layout?: string): Stroke | null {
   const k = keyFor(ch, layout);
   if (!k) return null;

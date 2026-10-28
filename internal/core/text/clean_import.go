@@ -1,3 +1,6 @@
+// Nettoyage d'un texte importé d'un PDF : en-têtes et pieds de page
+// répétés, numéros de page, mots coupés, paragraphes (F-22).
+
 package text
 
 import (
@@ -212,6 +215,7 @@ func shortLineThreshold(lines []string) int {
 	return lens[len(lens)*8/10] * 3 / 4
 }
 
+// endsSentence indique si une ligne se termine par une ponctuation forte.
 func endsSentence(s string) bool {
 	s = strings.TrimRight(s, " ")
 	if s == "" {
@@ -221,6 +225,7 @@ func endsSentence(s string) bool {
 	return strings.ContainsRune(".!?:…»\"", r)
 }
 
+// endsWithHyphen détecte un mot coupé en fin de ligne.
 func endsWithHyphen(s string) bool {
 	if strings.HasSuffix(s, "\u00ad") { // trait d'union conditionnel
 		return true

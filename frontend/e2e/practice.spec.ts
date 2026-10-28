@@ -1,8 +1,12 @@
+// Essais de bout en bout de l'accueil, de la Copie, de la reprise et des
+// réglages (backend simulé).
+
 import { expect, test, type Page } from '@playwright/test';
 import { installMockBackend } from './mock-backend';
 
 const TEXT = 'Le chat être là.';
 
+// Ouvre l'application à l'adresse donnée, avec des textes simulés.
 async function open(page: Page, hash: string, texts = [{ title: 'Essai', content: TEXT }]) {
   await page.addInitScript(installMockBackend, { texts });
   await page.goto('/#' + hash);

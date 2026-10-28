@@ -1,3 +1,6 @@
+// Service de l'accueil : révision du jour, copie à reprendre, indicateurs,
+// sessions récentes et session interrompue (NF-06).
+
 package app
 
 import (
@@ -155,6 +158,8 @@ func (h *HomeService) Overview(split string, size int) (Overview, error) {
 	return o, nil
 }
 
+// continueCard prépare la carte « Reprendre la copie » du dernier texte
+// commencé, avec le découpage choisi pour ce texte.
 func (h *HomeService) continueCard(ctx context.Context, split string, size int) (*ContinueCard, error) {
 	t, pos, ok, err := h.store.LastProgress(ctx, h.profile.ID())
 	if err != nil || !ok {

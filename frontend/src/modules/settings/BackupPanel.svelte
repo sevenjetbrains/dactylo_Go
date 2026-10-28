@@ -10,6 +10,7 @@
   let confirmRestore = $state(false);
   let busy = $state(false);
 
+  /** Enregistre une sauvegarde dans le fichier choisi. */
   async function exportBackup() {
     message = error = '';
     busy = true;
@@ -24,6 +25,7 @@
     }
   }
 
+  /** Restaure une sauvegarde (deux clics : confirmer), puis recharge. */
   async function restoreBackup() {
     if (!confirmRestore) {
       confirmRestore = true;

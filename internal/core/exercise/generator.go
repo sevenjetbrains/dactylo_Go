@@ -73,6 +73,7 @@ func (Generator) Generate(req Request, rng *rand.Rand) Exercise {
 	return Exercise{Kind: KindShuffled, Content: strings.Join(list, " ")}
 }
 
+// dedupe supprime les doublons (sans accents ni casse) et les mots vides.
 func dedupe(words []string) []string {
 	seen := map[string]bool{}
 	var out []string

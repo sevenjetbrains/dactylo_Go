@@ -35,6 +35,7 @@ export function createRegistry(defs: readonly ModuleDefinition[]): Registry {
   };
 }
 
+/** Chemin de route normalisé : sans #, sans requête, sans / final. */
 export function normalizePath(path: string): string {
   const p = path.replace(/^#/, '').split('?')[0] ?? '';
   if (p === '' || p === '/') return '/';

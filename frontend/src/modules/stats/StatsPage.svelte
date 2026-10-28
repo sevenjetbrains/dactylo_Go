@@ -1,3 +1,7 @@
+<!--
+  Page Statistiques : progression, totaux, carte de chaleur, touches et
+  paires de lettres, export CSV (F-33 à F-35).
+-->
 <script lang="ts">
   import { _, locale } from 'svelte-i18n';
   import { Dashboard, ExportCSV } from '$wails/go/app/StatsService';
@@ -13,6 +17,7 @@
 
   const lang = $derived($locale ?? 'fr');
 
+  /** Charge le tableau de bord. */
   async function load() {
     try {
       data = await Dashboard();
@@ -31,6 +36,7 @@
     [...(data?.keys ?? [])].filter((k) => k.count >= 5).sort((a, b) => b.errorRate - a.errorRate),
   );
 
+  /** Exporte l'historique des sessions en CSV (F-35). */
   async function exportCsv() {
     exportMsg = '';
     try {

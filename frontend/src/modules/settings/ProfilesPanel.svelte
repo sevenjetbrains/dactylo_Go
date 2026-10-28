@@ -1,3 +1,7 @@
+<!--
+  Panneau Profils : liste, création, renommage, disposition, bascule et
+  suppression des profils (F-50).
+-->
 <script lang="ts">
   import { _ } from 'svelte-i18n';
   import type { store } from '$wails/go/models';
@@ -21,6 +25,7 @@
   let newLayout = $state<string>('azerty');
   let confirmDelete = $state(0);
 
+  /** Recharge la liste des profils. */
   async function refresh() {
     try {
       profiles = await listProfiles();
@@ -30,6 +35,7 @@
   }
   void refresh();
 
+  /** Exécute une action, affiche son erreur éventuelle et recharge. */
   async function run(action: () => Promise<unknown>) {
     error = '';
     try {
@@ -40,6 +46,7 @@
     }
   }
 
+  /** Crée un profil avec le nom et la disposition saisis. */
   function add(e: SubmitEvent) {
     e.preventDefault();
     void run(async () => {
@@ -48,6 +55,7 @@
     });
   }
 
+  /** Supprime un profil (deux clics : confirmer). */
   function remove(id: number) {
     if (confirmDelete !== id) {
       confirmDelete = id;

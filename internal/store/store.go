@@ -69,6 +69,7 @@ func Open(ctx context.Context, path string) (*Store, error) {
 	return s, nil
 }
 
+// migrate applique les migrations goose embarquées.
 func (s *Store) migrate(ctx context.Context) error {
 	sub, err := fs.Sub(migrationsFS, "migrations")
 	if err != nil {
@@ -167,6 +168,7 @@ func (s *Store) Restore(ctx context.Context, from string) error {
 	return nil
 }
 
+// replaceAndOpen remplace le fichier de la base puis la rouvre.
 func (s *Store) replaceAndOpen(ctx context.Context, data []byte) (*Store, error) {
 	if err := os.WriteFile(s.Path, data, 0o644); err != nil {
 		return nil, err

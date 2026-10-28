@@ -59,11 +59,13 @@
     return (v >= 0 ? '+' : '−') + formatNumber(Math.abs(v), lang, digits) + unit;
   }
 
+  /** Retire un mot des mots difficiles depuis la correction. */
   async function remove(expected: string) {
     await RemoveWordByKey(expected);
     removed[expected] = true;
   }
 
+  /** Lance une révision des mots fautifs de cette dictée. */
   function train() {
     const list = words.map((m) => m.expected).join('|');
     router.navigate(`/review?session=shuffled&words=${encodeURIComponent(list)}`);

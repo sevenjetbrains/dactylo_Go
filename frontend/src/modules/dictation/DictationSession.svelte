@@ -1,3 +1,7 @@
+<!--
+  Session de dictée : lecture segment par segment, saisie libre, puis
+  correction (F-10 à F-16).
+-->
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { _ } from 'svelte-i18n';
@@ -66,11 +70,13 @@
     player?.notifyTyped(typedWords);
   });
 
+  /** Crée la session côté backend à la première lecture. */
   async function ensureSession(): Promise<number> {
     sessionId ??= await Start({ textId, start, end, content: '', settings: JSON.stringify(s) });
     return sessionId;
   }
 
+  /** Lecture ou pause de la voix. */
   async function toggle() {
     if (!player) return;
     if (!started) {
@@ -85,6 +91,7 @@
     player.toggle();
   }
 
+  /** Envoie la dictée tapée et affiche la correction. */
   async function finish() {
     if (!player || finishing) return;
     finishing = true;

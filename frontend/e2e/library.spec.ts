@@ -1,15 +1,19 @@
+// Essais de bout en bout de la bibliothèque et de l'import PDF (backend simulé).
+
 import { expect, test, type Page } from '@playwright/test';
 import { installMockBackend } from './mock-backend';
 import { BOOK, SCANNED } from './fixtures/make-pdf';
 
 type Calls = Record<string, { pages: { number: number; lines: string[] }[] }[]>;
 
+// Ouvre l'import PDF avec le fichier simulé donné.
 async function openImport(page: Page, pdf: string) {
   await page.addInitScript(installMockBackend, { texts: [], pdf });
   await page.goto('/#/library?new=pdf'); // bouton « Importer un PDF » de l'accueil
   await page.getByRole('button', { name: 'Choisir un fichier PDF…' }).click();
 }
 
+// Dernier appel au nettoyage de l'import (vide s'il n'y en a pas encore).
 const lastClean = (page: Page) =>
   page.evaluate(() => {
     // pas encore d'appel (nettoyage différé de 250 ms) : liste vide, expect.poll réessaie

@@ -1,3 +1,6 @@
+// Service de la bibliothèque : textes, recherche, import PDF, exercices et
+// boîtes de dialogue de fichiers (F-20 à F-25).
+
 package app
 
 import (
@@ -280,6 +283,7 @@ func (t *TextService) ResetProgress(textID int64) error {
 	return t.store.SetProgress(context.Background(), t.profile.ID(), textID, 0)
 }
 
+// toRecord valide une saisie de l'interface et la convertit en texte à enregistrer.
 func toRecord(in TextInput) (store.Text, error) {
 	content := text.CleanForPractice(in.Content)
 	if content == "" {
@@ -320,6 +324,7 @@ func toRecord(in TextInput) (store.Text, error) {
 	}, nil
 }
 
+// hasTag indique si une étiquette est présente, sans tenir compte des accents.
 func hasTag(tags []string, want string) bool {
 	for _, t := range tags {
 		if text.SearchKey(t) == text.SearchKey(want) {
@@ -329,6 +334,7 @@ func hasTag(tags []string, want string) bool {
 	return false
 }
 
+// sortTexts trie la liste : récents, anciens, titre ou longueur.
 func sortTexts(list []store.TextSummary, by string) {
 	var less func(a, b store.TextSummary) bool
 	switch by {

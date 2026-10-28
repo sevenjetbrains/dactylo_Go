@@ -1,3 +1,8 @@
+<!--
+  Session de frappe complète, partagée par la Copie et la Révision :
+  saisie, chronomètre, envoi des frappes par lots, pause, recommencer,
+  écran de fin, reprise d'une session interrompue (NF-06).
+-->
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
   import { _ } from 'svelte-i18n';
@@ -135,6 +140,7 @@
     return textId === 0 ? { ...s, sessionType: 'text' as const } : s;
   }
 
+  /** Moteur de correction de la session, limité en mots si besoin (F-06). */
   function makeEngine(): TypingEngine {
     const end =
       opts.sessionType === 'words'
@@ -148,6 +154,7 @@
     });
   }
 
+  /** Crée la session côté backend à la première frappe envoyée. */
   function ensureSession(): Promise<number> {
     sessionId ??= StartSession({
       textId,
@@ -175,6 +182,7 @@
     return chain;
   }
 
+  /** Démarre ou reprend le chronomètre ; refuse la frappe après la fin. */
   function beforeKey(): boolean {
     if (status === 'finishing' || status === 'done') return false;
     if (status === 'ready') {
@@ -187,6 +195,7 @@
     return true;
   }
 
+  /** Caractère tapé : correction, son éventuel, fin du texte. */
   function onChar(ch: string) {
     if (!beforeKey()) return;
     const r = engine.type(ch, clock.elapsed());
@@ -195,11 +204,13 @@
     if (engine.done) void finish();
   }
 
+  /** Retour arrière (si autorisé). */
   function onBackspace() {
     if (!beforeKey()) return;
     if (engine.backspace(clock.elapsed())) tick++;
   }
 
+  /** Termine la session : dernières frappes, puis résultats. */
   async function finish() {
     if (status === 'finishing' || status === 'done') return;
     status = 'finishing';
@@ -244,6 +255,7 @@
     queueMicrotask(() => textarea?.focus());
   }
 
+  /** Échap : pause ou reprise (F-07). */
   function togglePause() {
     if (status === 'typing') {
       clock.pause();

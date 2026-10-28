@@ -1,3 +1,7 @@
+<!--
+  Bibliothèque : recherche, filtres, tri, création, modification,
+  duplication et suppression des textes (F-23).
+-->
 <script lang="ts">
   import { _, locale } from 'svelte-i18n';
   import {
@@ -41,6 +45,7 @@
     return q === 'pdf' ? { kind: 'pdf' } : q === 'paste' ? { kind: 'new' } : { kind: 'none' };
   }
 
+  /** Recharge la liste selon la recherche, les filtres et le tri. */
   async function refresh() {
     try {
       list = await ListTexts({
@@ -64,11 +69,13 @@
     return () => clearTimeout(t);
   });
 
+  /** Ferme le panneau de création ou de modification. */
   function close() {
     panel = { kind: 'none' };
     if (router.query.get('new')) router.navigate('/library');
   }
 
+  /** Après un enregistrement : fermer, recharger et surligner le texte. */
   async function saved(id: number) {
     close();
     highlight = id;
@@ -88,10 +95,12 @@
     await saved(id);
   }
 
+  /** Duplique un texte (copie modifiable). */
   async function duplicate(id: number) {
     await saved(await DuplicateText(id));
   }
 
+  /** Supprime un texte après confirmation. */
   async function remove(id: number) {
     if (confirmDelete !== id) {
       confirmDelete = id;
@@ -105,6 +114,7 @@
   const progress = (t: store.TextSummary) =>
     t.length > 0 ? Math.min(100, Math.round((100 * t.position) / t.length)) : 0;
 
+  /** Ligne d'informations d'un texte : longueur, source, date. */
   function meta(t: store.TextSummary): string {
     const parts = [...t.tags];
     parts.push($_('library.exercises', { values: { n: t.exercises } }));

@@ -1,3 +1,6 @@
+// Service des statistiques : tableau de bord, carte de chaleur, export CSV
+// (F-33 à F-35).
+
 package app
 
 import (

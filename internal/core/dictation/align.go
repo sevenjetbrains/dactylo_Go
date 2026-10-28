@@ -1,3 +1,6 @@
+// Alignement mot à mot de la dictée tapée sur le texte attendu, par
+// distance d'édition pondérée (F-16).
+
 package dictation
 
 import (
@@ -82,6 +85,7 @@ func Align(expected, typed string) []Op {
 	return ops
 }
 
+// op construit l'opération d'alignement, avec le type d'erreur éventuel.
 func op(expected, typed string, pos int) Op {
 	if expected == typed {
 		return Op{Expected: expected, Typed: typed, Correct: true, Position: pos}
@@ -91,6 +95,7 @@ func op(expected, typed string, pos int) Op {
 
 func near(a, b, eps float64) bool { return a-b < eps && b-a < eps }
 
+// subCost est le coût de remplacer le mot attendu e par le mot tapé t.
 func subCost(e, t string) float64 {
 	if e == t {
 		return 0
@@ -115,6 +120,7 @@ func mergeable(e, t1, t2 string) bool {
 	return lettersKey(e) == lettersKey(t1+t2) && lettersKey(t1) != "" && lettersKey(t2) != ""
 }
 
+// lettersKey ne garde que les lettres (mots composés tapés en deux mots).
 func lettersKey(s string) string {
 	return strings.Map(func(r rune) rune {
 		if r == '-' || r == '\'' || r == '’' || r == ' ' {
@@ -124,6 +130,7 @@ func lettersKey(s string) string {
 	}, text.SearchKey(s))
 }
 
+// levenshtein est la distance d'édition en caractères entre deux mots.
 func levenshtein(a, b string) int {
 	ra, rb := []rune(a), []rune(b)
 	prev := make([]int, len(rb)+1)

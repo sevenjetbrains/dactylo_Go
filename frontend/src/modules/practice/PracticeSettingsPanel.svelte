@@ -1,3 +1,6 @@
+<!--
+  Panneau des réglages de la Copie dans la page Réglages (F-01 à F-08, F-51).
+-->
 <script lang="ts">
   import { _, locale } from 'svelte-i18n';
   import { FONT_STACKS, FONTS, typingSettings as s } from '$shared/typing/settings.svelte';

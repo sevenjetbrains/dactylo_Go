@@ -1,3 +1,5 @@
+// Requêtes des statistiques : points par session, totaux, jours, frappes.
+
 package store
 
 import (

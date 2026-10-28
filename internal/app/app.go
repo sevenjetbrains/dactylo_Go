@@ -65,6 +65,7 @@ func (a *App) Startup(ctx context.Context) {
 // dialogPicker ouvre la boîte de dialogue système de Wails.
 type dialogPicker struct{ app *App }
 
+// PickFile ouvre la boîte de dialogue système de choix de fichier (NF-11).
 func (d dialogPicker) PickFile(title string, f FileFilter) (string, error) {
 	if d.app.ctx == nil {
 		return "", errors.New("fenêtre non prête")
@@ -75,6 +76,7 @@ func (d dialogPicker) PickFile(title string, f FileFilter) (string, error) {
 	})
 }
 
+// SaveFile ouvre la boîte de dialogue système d'enregistrement.
 func (d dialogPicker) SaveFile(title, defaultName string, f FileFilter) (string, error) {
 	if d.app.ctx == nil {
 		return "", errors.New("fenêtre non prête")

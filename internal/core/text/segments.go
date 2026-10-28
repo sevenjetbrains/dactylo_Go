@@ -1,3 +1,6 @@
+// Découpage d'un texte en exercices (paragraphes ou lignes) et point de
+// reprise (F-24).
+
 package text
 
 import "unicode"
@@ -17,6 +20,7 @@ type Segment struct {
 	End   int `json:"end"`
 }
 
+// span est un intervalle [start, end) de caractères.
 type span struct{ start, end int }
 
 // Segments découpe le texte. Un paragraphe est un bloc séparé par une ligne
@@ -94,6 +98,7 @@ func nonEmptyLines(runes []rune) []span {
 	return out
 }
 
+// paragraphs regroupe les lignes en paragraphes séparés par une ligne vide.
 func paragraphs(runes []rune, lines []span) []span {
 	blank := func(a, b span) bool { // ligne vide entre deux lignes ?
 		n := 0

@@ -5,6 +5,7 @@ export type Tone = 'key' | 'error';
 
 let ctx: AudioContext | null = null;
 
+/** Contexte audio, créé à la première frappe. */
 function audio(): AudioContext | null {
   if (ctx) return ctx;
   try {

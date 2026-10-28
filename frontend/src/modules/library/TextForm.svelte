@@ -1,3 +1,6 @@
+<!--
+  Formulaire d'un texte (coller ou modifier) : titre, contenu, étiquettes, découpage.
+-->
 <script lang="ts">
   import { untrack } from 'svelte';
   import { _ } from 'svelte-i18n';
@@ -28,6 +31,7 @@
   let saving = $state(false);
   let error = $state('');
 
+  /** Valide le formulaire et transmet la saisie. */
   async function submit(e: SubmitEvent) {
     e.preventDefault();
     if (!content.trim()) {

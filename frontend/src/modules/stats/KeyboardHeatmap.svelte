@@ -1,3 +1,7 @@
+<!--
+  Carte de chaleur du clavier : erreurs ou lenteur par touche, dans la
+  disposition du profil (F-34).
+-->
 <script lang="ts">
   import { _, locale } from 'svelte-i18n';
   import type { stats } from '$wails/go/models';

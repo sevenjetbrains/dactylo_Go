@@ -27,6 +27,7 @@ type Chunk struct {
 	Words  int    `json:"words"`  // nombre de mots (avancement adaptatif, F-15)
 }
 
+// word est un mot du texte et la coupure qui le suit.
 type word struct {
 	text      string
 	breakLine bool // suivi d'un saut de ligne
@@ -87,6 +88,7 @@ func Chunks(content, mode string, groupSize int, speakPunctuation bool) []Chunk 
 // CountWords compte les mots d'un texte tapé (avancement adaptatif).
 func CountWords(s string) int { return len(strings.Fields(s)) }
 
+// splitWords découpe le texte en mots en notant fins de ligne et paragraphes.
 func splitWords(content string) []word {
 	var out []word
 	lines := strings.Split(strings.ReplaceAll(content, "\r\n", "\n"), "\n")
@@ -114,6 +116,7 @@ var abbreviationRe = regexp.MustCompile(`^(\p{Lu}|MM|Mme|Mmes|Mlle|Mlles|Mgr|Me|
 
 func isAbbreviation(w string) bool { return abbreviationRe.MatchString(w) }
 
+// endsSentence indique si le mot termine une phrase (hors abréviations).
 func endsSentence(w string) bool {
 	if isAbbreviation(w) {
 		return false

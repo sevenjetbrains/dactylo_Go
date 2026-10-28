@@ -1,3 +1,6 @@
+<!--
+  Panneau Apparence : prénom affiché, thème et langue de l'interface (F-51).
+-->
 <script lang="ts">
   import { _, locale } from 'svelte-i18n';
   import { LOCALES, setLocale, type Locale } from '$i18n/index';
@@ -9,6 +12,7 @@
   let name = $state(displayName(profile.name));
   let saved = $state(false);
 
+  /** Enregistre le prénom du profil actif. */
   async function saveName(e: SubmitEvent) {
     e.preventDefault();
     await renameProfile(name);

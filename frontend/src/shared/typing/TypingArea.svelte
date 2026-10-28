@@ -1,3 +1,7 @@
+<!--
+  Zone du texte à copier : coupure en lignes, lignes visibles, état de
+  chaque caractère et curseur (F-01 à F-03).
+-->
 <script lang="ts">
   import { CharState, type TypingEngine } from './engine';
   import { firstVisibleLine, lineAt, wrapLines } from './layout';
@@ -58,6 +62,7 @@
     });
   });
 
+  /** Caractère tel qu'affiché (fin de ligne visible, espaces conservées). */
   function display(ch: string): string {
     if (ch === '\n') return '↵';
     // insécable : une espace seule dans un <span> peut être repliée par le moteur
@@ -65,6 +70,7 @@
     return ch;
   }
 
+  /** Classes d'un caractère : état, curseur, fin de ligne. */
   function classFor(i: number): string {
     const s = engine.state[i];
     const cursor = i === engine.position ? ' ch-cursor' : '';

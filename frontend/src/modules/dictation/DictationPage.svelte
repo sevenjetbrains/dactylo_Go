@@ -1,3 +1,6 @@
+<!--
+  Page du mode Dictée : choix du texte et des réglages, puis session.
+-->
 <script lang="ts">
   import { _ } from 'svelte-i18n';
   import { GetText, ListTexts } from '$wails/go/app/TextService';

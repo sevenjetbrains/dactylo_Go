@@ -1,3 +1,6 @@
+<!--
+  Écran de fin de session : résultats, comparaison à la moyenne, mots fautifs.
+-->
 <script lang="ts">
   import { _, locale } from 'svelte-i18n';
   import type { app } from '$wails/go/models';
@@ -20,6 +23,7 @@
   const s = $derived(result.summary);
   const avg = $derived(result.average);
 
+  /** Écart signé à la moyenne des sessions précédentes. */
   function delta(value: number, reference: number): string {
     const d = value - reference;
     return (d >= 0 ? '+' : '−') + formatNumber(Math.abs(d), lang, 1);

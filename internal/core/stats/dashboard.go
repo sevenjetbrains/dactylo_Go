@@ -1,3 +1,6 @@
+// Calculs du tableau de bord : séries de jours, semaine, statistiques par
+// touche et par paire de lettres.
+
 package stats
 
 import (
@@ -156,6 +159,7 @@ func KeyStats(sessions [][]typing.Scored, topBigrams int) ([]KeyStat, []BigramSt
 	return outKeys, outBigrams
 }
 
+// keyName rattache un caractère à sa touche : minuscule, espace, entrée.
 func keyName(expected string) string {
 	switch expected {
 	case "\n":
@@ -166,6 +170,7 @@ func keyName(expected string) string {
 	return strings.ToLower(expected)
 }
 
+// letterBigram renvoie la paire de lettres, si les deux sont des lettres.
 func letterBigram(a, b string) (string, bool) {
 	ra, rb := []rune(a), []rune(b)
 	if len(ra) != 1 || len(rb) != 1 || !unicode.IsLetter(ra[0]) || !unicode.IsLetter(rb[0]) {

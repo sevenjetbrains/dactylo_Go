@@ -1,3 +1,5 @@
+// Configuration Vite : Svelte, Tailwind, alias d'import et tests Vitest.
+
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vitest/config';
 import { svelte } from '@sveltejs/vite-plugin-svelte';

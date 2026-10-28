@@ -1,3 +1,7 @@
+<!--
+  Page du mode Copie : choix du texte, exercices du texte (F-24), session
+  de frappe et reprise d'une session interrompue.
+-->
 <script lang="ts">
   import { _ } from 'svelte-i18n';
   import { Exercises, GetText, ListTexts, ResetProgress } from '$wails/go/app/TextService';
@@ -58,11 +62,13 @@
     };
   }
 
+  /** Navigue ; même adresse : relance la session. */
   function go(to: string) {
     if (window.location.hash === '#' + to) round++;
     else router.navigate(to);
   }
 
+  /** Passe au texte suivant de la bibliothèque. */
   async function nextText() {
     const { texts: list } = await ListTexts(allTexts());
     if (list.length === 0) return;
@@ -70,6 +76,7 @@
     go(`/practice?text=${list[(i + 1) % list.length]!.id}`);
   }
 
+  /** Exercice suivant du texte, sinon texte suivant (Ctrl+Entrée). */
   async function next() {
     const s = await session;
     if (s && s.seg.index + 1 < s.plan.segments.length) {
@@ -79,6 +86,7 @@
     }
   }
 
+  /** Efface la progression et reprend le texte au premier exercice. */
   async function restartText() {
     await ResetProgress(textId);
     go(`/practice?text=${textId}&ex=0`);

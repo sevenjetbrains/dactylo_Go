@@ -1,3 +1,5 @@
+// Profil actif (F-50) et synchronisation de ses réglages (F-51).
+
 import { get } from 'svelte/store';
 import { locale } from 'svelte-i18n';
 import {
@@ -52,6 +54,7 @@ function snapshot(): ProfileSettings {
   };
 }
 
+/** Applique les réglages enregistrés dans le profil. */
 function hydrate(raw: string): void {
   let s: ProfileSettings;
   try {
@@ -77,6 +80,7 @@ export async function persistSettings(): Promise<void> {
   }
 }
 
+/** Réenregistre les réglages dans le profil après chaque modification. */
 function startSync(): void {
   if (syncing) return;
   syncing = true;
@@ -96,6 +100,7 @@ function startSync(): void {
   });
 }
 
+/** Charge le profil actif et ses réglages au démarrage. */
 export async function loadProfile(): Promise<void> {
   try {
     const p = await Get();
@@ -110,6 +115,7 @@ export async function loadProfile(): Promise<void> {
   }
 }
 
+/** Tous les profils locaux. */
 export async function listProfiles(): Promise<store.Profile[]> {
   return List();
 }
@@ -136,6 +142,7 @@ export async function createProfile(name: string, layout: string): Promise<store
   return p;
 }
 
+/** Change le nom et la disposition d'un profil. */
 export async function updateProfile(id: number, name: string, layout: string): Promise<void> {
   const p = await Update(id, name, layout);
   if (id === profile.id) {
@@ -150,6 +157,7 @@ export async function deleteProfile(id: number): Promise<void> {
   if (id === profile.id) window.location.reload();
 }
 
+/** Change le prénom du profil actif. */
 export async function renameProfile(name: string): Promise<void> {
   const p = await Rename(name);
   profile.name = p.name;

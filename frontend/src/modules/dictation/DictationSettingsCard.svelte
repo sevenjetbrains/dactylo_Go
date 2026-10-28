@@ -23,6 +23,7 @@
     if (!s.voice && v[0]) s.voice = v[0].id;
   });
 
+  /** Charge les profils de lecture enregistrés. */
   async function loadProfiles() {
     try {
       profiles = await ListProfiles();
@@ -49,6 +50,7 @@
     s.maxRepeats = p.maxRepeats;
   }
 
+  /** Enregistre les réglages courants comme profil de lecture. */
   async function saveProfile(e: SubmitEvent) {
     e.preventDefault();
     try {
@@ -76,6 +78,7 @@
     }
   }
 
+  /** Supprime le profil de lecture choisi. */
   async function deleteProfile() {
     await DeleteProfile(s.profileId);
     s.profileId = 0;

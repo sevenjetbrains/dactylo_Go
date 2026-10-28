@@ -50,6 +50,7 @@
     ],
   ]);
 
+  /** Touche à mettre en évidence : touche, touche morte, Maj, AltGr, Entrée. */
   function active(c: Cap): boolean {
     const s = stroke;
     if (!s) return false;

@@ -1,3 +1,5 @@
+// Contenu des événements de domaine échangés entre modules.
+
 package events
 
 import (

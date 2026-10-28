@@ -1,3 +1,6 @@
+<!--
+  Courbe Chart.js de la progression, aux couleurs du thème courant.
+-->
 <script lang="ts">
   import {
     CategoryScale,

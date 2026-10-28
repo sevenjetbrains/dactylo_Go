@@ -1,3 +1,5 @@
+// Accès aux données de la dictée : profils de lecture et moyennes.
+
 package store
 
 import (

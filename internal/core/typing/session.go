@@ -1,3 +1,6 @@
+// Frappes d'une session : correction de chacune et rejeu pour le résultat
+// final.
+
 package typing
 
 import (

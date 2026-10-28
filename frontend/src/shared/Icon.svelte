@@ -1,3 +1,6 @@
+<!--
+  Icône SVG au trait à partir d'un tracé (attribut d).
+-->
 <script lang="ts">
   let {
     d,

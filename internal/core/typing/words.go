@@ -1,3 +1,6 @@
+// Découpage en mots, mots mal tapés et classement des erreurs (accent,
+// majuscule, lettre manquante...).
+
 package typing
 
 import (

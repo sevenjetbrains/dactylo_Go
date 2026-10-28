@@ -1,3 +1,5 @@
+// Accès aux mots difficiles, à leurs tentatives et à leur révision.
+
 package store
 
 import (
@@ -134,6 +136,7 @@ func (s *Store) GetWordByID(ctx context.Context, profileID, id int64) (Word, err
 	return rows[0], nil
 }
 
+// queryWords lit les mots difficiles selon la clause WHERE donnée.
 func (s *Store) queryWords(ctx context.Context, where string, args ...any) ([]Word, error) {
 	rows, err := s.DB.QueryContext(ctx, `
 		SELECT id, word, COALESCE(shown, word), encounters, errors, avg_time_ms, mastery,
@@ -162,6 +165,7 @@ func (s *Store) queryWords(ctx context.Context, where string, args ...any) ([]Wo
 	return out, rows.Err()
 }
 
+// fillDetail ajoute à un mot ses fautes les plus fréquentes.
 func (s *Store) fillDetail(ctx context.Context, w *Word) error {
 	rows, err := s.DB.QueryContext(ctx, `
 		SELECT typed_form FROM word_attempts WHERE word_id = ? AND correct = 0

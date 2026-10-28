@@ -1,3 +1,6 @@
+// Service du mode Dictée : préparation des segments, sessions, correction
+// et profils de lecture (F-10 à F-17).
+
 package app
 
 import (
@@ -61,6 +64,7 @@ type DictationResult struct {
 	Average     store.DictationAverages `json:"average"`
 }
 
+// activeDictation garde en mémoire une dictée en cours jusqu'à sa correction.
 type activeDictation struct {
 	textID   int64
 	expected string
@@ -83,6 +87,7 @@ func NewDictationService(s *store.Store, bus *events.Bus, profile *ActiveProfile
 	return &DictationService{store: s, bus: bus, profile: profile, now: time.Now, active: map[int64]*activeDictation{}}
 }
 
+// excerpt renvoie le texte et l'extrait [start, end) à dicter, bornes vérifiées.
 func (d *DictationService) excerpt(ctx context.Context, textID int64, start, end int) (store.Text, string, int, int, error) {
 	t, err := d.store.GetText(ctx, textID)
 	if err != nil {

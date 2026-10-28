@@ -1,3 +1,6 @@
+// Tentatives par mot d'une session : mots justes, faux ou lents, pour
+// les mots difficiles (F-40).
+
 package typing
 
 import (

@@ -1,3 +1,6 @@
+<!--
+  Bandeau en direct de la session : MPM, précision, temps, erreurs, progression (F-05).
+-->
 <script lang="ts">
   import { _, locale } from 'svelte-i18n';
   import { formatDuration, formatNumber } from '$shared/format';

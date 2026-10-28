@@ -1,3 +1,6 @@
+// Carte de chaleur : regroupement des statistiques par touche et échelle
+// de couleurs.
+
 import { keyFor, layoutRows, type KeyDef } from '$shared/keyboard/layouts';
 
 export interface KeyStatLike {
@@ -38,6 +41,7 @@ export function heatByKey(stats: readonly KeyStatLike[], layout?: string): Map<K
   return out;
 }
 
+/** Valeur affichée d'une touche : taux d'erreur ou temps moyen. */
 export function metricValue(h: KeyHeat, metric: HeatMetric): number {
   return metric === 'errors' ? h.errorRate : h.avgMs;
 }

@@ -1,3 +1,7 @@
+<!--
+  Coquille de l'application : menu latéral (modules du registre, pastilles,
+  profil actif) et page de la route courante.
+-->
 <script lang="ts">
   import { _, locale } from 'svelte-i18n';
   import { registry } from './modules';

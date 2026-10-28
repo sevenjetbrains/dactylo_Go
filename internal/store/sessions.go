@@ -1,3 +1,6 @@
+// Accès aux sessions et à leurs frappes : création, fin, abandon,
+// session interrompue.
+
 package store
 
 import (
@@ -183,6 +186,7 @@ func (s *Store) RecentAverages(ctx context.Context, profileID int64, mode string
 	return a, err
 }
 
+// formatTime est le format des dates en base (UTC, millisecondes).
 func formatTime(t time.Time) string {
 	return t.UTC().Format("2006-01-02T15:04:05.000Z")
 }

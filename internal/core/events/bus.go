@@ -21,6 +21,7 @@ type Event struct {
 // Handler traite un événement.
 type Handler func(Event)
 
+// subscription est un abonné du bus.
 type subscription struct {
 	id   uint64
 	name string // "" = tous les événements
@@ -51,6 +52,7 @@ func (b *Bus) SubscribeAll(fn Handler) (unsubscribe func()) {
 	return b.add("", fn)
 }
 
+// add enregistre un abonné et renvoie la fonction de désabonnement.
 func (b *Bus) add(name string, fn Handler) func() {
 	b.mu.Lock()
 	defer b.mu.Unlock()

@@ -11,6 +11,7 @@ export interface TypingInputHandlers {
 export function attachTypingInput(el: HTMLTextAreaElement, h: TypingInputHandlers): () => void {
   let composing = false;
 
+  // Transmet le contenu saisi caractère par caractère, en NFC.
   const flush = () => {
     const value = el.value;
     el.value = '';
@@ -19,6 +20,7 @@ export function attachTypingInput(el: HTMLTextAreaElement, h: TypingInputHandler
     }
   };
 
+  // Effacements, retours à la ligne et collage interceptés avant saisie.
   const onBeforeInput = (e: InputEvent) => {
     const t = e.inputType;
     if (t === 'deleteContentBackward' || t === 'deleteWordBackward') {
@@ -34,6 +36,7 @@ export function attachTypingInput(el: HTMLTextAreaElement, h: TypingInputHandler
     }
   };
 
+  // Saisie simple ; pendant une composition (touche morte), on attend la fin.
   const onInput = (e: Event) => {
     if (composing || (e as InputEvent).isComposing) return;
     flush();

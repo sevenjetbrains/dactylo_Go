@@ -1,3 +1,5 @@
+// Point d'entrée : ouvre la base, crée les services et lance la fenêtre Wails.
+
 package main
 
 import (

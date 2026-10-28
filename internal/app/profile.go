@@ -1,3 +1,6 @@
+// Profil actif et service des profils locaux et de leurs réglages
+// (F-50, F-51).
+
 package app
 
 import (
@@ -170,6 +173,7 @@ func (p *ProfileService) SaveSettingsFor(id int64, settings string) error {
 	return p.store.SaveProfileSettings(context.Background(), id, settings)
 }
 
+// cleanProfile normalise le nom (NFC, longueur) et vérifie la disposition.
 func cleanProfile(name, layout string) (string, string, error) {
 	name = strings.TrimSpace(text.NFC(name))
 	if name == "" {

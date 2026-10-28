@@ -1,3 +1,5 @@
+// Clés de recherche insensibles aux accents et à la casse.
+
 package text
 
 import (

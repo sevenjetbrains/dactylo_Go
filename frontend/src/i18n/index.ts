@@ -13,6 +13,7 @@ const RTL_LOCALES = new Set(['ar']);
 
 const STORAGE_KEY = 'dactylo.locale';
 
+/** Langue mémorisée localement, si elle est prise en charge. */
 function storedLocale(): Locale | undefined {
   try {
     const v = localStorage.getItem(STORAGE_KEY);
@@ -43,6 +44,7 @@ export function setupI18n(
   applyDirection(start);
 }
 
+/** Change la langue de l'interface et la mémorise. */
 export function setLocale(l: Locale): void {
   locale.set(l);
   applyDirection(l);
@@ -53,6 +55,7 @@ export function setLocale(l: Locale): void {
   }
 }
 
+/** Langue et sens d'écriture du document (lang, dir). */
 function applyDirection(l: string): void {
   document.documentElement.lang = l;
   document.documentElement.dir = RTL_LOCALES.has(l) ? 'rtl' : 'ltr';

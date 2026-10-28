@@ -1,3 +1,7 @@
+<!--
+  Accueil : session interrompue, révision du jour, copie à reprendre,
+  dictée, indicateurs et sessions récentes (maquette accueil).
+-->
 <script lang="ts">
   import { _, locale } from 'svelte-i18n';
   import { Overview } from '$wails/go/app/HomeService';
@@ -27,6 +31,7 @@
     await Abandon(id).catch(() => {});
   }
 
+  /** Date lisible : « aujourd'hui, 14:05 », « hier, … » ou « 3 nov., … ». */
   function sessionDate(iso: string): string {
     const d = parseDay(iso);
     const time = d.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' });
@@ -37,10 +42,12 @@
     return `${d.toLocaleDateString(lang, { day: 'numeric', month: 'short' })}, ${time}`;
   }
 
+  /** Titre d'une session : son texte, sinon son mode. */
   function sessionTitle(p: store.SessionPoint): string {
     return p.textTitle || $_(`home.modes.${p.mode}`);
   }
 
+  /** Écart signé (+3 MPM, −0,5 %). */
   function delta(v: number, digits: number, unit: string): string {
     return (v >= 0 ? '+' : '−') + formatNumber(Math.abs(v), lang, digits) + unit;
   }

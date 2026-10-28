@@ -1,3 +1,5 @@
+// Normalisation Unicode (NFC), espaces et typographie du texte à copier.
+
 package text
 
 import (
