@@ -58,18 +58,18 @@ type activeSession struct {
 // PracticeService gère les sessions du mode Copie : création, frappes
 // envoyées par lots, calcul final.
 type PracticeService struct {
-	store     *store.Store
-	bus       *events.Bus
-	profileID int64
-	now       func() time.Time
+	store   *store.Store
+	bus     *events.Bus
+	profile *ActiveProfile
+	now     func() time.Time
 
 	mu     sync.Mutex
 	active map[int64]*activeSession
 }
 
 // NewPracticeService crée le service pour le profil donné.
-func NewPracticeService(s *store.Store, bus *events.Bus, profileID int64) *PracticeService {
-	return &PracticeService{store: s, bus: bus, profileID: profileID, now: time.Now, active: map[int64]*activeSession{}}
+func NewPracticeService(s *store.Store, bus *events.Bus, profile *ActiveProfile) *PracticeService {
+	return &PracticeService{store: s, bus: bus, profile: profile, now: time.Now, active: map[int64]*activeSession{}}
 }
 
 // StartSession ouvre une session sur un exercice. Les réglages sont
@@ -116,13 +116,13 @@ func (p *PracticeService) StartSession(req StartRequest) (int64, error) {
 		return 0, err
 	}
 
-	id, err := p.store.CreateSession(ctx, p.profileID, req.TextID, mode, string(raw), p.now())
+	id, err := p.store.CreateSession(ctx, p.profile.ID(), req.TextID, mode, string(raw), p.now())
 	if err != nil {
 		return 0, err
 	}
 	p.mu.Lock()
 	p.active[id] = &activeSession{
-		profileID: p.profileID, textID: req.TextID, mode: mode, full: full, start: req.Start,
+		profileID: p.profile.ID(), textID: req.TextID, mode: mode, full: full, start: req.Start,
 		text: full[req.Start:end], opts: typing.MatchOptions{FoldTypography: fold}, slowThreshold: slow,
 	}
 	p.mu.Unlock()
@@ -188,6 +188,81 @@ func (p *PracticeService) FinishSession(sessionID int64, durationMs int64) (Sess
 	}
 
 	return SessionResult{SessionID: sessionID, TextID: a.textID, Summary: sum, Mistakes: mistakes, Average: avg}, nil
+}
+
+// ResumeData est une session interrompue rechargée (NF-06) : l'interface
+// rejoue les frappes enregistrées puis la frappe continue.
+type ResumeData struct {
+	SessionID  int64              `json:"sessionId"`
+	TextID     int64              `json:"textId"`
+	Title      string             `json:"title"`
+	Start      int                `json:"start"`
+	End        int                `json:"end"`
+	Content    string             `json:"content"` // exercice : texte[Start, End)
+	Settings   string             `json:"settings"`
+	Keystrokes []typing.Keystroke `json:"keystrokes"`
+	ElapsedMs  int64              `json:"elapsedMs"`
+}
+
+// Abandon marque une session quittée volontairement (recommencer, changer de
+// texte) : elle ne sera pas proposée à la reprise.
+func (p *PracticeService) Abandon(sessionID int64) error {
+	p.mu.Lock()
+	delete(p.active, sessionID)
+	p.mu.Unlock()
+	return p.store.AbandonSession(context.Background(), sessionID, p.now())
+}
+
+// Resume recharge une session de copie interrompue par une fermeture
+// brutale (NF-06) et la rend de nouveau active.
+func (p *PracticeService) Resume(sessionID int64) (ResumeData, error) {
+	ctx := context.Background()
+	se, err := p.store.GetSession(ctx, sessionID)
+	if err != nil {
+		return ResumeData{}, err
+	}
+	if se.ProfileID != p.profile.ID() || se.Mode != ModeCopy || se.EndedAt.Valid || !se.TextID.Valid {
+		return ResumeData{}, fmt.Errorf("session %d : rien à reprendre", sessionID)
+	}
+	var settings struct {
+		Segment        struct{ Start, End int } `json:"segment"`
+		FoldTypography bool                     `json:"foldTypography"`
+		SlowThreshold  float64                  `json:"slowThreshold"`
+	}
+	if err := json.Unmarshal([]byte(se.Settings), &settings); err != nil {
+		return ResumeData{}, fmt.Errorf("réglages de la session illisibles : %w", err)
+	}
+	t, err := p.store.GetText(ctx, se.TextID.Int64)
+	if err != nil {
+		return ResumeData{}, err
+	}
+	full := []rune(t.Content)
+	start, end := settings.Segment.Start, settings.Segment.End
+	if start < 0 || end > len(full) || start >= end {
+		return ResumeData{}, errors.New("le texte a changé depuis la session : reprise impossible")
+	}
+	ks, err := p.store.Keystrokes(ctx, sessionID)
+	if err != nil {
+		return ResumeData{}, err
+	}
+	if ks == nil {
+		ks = []typing.Keystroke{}
+	}
+	var elapsed int64
+	if len(ks) > 0 {
+		elapsed = ks[len(ks)-1].TimeMs
+	}
+	p.mu.Lock()
+	p.active[sessionID] = &activeSession{
+		profileID: se.ProfileID, textID: t.ID, mode: ModeCopy, full: full, start: start,
+		text: full[start:end], opts: typing.MatchOptions{FoldTypography: settings.FoldTypography},
+		slowThreshold: settings.SlowThreshold,
+	}
+	p.mu.Unlock()
+	return ResumeData{
+		SessionID: sessionID, TextID: t.ID, Title: t.Title, Start: start, End: end,
+		Content: string(full[start:end]), Settings: se.Settings, Keystrokes: ks, ElapsedMs: elapsed,
+	}, nil
 }
 
 // saveProgress mémorise où reprendre (F-24) : fin de l'exercice s'il a été

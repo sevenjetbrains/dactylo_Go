@@ -14,7 +14,7 @@ import (
 
 func TestDictationFullSession(t *testing.T) {
 	f := newReviewFixture(t)
-	d := NewDictationService(f.store, f.bus, f.practice.profileID)
+	d := NewDictationService(f.store, f.bus, f.practice.profile)
 	d.now = func() time.Time { return f.clock }
 	content := "En 1815, M. Myriel était évêque de Digne.\n\nC'était un vieillard d'environ soixante-quinze ans."
 	id, _ := f.texts.CreateText(TextInput{Title: "Les Misérables", Content: content})
@@ -96,7 +96,7 @@ func TestDictationFullSession(t *testing.T) {
 		t.Errorf("seconde dictée = %+v", res2)
 	}
 	// carte Dictée de l'accueil : dernier texte dicté
-	home := NewHomeService(f.store, f.practice.profileID)
+	home := NewHomeService(f.store, f.practice.profile)
 	if o, _ := home.Overview("paragraph", 1); o.Dictation == nil || o.Dictation.TextID != id || o.Dictation.Words != 14 {
 		t.Errorf("carte dictée = %+v", o.Dictation)
 	}
@@ -104,7 +104,7 @@ func TestDictationFullSession(t *testing.T) {
 
 func TestDictationErrors(t *testing.T) {
 	f := newFixture(t)
-	d := NewDictationService(f.store, f.bus, f.practice.profileID)
+	d := NewDictationService(f.store, f.bus, f.practice.profile)
 	id, _ := f.texts.CreateText(TextInput{Content: "un deux"})
 	if _, err := d.Prepare(PrepareRequest{TextID: 999}); err == nil {
 		t.Error("texte absent")
@@ -131,7 +131,7 @@ func TestDictationErrors(t *testing.T) {
 
 func TestDictationProfilesService(t *testing.T) {
 	f := newFixture(t)
-	d := NewDictationService(f.store, f.bus, f.practice.profileID)
+	d := NewDictationService(f.store, f.bus, f.practice.profile)
 	list, _ := d.ListProfiles()
 	if len(list) != 2 {
 		t.Fatalf("profils intégrés = %d", len(list))

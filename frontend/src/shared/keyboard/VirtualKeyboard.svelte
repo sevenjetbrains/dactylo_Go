@@ -1,11 +1,13 @@
 <script lang="ts">
   import { _ } from 'svelte-i18n';
-  import { AZERTY, strokeFor, type Finger, type KeyDef } from './azerty';
+  import { layoutRows, strokeFor, type Finger, type KeyDef } from './layouts';
 
-  // Clavier virtuel (F-08) : touche suivante et doigt conseillé.
-  let { next }: { next: string | null } = $props();
+  // Clavier virtuel (F-08) : touche suivante et doigt conseillé, dans la
+  // disposition du profil (AZERTY, QWERTY ou BÉPO).
+  let { next, layout = 'azerty' }: { next: string | null; layout?: string } = $props();
 
-  const stroke = $derived(next === null ? null : strokeFor(next));
+  const stroke = $derived(next === null ? null : strokeFor(next, layout));
+  const L = $derived(layoutRows(layout));
   // Maj : celle de la main opposée à la touche.
   const shiftSide = $derived(stroke?.key.finger.startsWith('l') ? 'right' : 'left');
 
@@ -28,11 +30,11 @@
       key: k,
     }));
 
-  const rows: Cap[][] = [
-    [...caps(AZERTY[0]!), mod('backspace', '⌫', 1.6)],
-    [mod('tab', '⇥', 1.4), ...caps(AZERTY[1]!), mod('enter', '↵', 1.2)],
-    [mod('caps', '⇪', 1.7), ...caps(AZERTY[2]!), mod('enter2', '', 0.9)],
-    [mod('lshift', '⇧', 1.2), ...caps(AZERTY[3]!), mod('rshift', '⇧', 2.4)],
+  const rows: Cap[][] = $derived([
+    [...caps(L[0]!), mod('backspace', '⌫', 1.6)],
+    [mod('tab', '⇥', 1.4), ...caps(L[1]!), mod('enter', '↵', 1.2)],
+    [mod('caps', '⇪', 1.7), ...caps(L[2]!), mod('enter2', '', 0.9)],
+    [mod('lshift', '⇧', 1.2), ...caps(L[3]!), mod('rshift', '⇧', 2.4)],
     [
       mod('lctrl', 'Ctrl', 1.4),
       mod('alt', 'Alt', 1.2),
@@ -41,12 +43,12 @@
         label: $_('typing.keyboard.space'),
         width: 6.6,
         finger: 'thumb',
-        key: AZERTY[4]![0],
+        key: L[4]![0],
       },
       mod('altgr', 'AltGr', 1.4),
       mod('rctrl', 'Ctrl', 1.4),
     ],
-  ];
+  ]);
 
   function active(c: Cap): boolean {
     const s = stroke;

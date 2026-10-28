@@ -32,7 +32,7 @@ type ReviewExercise struct {
 // connaît pas le mode Copie : il écoute l'événement SessionCompleted.
 type ReviewService struct {
 	store     *store.Store
-	profileID int64
+	profile   *ActiveProfile
 	scheduler srs.Scheduler
 	generator exercise.ExerciseGenerator
 	now       func() time.Time
@@ -40,14 +40,14 @@ type ReviewService struct {
 }
 
 // NewReviewService crée le service et l'abonne aux fins de session.
-func NewReviewService(s *store.Store, bus *events.Bus, profileID int64) *ReviewService {
+func NewReviewService(s *store.Store, bus *events.Bus, profile *ActiveProfile) *ReviewService {
 	r := &ReviewService{
-		store: s, profileID: profileID, scheduler: srs.SM2{}, generator: exercise.Generator{},
+		store: s, profile: profile, scheduler: srs.SM2{}, generator: exercise.Generator{},
 		now: time.Now, rng: rand.New(rand.NewPCG(uint64(time.Now().UnixNano()), 7)),
 	}
 	bus.Subscribe(events.SessionCompleted, func(e events.Event) {
 		p, ok := e.Payload.(events.SessionCompletedPayload)
-		if !ok || p.ProfileID != r.profileID {
+		if !ok || p.ProfileID != r.profile.ID() {
 			return
 		}
 		if err := r.recordSession(p); err != nil {
@@ -82,7 +82,7 @@ func (r *ReviewService) recordSession(p events.SessionCompletedPayload) error {
 				outcome = srs.Slow
 			}
 		}
-		w, exists, err := r.store.GetWord(ctx, r.profileID, key)
+		w, exists, err := r.store.GetWord(ctx, r.profile.ID(), key)
 		if err != nil {
 			return err
 		}
@@ -109,7 +109,7 @@ func (r *ReviewService) recordSession(p events.SessionCompletedPayload) error {
 		w.Shown = attempts[len(attempts)-1].Shown
 		w.Card = r.scheduler.Review(w.Card, outcome, now)
 		w.Mastery, w.NextReview = srs.Mastery(w.Card), w.Card.Due
-		id, err := r.store.SaveWord(ctx, r.profileID, w)
+		id, err := r.store.SaveWord(ctx, r.profile.ID(), w)
 		if err != nil {
 			return err
 		}
@@ -125,11 +125,11 @@ func (r *ReviewService) recordSession(p events.SessionCompletedPayload) error {
 // Summary compte les mots à réviser aujourd'hui, en cours et maîtrisés.
 func (r *ReviewService) Summary() (ReviewSummary, error) {
 	ctx := context.Background()
-	due, err := r.store.DueCount(ctx, r.profileID, srs.Day(r.now()))
+	due, err := r.store.DueCount(ctx, r.profile.ID(), srs.Day(r.now()))
 	if err != nil {
 		return ReviewSummary{}, err
 	}
-	all, err := r.store.ListWords(ctx, r.profileID, store.WordFilter{Status: "all"})
+	all, err := r.store.ListWords(ctx, r.profile.ID(), store.WordFilter{Status: "all"})
 	if err != nil {
 		return ReviewSummary{}, err
 	}
@@ -146,7 +146,7 @@ func (r *ReviewService) Summary() (ReviewSummary, error) {
 
 // ListWords renvoie les mots suivis : due, learning, mastered ou all.
 func (r *ReviewService) ListWords(status string) ([]store.Word, error) {
-	return r.store.ListWords(context.Background(), r.profileID, store.WordFilter{Status: status, Today: srs.Day(r.now())})
+	return r.store.ListWords(context.Background(), r.profile.ID(), store.WordFilter{Status: status, Today: srs.Day(r.now())})
 }
 
 // AddWord ajoute un mot à réviser dès aujourd'hui (F-45).
@@ -156,7 +156,7 @@ func (r *ReviewService) AddWord(word string) error {
 	if key == "" {
 		return errors.New("ce n'est pas un mot")
 	}
-	w, exists, err := r.store.GetWord(ctx, r.profileID, key)
+	w, exists, err := r.store.GetWord(ctx, r.profile.ID(), key)
 	if err != nil {
 		return err
 	}
@@ -165,24 +165,24 @@ func (r *ReviewService) AddWord(word string) error {
 	}
 	w.Card = r.scheduler.New(r.now()) // à réviser aujourd'hui, série remise à zéro
 	w.Mastery, w.NextReview = 0, w.Card.Due
-	_, err = r.store.SaveWord(ctx, r.profileID, w)
+	_, err = r.store.SaveWord(ctx, r.profile.ID(), w)
 	return err
 }
 
 // RemoveWord retire un mot de la liste (F-45).
 func (r *ReviewService) RemoveWord(id int64) error {
-	return r.store.DeleteWord(context.Background(), r.profileID, id)
+	return r.store.DeleteWord(context.Background(), r.profile.ID(), id)
 }
 
 // RemoveWordByKey retire un mot désigné par son texte (écran de correction
 // de la dictée : « Retirer »). Un mot absent n'est pas une erreur.
 func (r *ReviewService) RemoveWordByKey(word string) error {
 	ctx := context.Background()
-	w, ok, err := r.store.GetWord(ctx, r.profileID, typing.NormalizeWord(word))
+	w, ok, err := r.store.GetWord(ctx, r.profile.ID(), typing.NormalizeWord(word))
 	if err != nil || !ok {
 		return err
 	}
-	return r.store.DeleteWord(ctx, r.profileID, w.ID)
+	return r.store.DeleteWord(ctx, r.profile.ID(), w.ID)
 }
 
 // BuildExerciseFor génère un exercice sur des mots choisis (« S'entraîner
@@ -199,7 +199,7 @@ func (r *ReviewService) BuildExerciseFor(words []string, kind string, repeat int
 	}
 	req := exercise.Request{Kind: kind, Words: shown, Repeat: repeat}
 	if kind == exercise.KindSentences {
-		texts, err := r.store.ListTexts(context.Background(), r.profileID)
+		texts, err := r.store.ListTexts(context.Background(), r.profile.ID())
 		if err != nil {
 			return ReviewExercise{}, err
 		}
@@ -215,7 +215,7 @@ func (r *ReviewService) BuildExerciseFor(words []string, kind string, repeat int
 // remettra en révision.
 func (r *ReviewService) MarkMastered(id int64) error {
 	ctx := context.Background()
-	w, err := r.store.GetWordByID(ctx, r.profileID, id)
+	w, err := r.store.GetWordByID(ctx, r.profile.ID(), id)
 	if err != nil {
 		return err
 	}
@@ -223,7 +223,7 @@ func (r *ReviewService) MarkMastered(id int64) error {
 	w.Card.Interval = 30
 	w.Card.Due = srs.Day(r.now().AddDate(0, 0, w.Card.Interval))
 	w.Mastery, w.NextReview = 1, w.Card.Due
-	_, err = r.store.SaveWord(ctx, r.profileID, w)
+	_, err = r.store.SaveWord(ctx, r.profile.ID(), w)
 	return err
 }
 
@@ -250,7 +250,7 @@ func (r *ReviewService) BuildExercise(kind string, repeat int) (ReviewExercise, 
 	}
 	req := exercise.Request{Kind: kind, Words: shown, Repeat: repeat}
 	if kind == exercise.KindSentences {
-		texts, err := r.store.ListTexts(ctx, r.profileID)
+		texts, err := r.store.ListTexts(ctx, r.profile.ID())
 		if err != nil {
 			return ReviewExercise{}, err
 		}

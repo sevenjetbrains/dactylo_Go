@@ -56,6 +56,44 @@ func (s *Store) GetSession(ctx context.Context, id int64) (Session, error) {
 	return se, err
 }
 
+// AbandonSession marque une session laissée volontairement (recommencer,
+// changer de texte) : elle ne sera pas proposée à la reprise (NF-06).
+func (s *Store) AbandonSession(ctx context.Context, id int64, at time.Time) error {
+	_, err := s.DB.ExecContext(ctx,
+		"UPDATE sessions SET abandoned_at = ? WHERE id = ? AND ended_at IS NULL", formatTime(at), id)
+	return err
+}
+
+// InterruptedSession est une session de copie interrompue par une fermeture
+// brutale, proposée à la reprise (NF-06).
+type InterruptedSession struct {
+	ID         int64  `json:"id"`
+	TextID     int64  `json:"textId"`
+	TextTitle  string `json:"textTitle"`
+	StartedAt  string `json:"startedAt"`
+	Keystrokes int    `json:"keystrokes"`
+	Settings   string `json:"-"`
+}
+
+// LastInterrupted renvoie la dernière session de copie ni terminée ni
+// abandonnée, avec au moins une frappe, commencée après `since`.
+func (s *Store) LastInterrupted(ctx context.Context, profileID int64, since time.Time) (InterruptedSession, bool, error) {
+	var x InterruptedSession
+	err := s.DB.QueryRowContext(ctx, `
+		SELECT s.id, s.text_id, t.title, s.started_at, s.settings,
+		       (SELECT COUNT(*) FROM keystrokes k WHERE k.session_id = s.id) AS n
+		FROM sessions s JOIN texts t ON t.id = s.text_id
+		WHERE s.profile_id = ? AND s.mode = 'copy' AND s.ended_at IS NULL AND s.abandoned_at IS NULL
+		  AND s.started_at >= ?
+		  AND EXISTS (SELECT 1 FROM keystrokes k WHERE k.session_id = s.id)
+		ORDER BY s.started_at DESC, s.id DESC LIMIT 1`, profileID, formatTime(since)).
+		Scan(&x.ID, &x.TextID, &x.TextTitle, &x.StartedAt, &x.Settings, &x.Keystrokes)
+	if errors.Is(err, sql.ErrNoRows) {
+		return x, false, nil
+	}
+	return x, err == nil, err
+}
+
 // SaveKeystrokes enregistre un lot de frappes. Un lot renvoyé deux fois
 // (nouvel essai après une erreur réseau interne) remplace les mêmes lignes.
 func (s *Store) SaveKeystrokes(ctx context.Context, sessionID int64, ks []typing.Scored) error {

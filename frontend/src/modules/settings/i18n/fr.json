@@ -1,7 +1,7 @@
 {
   "menu": "Réglages",
   "title": "Réglages",
-  "appearance": "Profil et apparence",
+  "appearance": "Apparence et langue",
   "theme": "Thème",
   "themes": {
     "system": "Système",
@@ -16,5 +16,34 @@
   "name": "Votre prénom",
   "namePlaceholder": "Affiché sur l'accueil",
   "save": "Enregistrer",
-  "saved": "Enregistré"
+  "saved": "Enregistré",
+  "layouts": {
+    "azerty": "AZERTY",
+    "qwerty": "QWERTY",
+    "bepo": "BÉPO"
+  },
+  "profiles": {
+    "title": "Profils",
+    "hint": "Chaque profil garde ses textes, statistiques, mots difficiles et réglages.",
+    "name": "Nom du profil",
+    "layout": "Disposition du clavier",
+    "active": "Profil actif",
+    "switch": "Utiliser ce profil",
+    "delete": "Supprimer",
+    "confirmDelete": "Confirmer : tout supprimer",
+    "newName": "Nouveau profil",
+    "add": "Ajouter le profil"
+  },
+  "backup": {
+    "title": "Sauvegarde",
+    "hint": "Toutes les données (profils, textes, statistiques) dans un seul fichier.",
+    "export": "Sauvegarder dans un fichier…",
+    "exportTitle": "Enregistrer la sauvegarde",
+    "exported": "Sauvegarde enregistrée : {path}",
+    "restore": "Restaurer une sauvegarde…",
+    "restoreTitle": "Choisir une sauvegarde à restaurer",
+    "confirmRestore": "Confirmer la restauration",
+    "restoreWarning": "Les données actuelles seront remplacées par celles de la sauvegarde.",
+    "cancel": "Annuler"
+  }
 }

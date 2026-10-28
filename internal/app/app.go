@@ -28,20 +28,21 @@ type App struct {
 
 // New crée l'application et ses services, et s'assure qu'un profil existe.
 func New(s *store.Store, bus *events.Bus) (*App, error) {
-	profileID, err := s.EnsureDefaultProfile(context.Background())
+	profile, err := RestoreActiveProfile(context.Background(), s)
 	if err != nil {
 		return nil, err
 	}
 	a := &App{Store: s, Bus: bus}
 	a.servicesFor = []any{
 		NewSystemService(s),
-		NewTextService(s, bus, profileID, dialogPicker{a}),
-		NewPracticeService(s, bus, profileID),
-		NewReviewService(s, bus, profileID),
-		NewStatsService(s, profileID, dialogPicker{a}),
-		NewDictationService(s, bus, profileID),
-		NewHomeService(s, profileID),
-		NewProfileService(s, profileID),
+		NewTextService(s, bus, profile, dialogPicker{a}),
+		NewPracticeService(s, bus, profile),
+		NewReviewService(s, bus, profile),
+		NewStatsService(s, profile, dialogPicker{a}),
+		NewDictationService(s, bus, profile),
+		NewHomeService(s, profile),
+		NewProfileService(s, profile),
+		NewBackupService(s, profile, dialogPicker{a}),
 		// Nouveaux services de modules : une ligne ici.
 	}
 	return a, nil
@@ -64,24 +65,24 @@ func (a *App) Startup(ctx context.Context) {
 // dialogPicker ouvre la boîte de dialogue système de Wails.
 type dialogPicker struct{ app *App }
 
-func (d dialogPicker) PickPDF(title string) (string, error) {
+func (d dialogPicker) PickFile(title string, f FileFilter) (string, error) {
 	if d.app.ctx == nil {
 		return "", errors.New("fenêtre non prête")
 	}
 	return runtime.OpenFileDialog(d.app.ctx, runtime.OpenDialogOptions{
 		Title:   title,
-		Filters: []runtime.FileFilter{{DisplayName: "PDF (*.pdf)", Pattern: "*.pdf"}},
+		Filters: []runtime.FileFilter{{DisplayName: f.Name, Pattern: f.Pattern}},
 	})
 }
 
-func (d dialogPicker) SaveCSV(title, defaultName string) (string, error) {
+func (d dialogPicker) SaveFile(title, defaultName string, f FileFilter) (string, error) {
 	if d.app.ctx == nil {
 		return "", errors.New("fenêtre non prête")
 	}
 	return runtime.SaveFileDialog(d.app.ctx, runtime.SaveDialogOptions{
 		Title:           title,
 		DefaultFilename: defaultName,
-		Filters:         []runtime.FileFilter{{DisplayName: "CSV (*.csv)", Pattern: "*.csv"}},
+		Filters:         []runtime.FileFilter{{DisplayName: f.Name, Pattern: f.Pattern}},
 	})
 }
 

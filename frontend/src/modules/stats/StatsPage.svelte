@@ -3,6 +3,7 @@
   import { Dashboard, ExportCSV } from '$wails/go/app/StatsService';
   import type { app } from '$wails/go/models';
   import { formatDuration, formatNumber, parseDay } from '$shared/format';
+  import { profile } from '$shared/profile.svelte';
   import KeyboardHeatmap from './KeyboardHeatmap.svelte';
   import LineChart from './LineChart.svelte';
 
@@ -88,7 +89,7 @@
 
       <div class="mt-6 grid gap-4 lg:grid-cols-[2fr_1fr]">
         <div class="flex flex-col gap-2">
-          <KeyboardHeatmap keys={data.keys} />
+          <KeyboardHeatmap keys={data.keys} layout={profile.keyboardLayout} />
           <details class="text-sm">
             <summary class="text-muted cursor-pointer">{$_('stats.heatmap.asTable')}</summary>
             <table class="mt-2 w-full text-left text-xs">

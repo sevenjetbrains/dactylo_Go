@@ -1,17 +1,24 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
   import { _ } from 'svelte-i18n';
-  import { FinishSession, RecordKeystrokes, StartSession } from '$wails/go/app/PracticeService';
+  import {
+    Abandon,
+    FinishSession,
+    RecordKeystrokes,
+    StartSession,
+  } from '$wails/go/app/PracticeService';
   import type { app } from '$wails/go/models';
   import { Clock } from './clock';
-  import { TypingEngine, wordEnds } from './engine';
+  import { BACKSPACE, TypingEngine, wordEnds } from './engine';
   import { attachTypingInput } from './input';
-  import { typingSettings } from './settings.svelte';
+  import { FONT_STACKS, sanitize, typingSettings } from './settings.svelte';
+  import { playTone } from './sound';
   import LiveBar from './LiveBar.svelte';
   import ResultScreen from './ResultScreen.svelte';
   import TypingArea from './TypingArea.svelte';
   import Icon from '$shared/Icon.svelte';
   import VirtualKeyboard from '$shared/keyboard/VirtualKeyboard.svelte';
+  import { profile } from '$shared/profile.svelte';
   import { DURATIONS } from './settings.svelte';
 
   let {
@@ -23,6 +30,7 @@
     content,
     onNext,
     back,
+    resume,
   }: {
     /** Texte de la bibliothèque ; 0 = exercice généré (révision), tapé en entier. */
     textId?: number;
@@ -35,6 +43,8 @@
     content: string;
     onNext: () => void;
     back?: { href: string; label: string };
+    /** Session interrompue à reprendre (NF-06) : ses frappes sont rejouées. */
+    resume?: app.ResumeData;
   } = $props();
 
   const BATCH_MS = 2000; // envoi des frappes (section 3.2)
@@ -56,6 +66,23 @@
   let sessionId: Promise<number> | null = null;
   let chain: Promise<void> = Promise.resolve();
   let textarea: HTMLTextAreaElement | undefined = $state();
+
+  // Reprise (NF-06) : mêmes réglages, frappes rejouées, chrono en pause.
+  function applyResume() {
+    if (!resume) return;
+    opts = sanitize(JSON.parse(resume.settings || '{}'));
+    engine = makeEngine();
+    for (const k of resume.keystrokes) {
+      if (k.typed === BACKSPACE) engine.backspace(k.timeMs);
+      else engine.type(k.typed, k.timeMs);
+    }
+    engine.take(); // déjà enregistrées
+    clock.restore(resume.elapsedMs);
+    elapsed = resume.elapsedMs;
+    sessionId = Promise.resolve(resume.sessionId);
+    status = 'paused';
+  }
+  applyResume();
 
   const limitMs = $derived(opts.sessionType === 'time' ? opts.durationMin * 60_000 : undefined);
   // Le moteur n'est pas réactif : `tick` signale chaque frappe.
@@ -136,8 +163,11 @@
   function flush(): Promise<void> {
     const batch = engine.take();
     if (batch.length > 0) {
+      // session résolue tout de suite : après Ctrl+R, ces frappes restent
+      // dans la session qu'on quitte
+      const id = ensureSession();
       chain = chain
-        .then(async () => RecordKeystrokes(await ensureSession(), batch))
+        .then(async () => RecordKeystrokes(await id, batch))
         .catch((e: unknown) => {
           error = String(e);
         });
@@ -159,7 +189,8 @@
 
   function onChar(ch: string) {
     if (!beforeKey()) return;
-    engine.type(ch, clock.elapsed());
+    const r = engine.type(ch, clock.elapsed());
+    if (opts.sounds && r !== 'ignored') playTone(r === 'correct' ? 'key' : 'error');
     tick++;
     if (engine.done) void finish();
   }
@@ -188,9 +219,18 @@
     }
   }
 
-  /** Recommence : la session en cours reste enregistrée mais non terminée. */
+  /** Quitte la session en cours : elle ne sera pas proposée à la reprise. */
+  function abandon() {
+    if (!sessionId || status === 'done' || status === 'finishing') return;
+    const id = sessionId;
+    void flush()
+      .then(async () => Abandon(await id))
+      .catch(() => {});
+  }
+
+  /** Recommence : la session en cours reste enregistrée, marquée abandonnée. */
   function restart() {
-    void flush();
+    abandon();
     opts = snapshotSettings();
     engine = makeEngine();
     clock = new Clock();
@@ -225,7 +265,7 @@
       restart();
     } else if (e.ctrlKey && e.key === 'Enter') {
       e.preventDefault();
-      void flush();
+      abandon();
       onNext();
     }
   }
@@ -346,6 +386,7 @@
         {engine}
         {tick}
         fontSize={opts.fontSize}
+        fontFamily={FONT_STACKS[opts.font]}
         visibleLines={opts.visibleLines}
         linePosition={opts.linePosition}
       />
@@ -387,7 +428,7 @@
     </div>
 
     {#if opts.showKeyboard}
-      <VirtualKeyboard next={live.next} />
+      <VirtualKeyboard next={live.next} layout={profile.keyboardLayout} />
     {/if}
   {/if}
 </div>

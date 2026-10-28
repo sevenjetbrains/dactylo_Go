@@ -20,4 +20,17 @@ describe('Clock', () => {
     c.start(); // sans effet une fois démarré
     expect(c.elapsed()).toBe(1500);
   });
+
+  it('reprend une session interrompue en pause', () => {
+    let t = 100;
+    const c = new Clock(() => t);
+    c.restore(4000);
+    expect(c.started).toBe(true);
+    expect(c.running).toBe(false);
+    t = 900;
+    expect(c.elapsed()).toBe(4000);
+    c.resume();
+    t = 1400;
+    expect(c.elapsed()).toBe(4500);
+  });
 });

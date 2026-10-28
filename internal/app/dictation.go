@@ -69,18 +69,18 @@ type activeDictation struct {
 
 // DictationService gère le mode Dictée : préparation, sessions, profils.
 type DictationService struct {
-	store     *store.Store
-	bus       *events.Bus
-	profileID int64
-	now       func() time.Time
+	store   *store.Store
+	bus     *events.Bus
+	profile *ActiveProfile
+	now     func() time.Time
 
 	mu     sync.Mutex
 	active map[int64]*activeDictation
 }
 
 // NewDictationService crée le service.
-func NewDictationService(s *store.Store, bus *events.Bus, profileID int64) *DictationService {
-	return &DictationService{store: s, bus: bus, profileID: profileID, now: time.Now, active: map[int64]*activeDictation{}}
+func NewDictationService(s *store.Store, bus *events.Bus, profile *ActiveProfile) *DictationService {
+	return &DictationService{store: s, bus: bus, profile: profile, now: time.Now, active: map[int64]*activeDictation{}}
 }
 
 func (d *DictationService) excerpt(ctx context.Context, textID int64, start, end int) (store.Text, string, int, int, error) {
@@ -133,7 +133,7 @@ func (d *DictationService) Start(req StartRequest) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	id, err := d.store.CreateSession(ctx, d.profileID, req.TextID, ModeDictation, string(raw), d.now())
+	id, err := d.store.CreateSession(ctx, d.profile.ID(), req.TextID, ModeDictation, string(raw), d.now())
 	if err != nil {
 		return 0, err
 	}
@@ -186,18 +186,18 @@ func (d *DictationService) Finish(req FinishDictation) (DictationResult, error) 
 		}
 	}
 
-	avg, err := d.store.RecentDictationAverages(ctx, d.profileID, req.SessionID, AverageWindow)
+	avg, err := d.store.RecentDictationAverages(ctx, d.profile.ID(), req.SessionID, AverageWindow)
 	if err != nil {
 		return DictationResult{}, err
 	}
 
 	d.bus.Publish(events.Event{Name: events.SessionCompleted, Payload: events.SessionCompletedPayload{
-		SessionID: req.SessionID, ProfileID: d.profileID, TextID: a.textID, Mode: ModeDictation, Summary: sum,
+		SessionID: req.SessionID, ProfileID: d.profile.ID(), TextID: a.textID, Mode: ModeDictation, Summary: sum,
 		Words: dictation.Attempts(report.Ops),
 	}})
 	for _, m := range mistakes {
 		d.bus.Publish(events.Event{Name: events.WordMistyped, Payload: events.WordMistypedPayload{
-			SessionID: req.SessionID, ProfileID: d.profileID, Error: m,
+			SessionID: req.SessionID, ProfileID: d.profile.ID(), Error: m,
 		}})
 	}
 

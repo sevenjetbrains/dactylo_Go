@@ -72,7 +72,7 @@
           {name || $_('app.you')}
         </span>
         <span class="block truncate text-xs">
-          {profile.keyboardLayout.toUpperCase()} · {$_(`app.languages.${$locale ?? 'fr'}`)}
+          {$_(`app.layouts.${profile.keyboardLayout}`)} · {$_(`app.languages.${$locale ?? 'fr'}`)}
         </span>
       </span>
     </a>

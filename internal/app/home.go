@@ -19,6 +19,9 @@ import (
 // SecondsPerReviewWord sert à estimer la durée de la révision du jour.
 const SecondsPerReviewWord = 25
 
+// InterruptedMaxAge : au-delà, une session interrompue n'est plus proposée.
+const InterruptedMaxAge = 7 * 24 * time.Hour
+
 // DueCard est la carte « Révision du jour » (F-43).
 type DueCard struct {
 	Count   int      `json:"count"`
@@ -55,29 +58,31 @@ type Trend struct {
 
 // Overview est le contenu de l'accueil.
 type Overview struct {
-	Profile      store.Profile        `json:"profile"`
-	Due          DueCard              `json:"due"`
-	Continue     *ContinueCard        `json:"continue"`
-	Dictation    *DictationCard       `json:"dictation"`
-	Speed        Trend                `json:"speed"`
-	Accuracy     Trend                `json:"accuracy"`
-	Streak       int                  `json:"streak"`
-	BestStreak   int                  `json:"bestStreak"`
-	WeekMs       int64                `json:"weekMs"`
-	WeekSessions int                  `json:"weekSessions"`
-	Recent       []store.SessionPoint `json:"recent"` // de la plus récente à la plus ancienne
+	Profile   store.Profile  `json:"profile"`
+	Due       DueCard        `json:"due"`
+	Continue  *ContinueCard  `json:"continue"`
+	Dictation *DictationCard `json:"dictation"`
+	// Session de copie interrompue par une fermeture brutale (NF-06).
+	Interrupted  *store.InterruptedSession `json:"interrupted"`
+	Speed        Trend                     `json:"speed"`
+	Accuracy     Trend                     `json:"accuracy"`
+	Streak       int                       `json:"streak"`
+	BestStreak   int                       `json:"bestStreak"`
+	WeekMs       int64                     `json:"weekMs"`
+	WeekSessions int                       `json:"weekSessions"`
+	Recent       []store.SessionPoint      `json:"recent"` // de la plus récente à la plus ancienne
 }
 
 // HomeService alimente l'accueil.
 type HomeService struct {
-	store     *store.Store
-	profileID int64
-	now       func() time.Time
+	store   *store.Store
+	profile *ActiveProfile
+	now     func() time.Time
 }
 
 // NewHomeService crée le service.
-func NewHomeService(s *store.Store, profileID int64) *HomeService {
-	return &HomeService{store: s, profileID: profileID, now: time.Now}
+func NewHomeService(s *store.Store, profile *ActiveProfile) *HomeService {
+	return &HomeService{store: s, profile: profile, now: time.Now}
 }
 
 // Overview rassemble l'accueil. split et size sont le découpage général
@@ -87,11 +92,11 @@ func (h *HomeService) Overview(split string, size int) (Overview, error) {
 	now := h.now()
 	var o Overview
 	var err error
-	if o.Profile, err = h.store.GetProfile(ctx, h.profileID); err != nil {
+	if o.Profile, err = h.store.GetProfile(ctx, h.profile.ID()); err != nil {
 		return o, err
 	}
 
-	due, err := h.store.ListWords(ctx, h.profileID, store.WordFilter{Status: "due", Today: srs.Day(now)})
+	due, err := h.store.ListWords(ctx, h.profile.ID(), store.WordFilter{Status: "due", Today: srs.Day(now)})
 	if err != nil {
 		return o, err
 	}
@@ -107,13 +112,18 @@ func (h *HomeService) Overview(split string, size int) (Overview, error) {
 	if o.Continue, err = h.continueCard(ctx, split, size); err != nil {
 		return o, err
 	}
-	if t, ok, err := h.store.LastTextForMode(ctx, h.profileID, ModeDictation); err != nil {
+	if x, ok, err := h.store.LastInterrupted(ctx, h.profile.ID(), now.Add(-InterruptedMaxAge)); err != nil {
+		return o, err
+	} else if ok {
+		o.Interrupted = &x
+	}
+	if t, ok, err := h.store.LastTextForMode(ctx, h.profile.ID(), ModeDictation); err != nil {
 		return o, err
 	} else if ok {
 		o.Dictation = &DictationCard{TextID: t.ID, Title: t.Title, Tags: t.Tags, Words: len(strings.Fields(t.Content))}
 	}
 
-	points, err := h.store.SessionPoints(ctx, h.profileID, 20)
+	points, err := h.store.SessionPoints(ctx, h.profile.ID(), 20)
 	if err != nil {
 		return o, err
 	}
@@ -124,14 +134,14 @@ func (h *HomeService) Overview(split string, size int) (Overview, error) {
 		o.Recent = append(o.Recent, points[i])
 	}
 
-	days, err := h.store.SessionDays(ctx, h.profileID)
+	days, err := h.store.SessionDays(ctx, h.profile.ID())
 	if err != nil {
 		return o, err
 	}
 	o.Streak = stats.Streak(days, now)
 	o.BestStreak = stats.BestStreak(days, now.Location())
 
-	all, err := h.store.SessionPoints(ctx, h.profileID, 0)
+	all, err := h.store.SessionPoints(ctx, h.profile.ID(), 0)
 	if err != nil {
 		return o, err
 	}
@@ -146,7 +156,7 @@ func (h *HomeService) Overview(split string, size int) (Overview, error) {
 }
 
 func (h *HomeService) continueCard(ctx context.Context, split string, size int) (*ContinueCard, error) {
-	t, pos, ok, err := h.store.LastProgress(ctx, h.profileID)
+	t, pos, ok, err := h.store.LastProgress(ctx, h.profile.ID())
 	if err != nil || !ok {
 		return nil, err
 	}
@@ -186,36 +196,4 @@ func trend(points []store.SessionPoint, value func(store.SessionPoint) float64) 
 		t.Delta, t.HasDelta = t.Value-avg(prev), true
 	}
 	return t
-}
-
-// ProfileService gère le profil affiché (nom). Les profils multiples
-// arrivent avec F-50.
-type ProfileService struct {
-	store     *store.Store
-	profileID int64
-}
-
-// NewProfileService crée le service.
-func NewProfileService(s *store.Store, profileID int64) *ProfileService {
-	return &ProfileService{store: s, profileID: profileID}
-}
-
-// Get renvoie le profil courant.
-func (p *ProfileService) Get() (store.Profile, error) {
-	return p.store.GetProfile(context.Background(), p.profileID)
-}
-
-// Rename change le prénom affiché (vide : « Moi »).
-func (p *ProfileService) Rename(name string) (store.Profile, error) {
-	name = strings.TrimSpace(text.NFC(name))
-	if name == "" {
-		name = store.DefaultProfileName
-	}
-	if utf8.RuneCountInString(name) > 40 {
-		name = string([]rune(name)[:40])
-	}
-	if err := p.store.RenameProfile(context.Background(), p.profileID, name); err != nil {
-		return store.Profile{}, err
-	}
-	return p.Get()
 }

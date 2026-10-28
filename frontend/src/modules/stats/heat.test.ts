@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { keyFor } from '$shared/keyboard/azerty';
+import { keyFor } from '$shared/keyboard/layouts';
 import { heatByKey, scaleRange, stepFor } from './heat';
 
 describe('keyFor (AZERTY)', () => {

@@ -16,6 +16,13 @@ export class Clock {
     this.since = this.now();
   }
 
+  /** Reprend une session interrompue (NF-06) : démarrée, en pause, à ms. */
+  restore(ms: number): void {
+    this.started = true;
+    this.since = null;
+    this.accumulated = ms;
+  }
+
   pause(): void {
     if (this.since === null) return;
     this.accumulated += this.now() - this.since;

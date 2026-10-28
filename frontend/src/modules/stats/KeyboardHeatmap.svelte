@@ -3,7 +3,7 @@
   import type { stats } from '$wails/go/models';
   import { formatNumber } from '$shared/format';
   import {
-    AZERTY,
+    layoutRows,
     heatByKey,
     MIN_COUNT,
     scaleRange,
@@ -12,11 +12,11 @@
     type HeatMetric,
   } from './heat';
 
-  let { keys }: { keys: stats.KeyStat[] } = $props();
+  let { keys, layout = 'azerty' }: { keys: stats.KeyStat[]; layout?: string } = $props();
 
   let metric: HeatMetric = $state('errors');
   const lang = $derived($locale ?? 'fr');
-  const heat = $derived(heatByKey(keys));
+  const heat = $derived(heatByKey(keys, layout));
   const range = $derived(scaleRange(heat, metric));
 
   const fmt = (n: number) =>
@@ -44,7 +44,7 @@
   </figcaption>
 
   <div class="flex flex-col gap-1 font-mono text-sm" data-testid="heatmap">
-    {#each AZERTY as row, r (r)}
+    {#each layoutRows(layout) as row, r (r)}
       <div class="flex gap-1" style:padding-inline-start="{r * 0.6}rem">
         {#each row as key (key.label)}
           {@const h = heat.get(key)}

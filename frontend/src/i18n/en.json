@@ -11,6 +11,11 @@
     "languages": {
       "fr": "Français",
       "en": "English"
+    },
+    "layouts": {
+      "azerty": "AZERTY",
+      "qwerty": "QWERTY",
+      "bepo": "BÉPO"
     }
   }
 }

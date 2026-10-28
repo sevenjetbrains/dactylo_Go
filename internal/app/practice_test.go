@@ -33,8 +33,9 @@ func newFixture(t *testing.T) *fixture {
 	f := &fixture{store: s, bus: events.NewBus()}
 	f.bus.SubscribeAll(func(e events.Event) { f.events = append(f.events, e) })
 	f.picker = &fakePicker{}
-	f.texts = NewTextService(s, f.bus, pid, f.picker)
-	f.practice = NewPracticeService(s, f.bus, pid)
+	prof := NewActiveProfile(pid)
+	f.texts = NewTextService(s, f.bus, prof, f.picker)
+	f.practice = NewPracticeService(s, f.bus, prof)
 	return f
 }
 

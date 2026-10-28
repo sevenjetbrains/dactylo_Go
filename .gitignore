@@ -19,3 +19,4 @@ playwright-report/
 *.db-wal
 .DS_Store
 Thumbs.db
+build/windows/installer/tmp/

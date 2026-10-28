@@ -16,8 +16,8 @@ type fakePicker struct {
 	err  error
 }
 
-func (f *fakePicker) PickPDF(string) (string, error)         { return f.path, f.err }
-func (f *fakePicker) SaveCSV(string, string) (string, error) { return f.path, f.err }
+func (f *fakePicker) PickFile(string, FileFilter) (string, error)         { return f.path, f.err }
+func (f *fakePicker) SaveFile(string, string, FileFilter) (string, error) { return f.path, f.err }
 
 func userTexts(t *testing.T, f *fixture, q TextQuery) []string {
 	t.Helper()
@@ -80,12 +80,12 @@ func TestUpdateAndDuplicate(t *testing.T) {
 	if got, _ := f.texts.GetText(id); len(got.Tags) != 1 {
 		t.Errorf("étiquettes dédoublonnées = %v", got.Tags)
 	}
-	_ = f.store.SetProgress(t.Context(), f.practice.profileID, id, 15)
+	_ = f.store.SetProgress(t.Context(), f.practice.profile.ID(), id, 15)
 
 	if err := f.texts.UpdateText(id, TextInput{Title: "Court", Content: "un deux"}); err != nil {
 		t.Fatal(err)
 	}
-	if pos, _ := f.store.GetProgress(t.Context(), f.practice.profileID, id); pos != 7 {
+	if pos, _ := f.store.GetProgress(t.Context(), f.practice.profile.ID(), id); pos != 7 {
 		t.Errorf("progression ramenée à la fin du texte = %d", pos)
 	}
 	if err := f.texts.UpdateText(id, TextInput{Content: " "}); err == nil {

@@ -10,7 +10,7 @@ import (
 
 func TestHomeOverview(t *testing.T) {
 	f := newReviewFixture(t)
-	home := NewHomeService(f.store, f.practice.profileID)
+	home := NewHomeService(f.store, f.practice.profile)
 	home.now = func() time.Time { return f.clock }
 
 	// accueil vide
@@ -63,7 +63,7 @@ func TestTrend(t *testing.T) {
 
 func TestProfileRename(t *testing.T) {
 	f := newFixture(t)
-	p := NewProfileService(f.store, f.practice.profileID)
+	p := NewProfileService(f.store, f.practice.profile)
 	got, err := p.Rename("  Boualem ")
 	if err != nil || got.Name != "Boualem" || got.KeyboardLayout != "azerty" {
 		t.Fatalf("Rename = %+v, %v", got, err)

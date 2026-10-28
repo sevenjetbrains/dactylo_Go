@@ -7,6 +7,7 @@
     engine,
     tick,
     fontSize,
+    fontFamily,
     visibleLines,
     linePosition,
   }: {
@@ -14,6 +15,8 @@
     /** Incrémenté à chaque frappe : déclenche le rafraîchissement. */
     tick: number;
     fontSize: number;
+    /** Police à chasse fixe (F-51) ; par défaut celle du thème. */
+    fontFamily?: string;
     visibleLines: number;
     linePosition: LinePosition;
   } = $props();
@@ -28,6 +31,7 @@
   $effect(() => {
     if (!container || !probe) return;
     void fontSize;
+    void fontFamily;
     const measure = () => {
       const charWidth = probe!.getBoundingClientRect().width / 50 || fontSize * 0.6;
       columns = Math.max(10, Math.floor(container!.clientWidth / charWidth) - 1);
@@ -77,6 +81,7 @@
   bind:this={container}
   class="typing relative w-full overflow-hidden font-mono"
   style:font-size="{fontSize}px"
+  style:font-family={fontFamily}
   style:line-height={LINE_HEIGHT}
   style:height="{visibleLines * LINE_HEIGHT}em"
 >

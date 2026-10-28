@@ -75,21 +75,34 @@ type ExercisePlan struct {
 // FilePicker ouvre les boîtes de dialogue système de fichier. Les services
 // ne lisent ni n'écrivent jamais un chemin venu de l'interface (NF-11).
 type FilePicker interface {
-	PickPDF(title string) (path string, err error)              // "" si annulé
-	SaveCSV(title, defaultName string) (path string, err error) // "" si annulé
+	PickFile(title string, filter FileFilter) (path string, err error)              // "" si annulé
+	SaveFile(title, defaultName string, filter FileFilter) (path string, err error) // "" si annulé
 }
+
+// FileFilter restreint les fichiers proposés (« PDF (*.pdf) », « *.pdf »).
+type FileFilter struct {
+	Name    string
+	Pattern string
+}
+
+// Filtres des boîtes de dialogue.
+var (
+	FilterPDF    = FileFilter{Name: "PDF (*.pdf)", Pattern: "*.pdf"}
+	FilterCSV    = FileFilter{Name: "CSV (*.csv)", Pattern: "*.csv"}
+	FilterBackup = FileFilter{Name: "Sauvegarde Dactylo (*.db)", Pattern: "*.db"}
+)
 
 // TextService gère la bibliothèque de textes.
 type TextService struct {
-	store     *store.Store
-	bus       *events.Bus
-	profileID int64
-	picker    FilePicker
+	store   *store.Store
+	bus     *events.Bus
+	profile *ActiveProfile
+	picker  FilePicker
 }
 
 // NewTextService crée le service.
-func NewTextService(s *store.Store, bus *events.Bus, profileID int64, picker FilePicker) *TextService {
-	return &TextService{store: s, bus: bus, profileID: profileID, picker: picker}
+func NewTextService(s *store.Store, bus *events.Bus, profile *ActiveProfile, picker FilePicker) *TextService {
+	return &TextService{store: s, bus: bus, profile: profile, picker: picker}
 }
 
 // CreateText nettoie et enregistre un texte, puis émet TextImported.
@@ -117,12 +130,12 @@ func (t *TextService) UpdateText(id int64, in TextInput) error {
 	if err := t.store.UpdateText(ctx, rec); err != nil {
 		return err
 	}
-	pos, err := t.store.GetProgress(ctx, t.profileID, id)
+	pos, err := t.store.GetProgress(ctx, t.profile.ID(), id)
 	if err != nil {
 		return err
 	}
 	if n := utf8.RuneCountInString(rec.Content); pos > n {
-		return t.store.SetProgress(ctx, t.profileID, id, n)
+		return t.store.SetProgress(ctx, t.profile.ID(), id, n)
 	}
 	return nil
 }
@@ -142,7 +155,7 @@ func (t *TextService) DuplicateText(id int64) (int64, error) {
 
 // ListTexts renvoie la bibliothèque filtrée et triée.
 func (t *TextService) ListTexts(q TextQuery) (TextList, error) {
-	all, err := t.store.ListTexts(context.Background(), t.profileID)
+	all, err := t.store.ListTexts(context.Background(), t.profile.ID())
 	if err != nil {
 		return TextList{}, err
 	}
@@ -201,7 +214,7 @@ func (t *TextService) DeleteText(id int64) error {
 // OpenPDF fait choisir un PDF dans la boîte de dialogue système et renvoie
 // son contenu. dialogTitle est traduit par l'interface.
 func (t *TextService) OpenPDF(dialogTitle string) (PDFFile, error) {
-	path, err := t.picker.PickPDF(dialogTitle)
+	path, err := t.picker.PickFile(dialogTitle, FilterPDF)
 	if err != nil {
 		return PDFFile{}, err
 	}
@@ -244,7 +257,7 @@ func (t *TextService) Exercises(textID int64, split string, size int) (ExerciseP
 	if err != nil {
 		return ExercisePlan{}, err
 	}
-	pos, err := t.store.GetProgress(ctx, t.profileID, textID)
+	pos, err := t.store.GetProgress(ctx, t.profile.ID(), textID)
 	if err != nil {
 		return ExercisePlan{}, err
 	}
@@ -264,7 +277,7 @@ func (t *TextService) Exercises(textID int64, split string, size int) (ExerciseP
 
 // ResetProgress repart du début du texte.
 func (t *TextService) ResetProgress(textID int64) error {
-	return t.store.SetProgress(context.Background(), t.profileID, textID, 0)
+	return t.store.SetProgress(context.Background(), t.profile.ID(), textID, 0)
 }
 
 func toRecord(in TextInput) (store.Text, error) {

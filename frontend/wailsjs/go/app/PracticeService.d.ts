@@ -3,8 +3,12 @@
 import {app} from '../models';
 import {typing} from '../models';
 
+export function Abandon(arg1:number):Promise<void>;
+
 export function FinishSession(arg1:number,arg2:number):Promise<app.SessionResult>;
 
 export function RecordKeystrokes(arg1:number,arg2:Array<typing.Keystroke>):Promise<void>;
+
+export function Resume(arg1:number):Promise<app.ResumeData>;
 
 export function StartSession(arg1:app.StartRequest):Promise<number>;

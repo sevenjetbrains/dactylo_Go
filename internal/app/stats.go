@@ -37,33 +37,33 @@ type ExportResult struct {
 
 // StatsService calcule les statistiques et l'export CSV.
 type StatsService struct {
-	store     *store.Store
-	profileID int64
-	picker    FilePicker
-	now       func() time.Time
+	store   *store.Store
+	profile *ActiveProfile
+	picker  FilePicker
+	now     func() time.Time
 }
 
 // NewStatsService crée le service.
-func NewStatsService(s *store.Store, profileID int64, picker FilePicker) *StatsService {
-	return &StatsService{store: s, profileID: profileID, picker: picker, now: time.Now}
+func NewStatsService(s *store.Store, profile *ActiveProfile, picker FilePicker) *StatsService {
+	return &StatsService{store: s, profile: profile, picker: picker, now: time.Now}
 }
 
 // Dashboard rassemble courbes, totaux, série et carte du clavier.
 func (s *StatsService) Dashboard() (Dashboard, error) {
 	ctx := context.Background()
-	points, err := s.store.SessionPoints(ctx, s.profileID, ChartSessions)
+	points, err := s.store.SessionPoints(ctx, s.profile.ID(), ChartSessions)
 	if err != nil {
 		return Dashboard{}, err
 	}
-	totals, err := s.store.SessionTotals(ctx, s.profileID)
+	totals, err := s.store.SessionTotals(ctx, s.profile.ID())
 	if err != nil {
 		return Dashboard{}, err
 	}
-	days, err := s.store.SessionDays(ctx, s.profileID)
+	days, err := s.store.SessionDays(ctx, s.profile.ID())
 	if err != nil {
 		return Dashboard{}, err
 	}
-	recent, err := s.store.RecentKeystrokes(ctx, s.profileID, HeatmapSessions)
+	recent, err := s.store.RecentKeystrokes(ctx, s.profile.ID(), HeatmapSessions)
 	if err != nil {
 		return Dashboard{}, err
 	}
@@ -76,12 +76,12 @@ func (s *StatsService) Dashboard() (Dashboard, error) {
 
 // ExportCSV fait choisir un fichier puis y écrit toutes les sessions (F-35).
 func (s *StatsService) ExportCSV(dialogTitle string) (ExportResult, error) {
-	points, err := s.store.SessionPoints(context.Background(), s.profileID, 0)
+	points, err := s.store.SessionPoints(context.Background(), s.profile.ID(), 0)
 	if err != nil {
 		return ExportResult{}, err
 	}
 	name := "dactylo-sessions-" + s.now().Format(time.DateOnly) + ".csv"
-	path, err := s.picker.SaveCSV(dialogTitle, name)
+	path, err := s.picker.SaveFile(dialogTitle, name, FilterCSV)
 	if err != nil || path == "" {
 		return ExportResult{}, err
 	}

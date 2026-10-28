@@ -51,7 +51,19 @@
     "showLiveBar": "Show the WPM / accuracy bar",
     "foldTypography": "Accept ' for ’, \" for « » and - for –",
     "slowThreshold": "Word is slow beyond {n} times your average speed (difficult words)",
-    "showKeyboard": "Show the virtual keyboard (next key and finger)"
+    "showKeyboard": "Show the virtual keyboard (next key and finger)",
+    "font": "Text font",
+    "fonts": {
+      "jetbrains": "JetBrains Mono",
+      "cascadia": "Cascadia Mono",
+      "courier": "Courier New"
+    },
+    "sounds": "Typing sounds"
   },
-  "eyebrow": "Copy · exercise {n} of {total}"
+  "eyebrow": "Copy · exercise {n} of {total}",
+  "resume": {
+    "notice": "Session resumed where it stopped. Type to continue.",
+    "eyebrow": "Copy · resumed",
+    "failed": "This session can no longer be resumed."
+  }
 }

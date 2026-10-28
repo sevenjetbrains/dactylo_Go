@@ -1,6 +1,7 @@
 <script lang="ts">
   import { _ } from 'svelte-i18n';
   import { Exercises, GetText, ListTexts, ResetProgress } from '$wails/go/app/TextService';
+  import { Resume } from '$wails/go/app/PracticeService';
   import { router } from '$app/router.svelte';
   import {
     DURATIONS,
@@ -12,15 +13,18 @@
 
   const textId = $derived(Number(router.query.get('text')) || 0);
   const exParam = $derived(router.query.get('ex'));
+  // Reprise d'une session interrompue (NF-06), proposée par l'accueil.
+  const resumeId = $derived(Number(router.query.get('resume')) || 0);
+  const resumed = $derived(resumeId ? Resume(resumeId) : null);
   // Incrémenté pour relancer la même page (un seul texte, rechargement).
   let round = $state(0);
 
   const session = $derived.by(() => {
     void round; // recharger aussi quand on relance la même adresse
-    if (!textId) return null;
+    if (!textId || resumeId) return null;
     return load(textId, exParam, typingSettings.exerciseSplit, typingSettings.exerciseSize);
   });
-  const texts = $derived(textId ? null : ListTexts(allTexts()));
+  const texts = $derived(textId || resumeId ? null : ListTexts(allTexts()));
 
   const sessionTypes: SessionType[] = ['text', 'time', 'words'];
   const splits: ExerciseSplit[] = ['none', 'paragraph', 'lines'];
@@ -82,11 +86,33 @@
 </script>
 
 <section class="mx-auto max-w-6xl px-10 py-10">
-  {#if session}
+  {#if resumed}
+    {#await resumed then r}
+      <p class="text-muted mb-4 text-sm" data-testid="session-resumed">
+        {$_('practice.resume.notice')}
+      </p>
+      {#key r.sessionId}
+        <TypingSession
+          textId={r.textId}
+          title={r.title}
+          eyebrow={$_('practice.resume.eyebrow')}
+          start={r.start}
+          end={r.end}
+          content={r.content}
+          resume={r}
+          onNext={() => go(`/practice?text=${r.textId}`)}
+          back={{ href: '#/practice', label: $_('practice.actions.chooseText') }}
+        />
+      {/key}
+    {:catch}
+      <p role="alert" class="text-error">{$_('practice.resume.failed')}</p>
+      <a href="#/practice" class="text-accent underline">{$_('practice.actions.chooseText')}</a>
+    {/await}
+  {:else if session}
     {#await session then s}
       {#if s.plan.segments.length > 1}
         <nav
-          class="text-muted -mb-6 flex flex-wrap items-center justify-end gap-3 text-sm"
+          class="text-muted relative z-10 -mb-6 flex flex-wrap items-center justify-end gap-3 text-sm"
           aria-label={$_('practice.exercise.nav')}
         >
           <label class="flex items-center gap-2">

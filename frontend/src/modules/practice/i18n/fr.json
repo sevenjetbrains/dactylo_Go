@@ -51,7 +51,19 @@
     "showLiveBar": "Afficher le bandeau MPM / précision",
     "foldTypography": "Accepter ' pour ’, \" pour « » et - pour –",
     "slowThreshold": "Mot lent au-delà de {n} fois votre vitesse moyenne (mots difficiles)",
-    "showKeyboard": "Afficher le clavier virtuel (touche suivante et doigt conseillé)"
+    "showKeyboard": "Afficher le clavier virtuel (touche suivante et doigt conseillé)",
+    "font": "Police du texte",
+    "fonts": {
+      "jetbrains": "JetBrains Mono",
+      "cascadia": "Cascadia Mono",
+      "courier": "Courier New"
+    },
+    "sounds": "Sons de frappe"
   },
-  "eyebrow": "Copie · exercice {n} sur {total}"
+  "eyebrow": "Copie · exercice {n} sur {total}",
+  "resume": {
+    "notice": "Session reprise là où elle s’était arrêtée. Tapez pour continuer.",
+    "eyebrow": "Copie · reprise",
+    "failed": "Cette session ne peut plus être reprise."
+  }
 }

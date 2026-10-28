@@ -3,9 +3,20 @@ import type { Correction } from './engine';
 export type SessionType = 'text' | 'time' | 'words';
 export type LinePosition = 'top' | 'center';
 export type ExerciseSplit = 'none' | 'paragraph' | 'lines';
+export const FONTS = ['jetbrains', 'cascadia', 'courier'] as const;
+export type TypingFont = (typeof FONTS)[number];
+
+/** Polices à chasse fixe proposées pour le texte à copier (F-51). */
+export const FONT_STACKS: Record<TypingFont, string> = {
+  jetbrains: "'JetBrains Mono Variable', ui-monospace, monospace",
+  cascadia: "'Cascadia Mono', Consolas, ui-monospace, monospace",
+  courier: "'Courier New', Courier, monospace",
+};
 
 export interface PracticeSettings {
   fontSize: number; // F-01 : 14 à 32 px
+  font: TypingFont; // F-51
+  sounds: boolean; // F-51 : sons de frappe
   visibleLines: number; // F-03 : 1 à 10
   linePosition: LinePosition;
   correction: Correction; // F-04
@@ -25,6 +36,8 @@ export const DURATIONS = [1, 2, 5, 10] as const;
 
 export const DEFAULTS: PracticeSettings = {
   fontSize: 24,
+  font: 'jetbrains',
+  sounds: false,
   visibleLines: 3,
   linePosition: 'top',
   correction: 'free',
@@ -57,6 +70,8 @@ export function sanitize(raw: unknown): PracticeSettings {
     allowed.includes(v as T) ? (v as T) : d;
   return {
     fontSize: clamp(r.fontSize, 14, 32, DEFAULTS.fontSize),
+    font: pick(r.font, FONTS, DEFAULTS.font),
+    sounds: typeof r.sounds === 'boolean' ? r.sounds : DEFAULTS.sounds,
     visibleLines: clamp(r.visibleLines, 1, 10, DEFAULTS.visibleLines),
     linePosition: pick(r.linePosition, ['top', 'center'] as const, DEFAULTS.linePosition),
     correction: pick(r.correction, ['free', 'blocking'] as const, DEFAULTS.correction),
@@ -91,7 +106,7 @@ function load(): PracticeSettings {
 }
 
 // Réglages partagés par l'écran de frappe et le panneau Réglages ;
-// mémorisés localement (ils iront dans profiles.settings avec F-50/F-51).
+// enregistrés dans le profil (F-51), avec un cache local.
 export const typingSettings: PracticeSettings = $state(load());
 
 $effect.root(() => {

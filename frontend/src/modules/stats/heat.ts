@@ -1,4 +1,4 @@
-import { AZERTY, keyFor, type KeyDef } from '$shared/keyboard/azerty';
+import { keyFor, layoutRows, type KeyDef } from '$shared/keyboard/layouts';
 
 export interface KeyStatLike {
   key: string;
@@ -22,10 +22,10 @@ export const MIN_COUNT = 5;
 export const STEPS = 7;
 
 /** Regroupe les mesures par touche du clavier (é et 2 sur la même touche...). */
-export function heatByKey(stats: readonly KeyStatLike[]): Map<KeyDef, KeyHeat> {
+export function heatByKey(stats: readonly KeyStatLike[], layout?: string): Map<KeyDef, KeyHeat> {
   const out = new Map<KeyDef, KeyHeat>();
   for (const s of stats) {
-    const key = keyFor(s.key);
+    const key = keyFor(s.key, layout);
     if (!key) continue;
     const h = out.get(key) ?? { count: 0, errors: 0, errorRate: 0, avgMs: 0 };
     // moyenne pondérée par le nombre de frappes
@@ -63,4 +63,4 @@ export function stepFor(
   return Math.min(STEPS - 1, Math.max(0, Math.round(t * (STEPS - 1))));
 }
 
-export { AZERTY };
+export { layoutRows };

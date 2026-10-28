@@ -1,7 +1,7 @@
 {
   "menu": "Settings",
   "title": "Settings",
-  "appearance": "Profile and appearance",
+  "appearance": "Appearance and language",
   "theme": "Theme",
   "themes": {
     "system": "System",
@@ -16,5 +16,34 @@
   "name": "Your first name",
   "namePlaceholder": "Shown on the home page",
   "save": "Save",
-  "saved": "Saved"
+  "saved": "Saved",
+  "layouts": {
+    "azerty": "AZERTY",
+    "qwerty": "QWERTY",
+    "bepo": "BÉPO"
+  },
+  "profiles": {
+    "title": "Profiles",
+    "hint": "Each profile keeps its own texts, statistics, difficult words and settings.",
+    "name": "Profile name",
+    "layout": "Keyboard layout",
+    "active": "Active profile",
+    "switch": "Use this profile",
+    "delete": "Delete",
+    "confirmDelete": "Confirm: delete everything",
+    "newName": "New profile",
+    "add": "Add profile"
+  },
+  "backup": {
+    "title": "Backup",
+    "hint": "All data (profiles, texts, statistics) in a single file.",
+    "export": "Back up to a file…",
+    "exportTitle": "Save backup",
+    "exported": "Backup saved: {path}",
+    "restore": "Restore a backup…",
+    "restoreTitle": "Choose a backup to restore",
+    "confirmRestore": "Confirm restore",
+    "restoreWarning": "Current data will be replaced by the backup.",
+    "cancel": "Cancel"
+  }
 }

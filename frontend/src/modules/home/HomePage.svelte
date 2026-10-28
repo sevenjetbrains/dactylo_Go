@@ -1,6 +1,7 @@
 <script lang="ts">
   import { _, locale } from 'svelte-i18n';
   import { Overview } from '$wails/go/app/HomeService';
+  import { Abandon } from '$wails/go/app/PracticeService';
   import { Info } from '$wails/go/app/SystemService';
   import type { store } from '$wails/go/models';
   import Icon from '$shared/Icon.svelte';
@@ -18,6 +19,13 @@
   const lang = $derived($locale ?? 'fr');
   const name = $derived(displayName(profile.name));
   const today = new Date();
+  let dismissed = $state(false);
+
+  /** Ignore la session interrompue : elle ne sera plus proposée. */
+  async function dismiss(id: number) {
+    dismissed = true;
+    await Abandon(id).catch(() => {});
+  }
 
   function sessionDate(iso: string): string {
     const d = parseDay(iso);
@@ -63,6 +71,29 @@
   {#await overview}
     <p class="text-muted mt-10">…</p>
   {:then o}
+    {#if o.interrupted && !dismissed}
+      {@const s = o.interrupted}
+      <!-- Reprise après une fermeture brutale (NF-06) -->
+      <aside
+        class="card border-warm mt-8 flex flex-wrap items-center gap-4 px-6 py-4"
+        data-testid="interrupted"
+      >
+        <div class="min-w-0 flex-1">
+          <p class="font-semibold">{$_('home.interrupted.title')}</p>
+          <p class="text-muted truncate text-sm">
+            {$_('home.interrupted.detail', {
+              values: { title: s.textTitle, date: sessionDate(s.startedAt), n: s.keystrokes },
+            })}
+          </p>
+        </div>
+        <button class="btn btn-outline" onclick={() => dismiss(s.id)}>
+          {$_('home.interrupted.dismiss')}
+        </button>
+        <a href={`#/practice?resume=${s.id}`} class="btn btn-primary">
+          {$_('home.interrupted.resume')}
+        </a>
+      </aside>
+    {/if}
     <div class="mt-8 grid gap-5 lg:grid-cols-3">
       <!-- Révision du jour (F-43) -->
       <article class="bg-nav flex flex-col rounded-2xl p-7 text-white" data-testid="due-card">

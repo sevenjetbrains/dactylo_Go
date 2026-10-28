@@ -1,6 +1,6 @@
 <script lang="ts">
   import { _, locale } from 'svelte-i18n';
-  import { typingSettings as s } from '$shared/typing/settings.svelte';
+  import { FONT_STACKS, FONTS, typingSettings as s } from '$shared/typing/settings.svelte';
 </script>
 
 <fieldset class="card p-5">
@@ -12,6 +12,22 @@
         {$_('practice.settings.fontSize', { values: { n: s.fontSize } })}
       </span>
       <input type="range" min="14" max="32" step="1" bind:value={s.fontSize} />
+    </label>
+
+    <label class="flex flex-col gap-2 text-sm">
+      <span class="text-muted">{$_('practice.settings.font')}</span>
+      <select class="field" bind:value={s.font} style:font-family={FONT_STACKS[s.font]}>
+        {#each FONTS as f (f)}
+          <option value={f} style:font-family={FONT_STACKS[f]}>
+            {$_(`practice.settings.fonts.${f}`)}
+          </option>
+        {/each}
+      </select>
+    </label>
+
+    <label class="flex items-center gap-2 self-end text-sm">
+      <input type="checkbox" bind:checked={s.sounds} />
+      {$_('practice.settings.sounds')}
     </label>
 
     <label class="flex flex-col gap-2 text-sm">

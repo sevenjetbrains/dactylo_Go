@@ -64,5 +64,11 @@
     "review": "Révision"
   },
   "system": "Version {version} · {platform} · schéma de données v{schema}",
-  "systemError": "Base de données indisponible : {error}"
+  "systemError": "Base de données indisponible : {error}",
+  "interrupted": {
+    "title": "Une session de copie a été interrompue",
+    "detail": "« {title} », {date} — {n, plural, one {# frappe enregistrée} other {# frappes enregistrées}}",
+    "resume": "Reprendre",
+    "dismiss": "Ignorer"
+  }
 }

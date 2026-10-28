@@ -23,10 +23,10 @@ type reviewFixture struct {
 func newReviewFixture(t *testing.T) *reviewFixture {
 	t.Helper()
 	f := &reviewFixture{fixture: newFixture(t), clock: time.Date(2026, 10, 27, 18, 0, 0, 0, time.Local)}
-	f.review = NewReviewService(f.store, f.bus, f.practice.profileID)
+	f.review = NewReviewService(f.store, f.bus, f.practice.profile)
 	f.review.now = func() time.Time { return f.clock }
 	f.practice.now = func() time.Time { return f.clock } // même horloge partout : test indépendant de l'heure réelle
-	f.stats = NewStatsService(f.store, f.practice.profileID, f.picker)
+	f.stats = NewStatsService(f.store, f.practice.profile, f.picker)
 	f.stats.now = func() time.Time { return f.clock }
 	return f
 }

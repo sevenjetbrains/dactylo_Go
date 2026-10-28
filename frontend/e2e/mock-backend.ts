@@ -122,8 +122,14 @@ export function installMockBackend(args: {
         CountExercises: async () => 3,
       },
       ProfileService: {
-        Get: async () => ({ id: 1, name: 'Moi', keyboardLayout: 'azerty' }),
+        Get: async () => ({ id: 1, name: 'Moi', keyboardLayout: 'azerty', settings: '{}' }),
+        List: async () => [{ id: 1, name: 'Moi', keyboardLayout: 'azerty', settings: '{}' }],
         Rename: async (name: string) => ({ id: 1, name, keyboardLayout: 'azerty' }),
+        SaveSettings: async (s: string) => log('SaveSettings', s),
+      },
+      BackupService: {
+        Export: async () => ({ path: 'C:/sauvegarde.db' }),
+        Restore: async () => ({ path: '' }),
       },
       HomeService: {
         Overview: async () => ({
@@ -137,6 +143,7 @@ export function installMockBackend(args: {
           weekMs: 0,
           weekSessions: 0,
           recent: [],
+          interrupted: null,
         }),
       },
       ReviewService: {
@@ -153,6 +160,23 @@ export function installMockBackend(args: {
         }),
       },
       PracticeService: {
+        Abandon: async (id: number) => log('Abandon', id),
+        Resume: async (id: number) => {
+          const s = sessions.get(id)!;
+          const t = texts.find((x) => x.id === s.textId)!;
+          const chars = [...t.content];
+          return {
+            sessionId: id,
+            textId: s.textId,
+            title: t.title,
+            start: s.start,
+            end: chars.length,
+            content: chars.slice(s.start).join(''),
+            settings: '{}',
+            keystrokes: s.keys,
+            elapsedMs: s.keys.at(-1)?.timeMs ?? 0,
+          };
+        },
         StartSession: async (req: { textId: number; start: number; end: number }) => {
           log('StartSession', req);
           sessions.set(nextSession, { textId: req.textId, start: req.start, keys: [] });

@@ -108,3 +108,50 @@ test('bibliothèque : coller un texte', async ({ page }) => {
   await page.getByRole('link', { name: 'Ouvrir' }).click();
   await expect(page.getByRole('heading', { name: 'Collé' })).toBeVisible();
 });
+
+test('reprise d’une session interrompue (NF-06)', async ({ page }) => {
+  await open(page, '/practice?text=1');
+  await expect(page.getByLabel('Zone de frappe')).toBeFocused();
+  await page.keyboard.type('Le chat ');
+  // les frappes partent par lots (2 s)
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (
+            (window as unknown as { __calls: Record<string, unknown[][]> }).__calls
+              .RecordKeystrokes ?? []
+          ).flat().length,
+      ),
+    )
+    .toBe(8);
+
+  await page.evaluate(() => (window.location.hash = '#/practice?resume=1'));
+  await expect(page.getByTestId('session-resumed')).toBeVisible();
+  await expect(page.getByText('En pause')).toBeVisible();
+  await page.getByLabel('Zone de frappe').focus();
+  await page.keyboard.type('être là.');
+  await expect(page.getByRole('heading', { name: 'Session terminée' })).toBeVisible();
+
+  const finish = await page.evaluate(
+    () =>
+      (
+        window as unknown as {
+          __calls: Record<string, { id: number; keys: { typed: string }[] }[]>;
+        }
+      ).__calls.FinishSession![0]!,
+  );
+  expect(finish.id).toBe(1);
+  expect(finish.keys.map((k) => k.typed).join('')).toBe(TEXT);
+});
+
+test('réglages : profils et sauvegarde (F-50, F-52)', async ({ page }) => {
+  await open(page, '/settings');
+  await expect(page.getByTestId('profile-row')).toHaveCount(1);
+  await expect(page.getByTestId('profile-row')).toContainText('Profil actif');
+  await page.getByRole('button', { name: 'Sauvegarder dans un fichier…' }).click();
+  await expect(page.getByText('Sauvegarde enregistrée : C:/sauvegarde.db')).toBeVisible();
+  await page.getByRole('button', { name: 'Restaurer une sauvegarde…' }).click();
+  await expect(page.getByText('Les données actuelles seront remplacées')).toBeVisible();
+  await page.screenshot({ path: 'test-results/screens/settings.png', fullPage: true });
+});

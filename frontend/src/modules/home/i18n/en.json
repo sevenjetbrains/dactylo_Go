@@ -64,5 +64,11 @@
     "review": "Review"
   },
   "system": "Version {version} · {platform} · data schema v{schema}",
-  "systemError": "Database unavailable: {error}"
+  "systemError": "Database unavailable: {error}",
+  "interrupted": {
+    "title": "A copy session was interrupted",
+    "detail": "“{title}”, {date} — {n, plural, one {# keystroke} other {# keystrokes}} saved",
+    "resume": "Resume",
+    "dismiss": "Dismiss"
+  }
 }

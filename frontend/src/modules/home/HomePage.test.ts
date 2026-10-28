@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
+import { fireEvent, waitFor } from '@testing-library/svelte';
 import { Overview } from '$wails/go/app/HomeService';
+import { Abandon } from '$wails/go/app/PracticeService';
 import HomePage from './HomePage.svelte';
 
 vi.mock('$wails/go/app/SystemService', () => ({
@@ -12,6 +14,7 @@ vi.mock('$wails/go/app/SystemService', () => ({
   }),
 }));
 vi.mock('$wails/go/app/HomeService', () => ({ Overview: vi.fn() }));
+vi.mock('$wails/go/app/PracticeService', () => ({ Abandon: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('$wails/go/app/ProfileService', () => ({ Get: vi.fn(), Rename: vi.fn() }));
 
 const empty = {
@@ -25,6 +28,7 @@ const empty = {
   weekMs: 0,
   weekSessions: 0,
   recent: [],
+  interrupted: null,
 };
 
 describe('HomePage', () => {
@@ -78,5 +82,29 @@ describe('HomePage', () => {
     expect(kpis).toHaveTextContent('Record : 14 jours');
     expect(kpis).toHaveTextContent('2 h 15');
     expect(kpis).toHaveTextContent('11 sessions');
+  });
+
+  it('propose de reprendre une session interrompue (NF-06)', async () => {
+    vi.mocked(Overview).mockResolvedValue({
+      ...empty,
+      interrupted: {
+        id: 42,
+        textId: 7,
+        textTitle: 'Le Horla',
+        startedAt: new Date().toISOString(),
+        keystrokes: 120,
+      },
+    } as never);
+    render(HomePage);
+    const box = await screen.findByTestId('interrupted');
+    expect(box).toHaveTextContent('« Le Horla »');
+    expect(box).toHaveTextContent('120 frappes enregistrées');
+    expect(screen.getByRole('link', { name: 'Reprendre' })).toHaveAttribute(
+      'href',
+      '#/practice?resume=42',
+    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Ignorer' }));
+    expect(Abandon).toHaveBeenCalledWith(42);
+    await waitFor(() => expect(screen.queryByTestId('interrupted')).toBeNull());
   });
 });

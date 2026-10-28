@@ -67,6 +67,9 @@ svelte-i18n.
   `$env:DACTYLO_DB = "<fichier jetable>"; wails dev -browser=false`, puis
   dans `frontend/` : `pnpm exec playwright test -c playwright.real.config.ts`.
   Ne jamais lancer d'essai automatisé sur la base de l'utilisateur.
+- Installateur Windows : `wails build -nsis` (NSIS dans
+  `C:\Program Files (x86)\NSIS`, à ajouter au PATH). Publication : pousser
+  une étiquette `vX.Y.Z` (flux `.github/workflows/release.yml`).
 - Environnement Windows : `python`/`python3` est le raccourci du Microsoft
   Store et bloque (ne pas l'utiliser, préférer `node -e` ou PowerShell) ;
   dans `sed`, `\u` met en majuscule (ne pas s'en servir pour écrire `­`).

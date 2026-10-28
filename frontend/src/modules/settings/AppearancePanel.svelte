@@ -2,7 +2,7 @@
   import { _, locale } from 'svelte-i18n';
   import { LOCALES, setLocale, type Locale } from '$i18n/index';
   import { getTheme, setTheme, type Theme } from '$shared/theme';
-  import { displayName, profile, renameProfile } from '$shared/profile.svelte';
+  import { displayName, persistSettings, profile, renameProfile } from '$shared/profile.svelte';
 
   const themes: Theme[] = ['system', 'light', 'dark'];
   let theme = $state(getTheme());
@@ -51,7 +51,10 @@
               value={t}
               class="sr-only"
               bind:group={theme}
-              onchange={() => setTheme(t)}
+              onchange={() => {
+                setTheme(t);
+                void persistSettings();
+              }}
             />
             {$_(`settings.themes.${t}`)}
           </label>
@@ -64,7 +67,10 @@
       <select
         class="field w-48"
         value={$locale}
-        onchange={(e) => setLocale(e.currentTarget.value as Locale)}
+        onchange={(e) => {
+          setLocale(e.currentTarget.value as Locale);
+          void persistSettings();
+        }}
       >
         {#each LOCALES as l (l)}
           <option value={l}>{$_(`settings.languages.${l}`)}</option>
