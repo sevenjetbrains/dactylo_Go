@@ -11,6 +11,7 @@ export interface PracticeSettings {
   correction: Correction; // F-04
   allowBackspace: boolean;
   showLiveBar: boolean; // F-05
+  showKeyboard: boolean; // F-08 : clavier virtuel
   foldTypography: boolean;
   sessionType: SessionType; // F-06
   durationMin: number; // 1, 2, 5, 10
@@ -23,12 +24,13 @@ export interface PracticeSettings {
 export const DURATIONS = [1, 2, 5, 10] as const;
 
 export const DEFAULTS: PracticeSettings = {
-  fontSize: 22,
+  fontSize: 24,
   visibleLines: 3,
   linePosition: 'top',
   correction: 'free',
   allowBackspace: true,
   showLiveBar: true,
+  showKeyboard: true,
   foldTypography: true,
   sessionType: 'text',
   durationMin: 1,
@@ -61,6 +63,7 @@ export function sanitize(raw: unknown): PracticeSettings {
     allowBackspace:
       typeof r.allowBackspace === 'boolean' ? r.allowBackspace : DEFAULTS.allowBackspace,
     showLiveBar: typeof r.showLiveBar === 'boolean' ? r.showLiveBar : DEFAULTS.showLiveBar,
+    showKeyboard: typeof r.showKeyboard === 'boolean' ? r.showKeyboard : DEFAULTS.showKeyboard,
     foldTypography:
       typeof r.foldTypography === 'boolean' ? r.foldTypography : DEFAULTS.foldTypography,
     sessionType: pick(r.sessionType, ['text', 'time', 'words'] as const, DEFAULTS.sessionType),

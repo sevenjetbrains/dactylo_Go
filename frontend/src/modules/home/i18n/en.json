@@ -1,24 +1,59 @@
 {
   "menu": "Home",
-  "title": "Welcome",
-  "subtitle": "Train your typing speed and spelling, fully offline.",
+  "hello": "Hello {name}.",
+  "helloAnon": "Hello.",
+  "paste": "Paste a text",
+  "importPdf": "Import a PDF",
   "soon": "Coming soon",
+  "due": {
+    "eyebrow": "Today's review",
+    "title": "{n, plural, one {# word to review today} other {# words to review today}}",
+    "cta": "Review now",
+    "none": "No words to review today",
+    "noneHint": "Words you misspell during sessions come back here the next day.",
+    "list": "See my difficult words"
+  },
+  "continue": {
+    "eyebrow": "Resume copying",
+    "exercise": "exercise {n} of {total}",
+    "progress": "Progress",
+    "cta": "Continue",
+    "none": "No copy in progress",
+    "noneHint": "Pick a text from the library: your progress will be remembered.",
+    "start": "Start copying"
+  },
+  "dictation": {
+    "eyebrow": "Dictation",
+    "title": "Dictation mode",
+    "desc": "The app reads the text aloud, you write it without seeing it, then the correction sorts your mistakes.",
+    "cta": "Start dictation"
+  },
+  "kpi": {
+    "speed": "Average speed",
+    "speedDelta": "{d} over 10 sessions",
+    "accuracy": "Accuracy",
+    "streak": "Streak",
+    "days": "{n, plural, one {day} other {days}}",
+    "record": "Best: {n, plural, one {# day} other {# days}}",
+    "week": "This week",
+    "sessions": "{n, plural, =0 {No sessions} one {# session} other {# sessions}}"
+  },
+  "recent": {
+    "title": "Recent sessions",
+    "all": "See all",
+    "none": "Your sessions will appear here.",
+    "date": "Date",
+    "text": "Text",
+    "mode": "Mode",
+    "accuracy": "Accuracy",
+    "today": "Today, {time}",
+    "yesterday": "Yesterday, {time}"
+  },
   "modes": {
-    "copy": {
-      "title": "Copy",
-      "desc": "Retype a text, checked character by character."
-    },
-    "dictation": {
-      "title": "Dictation",
-      "desc": "Listen to the text and write it without seeing it."
-    },
-    "review": {
-      "title": "Review",
-      "desc": "Practise the words that trouble you."
-    }
+    "copy": "Copy",
+    "dictation": "Dictation",
+    "review": "Review"
   },
   "system": "Version {version} · {platform} · data schema v{schema}",
-  "systemError": "Database unavailable: {error}",
-  "due": "{n, plural, one {# word to review today} other {# words to review today}}",
-  "reviewNow": "Review now"
+  "systemError": "Database unavailable: {error}"
 }

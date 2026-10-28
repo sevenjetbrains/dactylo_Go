@@ -4,6 +4,13 @@
     "tagline": "Frappe et orthographe",
     "notFound": "Cette page n'existe pas.",
     "backHome": "Retour à l'accueil",
-    "mainNav": "Navigation principale"
+    "mainNav": "Navigation principale",
+    "you": "Vous",
+    "profile": "Profil et réglages",
+    "badge": "{n} en attente",
+    "languages": {
+      "fr": "Français",
+      "en": "English"
+    }
   }
 }

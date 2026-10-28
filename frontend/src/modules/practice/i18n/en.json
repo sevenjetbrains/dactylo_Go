@@ -50,6 +50,8 @@
     "allowBackspace": "Allow backspace",
     "showLiveBar": "Show the WPM / accuracy bar",
     "foldTypography": "Accept ' for ’, \" for « » and - for –",
-    "slowThreshold": "Word is slow beyond {n} times your average speed (difficult words)"
-  }
+    "slowThreshold": "Word is slow beyond {n} times your average speed (difficult words)",
+    "showKeyboard": "Show the virtual keyboard (next key and finger)"
+  },
+  "eyebrow": "Copy · exercise {n} of {total}"
 }

@@ -23,9 +23,9 @@ test('phase 2 : pack intégré, recherche, exercices et reprise', async ({ page 
   await page.goto('/#/library');
 
   // F-25 : pack intégré
-  const heading = page.getByRole('heading', { name: /Mes textes \(\d+\)/ });
+  const heading = page.locator('.eyebrow', { hasText: /\d+ textes/i });
   await expect(heading).toBeVisible();
-  const total = Number(/\((\d+)\)/.exec(await heading.innerText())![1]);
+  const total = Number(/(\d+)/.exec(await heading.innerText())![1]);
   expect(total).toBeGreaterThanOrEqual(8);
   await expect(page.getByText('Le Dormeur du val').first()).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/p2-1-pack.png`, fullPage: true });
@@ -37,14 +37,14 @@ test('phase 2 : pack intégré, recherche, exercices et reprise', async ({ page 
   await expect(page.getByText('Le Corbeau et le Renard').first()).toBeVisible();
   await expect(page.getByText('Le Dormeur du val')).toBeHidden();
   await page.getByLabel('Rechercher').fill('');
-  await page.getByLabel('Étiquette').selectOption('poésie');
+  await page.getByRole('radio', { name: 'poésie' }).click();
   await expect(filtered).toBeVisible();
   await expect(page.getByText('Le Corbeau et le Renard')).toBeHidden();
   await page.getByLabel('Trier par').selectOption('title');
-  await expect(page.locator('li p.font-medium').first()).toContainText('Chanson');
-  const titles = await page.locator('li p.font-medium').allInnerTexts();
+  await expect(page.locator('li p.font-bold').first()).toContainText('Chanson');
+  const titles = await page.locator('li p.font-bold').allInnerTexts();
   console.log('POÉSIE TRIÉE :', JSON.stringify(titles.map((t) => t.split('\n')[0])));
-  await page.getByLabel('Étiquette').selectOption('');
+  await page.getByRole('radio', { name: 'Tous' }).click();
 
   // F-24 : « Demain, dès l'aube » découpé par paragraphe (3 strophes)
   await page.goto('/#/practice');
@@ -93,9 +93,9 @@ test('phase 2 : pack intégré, recherche, exercices et reprise', async ({ page 
   // Retour par la bibliothèque : progression et reprise
   await page.goto('/#/library');
   await page.getByLabel('Rechercher').fill('demain, des');
-  const progress = page.getByText(/Parcouru : \d+ %/).first();
+  const progress = page.getByRole('progressbar', { name: /Parcouru : [1-9][0-9]* %/ }).first();
   await expect(progress).toBeVisible();
-  console.log('PROGRESSION :', await progress.innerText());
+  console.log('PROGRESSION :', await progress.getAttribute('aria-label'));
   await page.getByRole('link', { name: 'Reprendre' }).first().click();
   await expect(page.getByTestId('resumed')).toBeVisible();
   await expect(page.getByRole('combobox', { name: /^Exercice/ })).toHaveValue('1');

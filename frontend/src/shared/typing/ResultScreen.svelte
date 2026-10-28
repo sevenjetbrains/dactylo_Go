@@ -27,13 +27,13 @@
 </script>
 
 <section class="flex flex-col gap-8" aria-labelledby="result-title">
-  <h2 id="result-title" class="text-2xl font-semibold">{$_('typing.result.title')}</h2>
+  <h2 id="result-title" class="text-2xl font-bold">{$_('typing.result.title')}</h2>
 
   <dl class="grid grid-cols-2 gap-4 sm:grid-cols-3">
     {#each [{ key: 'wpmNet', value: formatNumber(s.wpmNet, lang, 1) }, { key: 'accuracy', value: formatNumber(s.accuracy, lang, 1) + ' %' }, { key: 'wpmGross', value: formatNumber(s.wpmGross, lang, 1) }, { key: 'cpm', value: formatNumber(s.cpm, lang) }, { key: 'duration', value: formatDuration(s.durationMs) }, { key: 'errors', value: String(s.uncorrectedErrors) }] as stat (stat.key)}
-      <div class="border-line bg-panel rounded-lg border p-4">
+      <div class="card p-5">
         <dt class="text-muted text-sm">{$_(`typing.result.${stat.key}`)}</dt>
-        <dd class="mt-1 text-2xl font-semibold tabular-nums">{stat.value}</dd>
+        <dd class="mt-1 text-3xl font-bold tabular-nums">{stat.value}</dd>
       </div>
     {/each}
   </dl>
@@ -59,7 +59,7 @@
     {:else}
       <ul class="flex flex-wrap gap-2">
         {#each result.mistakes as m (m.position)}
-          <li class="border-line bg-panel rounded-md border px-3 py-1.5 text-sm">
+          <li class="card px-3 py-1.5 text-sm">
             <span class="font-mono font-semibold">{m.expected}</span>
             <span class="text-muted">←</span>
             <span class="text-error font-mono line-through">{m.typed}</span>
@@ -71,13 +71,10 @@
   </div>
 
   <div class="flex flex-wrap gap-3">
-    <button
-      class="bg-accent text-accent-ink rounded-md px-4 py-2 text-sm font-medium"
-      onclick={onRestart}
-    >
+    <button class="btn btn-primary" onclick={onRestart}>
       {$_('typing.actions.restart')} <kbd class="opacity-70">Ctrl+R</kbd>
     </button>
-    <button class="border-line rounded-md border px-4 py-2 text-sm font-medium" onclick={onNext}>
+    <button class="btn btn-outline" onclick={onNext}>
       {$_('typing.actions.next')} <kbd class="opacity-70">Ctrl+Entrée</kbd>
     </button>
     {#if back}

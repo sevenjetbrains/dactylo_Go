@@ -6,6 +6,10 @@ export function CleanImport(arg1, arg2) {
   return window['go']['app']['TextService']['CleanImport'](arg1, arg2);
 }
 
+export function CountExercises(arg1, arg2, arg3) {
+  return window['go']['app']['TextService']['CountExercises'](arg1, arg2, arg3);
+}
+
 export function CreateText(arg1) {
   return window['go']['app']['TextService']['CreateText'](arg1);
 }

@@ -10,10 +10,14 @@
   import LiveBar from './LiveBar.svelte';
   import ResultScreen from './ResultScreen.svelte';
   import TypingArea from './TypingArea.svelte';
+  import Icon from '$shared/Icon.svelte';
+  import VirtualKeyboard from '$shared/keyboard/VirtualKeyboard.svelte';
+  import { DURATIONS } from './settings.svelte';
 
   let {
     textId = 0,
     title,
+    eyebrow = '',
     start = 0,
     end = 0,
     content,
@@ -23,6 +27,8 @@
     /** Texte de la bibliothèque ; 0 = exercice généré (révision), tapé en entier. */
     textId?: number;
     title: string;
+    /** Sur-titre (« Copie · exercice 3 sur 8 »). */
+    eyebrow?: string;
     /** Bornes de l'exercice dans le texte (en caractères) ; content = texte[start, end). */
     start?: number;
     end?: number;
@@ -59,8 +65,42 @@
       wpm: elapsed < 1000 ? 0 : engine.keystrokes / 5 / (elapsed / 60_000),
       accuracy: engine.accuracy,
       progress: engine.progress,
+      errors: engine.keystrokes - engine.correctKeystrokes,
+      next: engine.done ? null : (engine.chars[engine.position] ?? null),
     };
   });
+
+  // Choix rapide du type de session (maquette « Mode Copie », F-06).
+  type Preset = { id: string; apply: () => void; active: boolean };
+  const presets = $derived<Preset[]>([
+    {
+      id: 'text',
+      apply: () => (typingSettings.sessionType = 'text'),
+      active: opts.sessionType === 'text',
+    },
+    ...DURATIONS.filter((d) => d !== 10).map((d) => ({
+      id: `time${d}`,
+      apply: () => {
+        typingSettings.sessionType = 'time';
+        typingSettings.durationMin = d;
+      },
+      active: opts.sessionType === 'time' && opts.durationMin === d,
+    })),
+    {
+      id: 'words100',
+      apply: () => {
+        typingSettings.sessionType = 'words';
+        typingSettings.wordCount = 100;
+      },
+      active: opts.sessionType === 'words' && opts.wordCount === 100,
+    },
+  ]);
+
+  /** Applique un réglage de la barre d'outils et recommence avec lui. */
+  function choose(apply: () => void) {
+    apply();
+    restart();
+  }
 
   /** Un exercice généré se tape toujours en entier. */
   function snapshotSettings() {
@@ -216,10 +256,10 @@
 
 <svelte:window onkeydown={onKeydown} />
 
-<div class="flex flex-col gap-6">
-  <header class="flex items-baseline justify-between gap-4">
-    <h1 class="truncate text-xl font-semibold">{title}</h1>
-    <p class="text-muted shrink-0 text-xs">{$_('typing.shortcuts')}</p>
+<div class="flex flex-col gap-5">
+  <header>
+    {#if eyebrow}<p class="eyebrow">{eyebrow}</p>{/if}
+    <h1 class="mt-1 truncate text-3xl font-bold tracking-tight">{title}</h1>
   </header>
 
   {#if error}
@@ -229,11 +269,66 @@
   {#if status === 'done' && result}
     <ResultScreen {result} onRestart={restart} {onNext} {back} />
   {:else}
+    <!-- Barre d'outils : type de session, correction, pause, recommencer -->
+    <div class="flex flex-wrap items-center gap-3">
+      {#if textId !== 0}
+        <div
+          class="bg-line/70 flex rounded-xl p-1"
+          role="radiogroup"
+          aria-label={$_('typing.toolbar.sessionType')}
+        >
+          {#each presets as p (p.id)}
+            <button
+              role="radio"
+              aria-checked={p.active}
+              class={[
+                'rounded-lg px-3.5 py-1.5 text-sm font-semibold',
+                p.active ? 'bg-panel text-ink shadow-sm' : 'text-muted hover:text-ink',
+              ]}
+              onclick={() => choose(p.apply)}
+            >
+              {$_(`typing.toolbar.presets.${p.id}`)}
+            </button>
+          {/each}
+        </div>
+      {/if}
+      <label class="text-muted flex items-center gap-2 text-sm">
+        {$_('typing.toolbar.correction')}
+        <select
+          class="field text-ink w-36"
+          value={opts.correction}
+          onchange={(e) =>
+            choose(
+              () => (typingSettings.correction = e.currentTarget.value as 'free' | 'blocking'),
+            )}
+        >
+          <option value="free">{$_('typing.toolbar.free')}</option>
+          <option value="blocking">{$_('typing.toolbar.blocking')}</option>
+        </select>
+      </label>
+      <button
+        class="btn btn-outline h-11 w-11 p-0"
+        onclick={togglePause}
+        disabled={status !== 'typing' && status !== 'paused'}
+        aria-label={status === 'paused' ? $_('typing.toolbar.resume') : $_('typing.toolbar.pause')}
+      >
+        <Icon d={status === 'paused' ? 'M7 4l13 8-13 8z' : 'M9 5v14M15 5v14'} size={18} />
+      </button>
+      <button
+        class="btn btn-outline h-11 w-11 p-0"
+        onclick={restart}
+        aria-label={$_('typing.actions.restart')}
+      >
+        <Icon d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5" size={18} />
+      </button>
+    </div>
+
     {#if opts.showLiveBar}
       <LiveBar
         wpm={live.wpm}
         accuracy={live.accuracy}
         elapsedMs={elapsed}
+        errors={live.errors}
         progress={live.progress}
         remainingMs={limitMs === undefined ? undefined : Math.max(0, limitMs - elapsed)}
       />
@@ -241,7 +336,10 @@
 
     <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
     <div
-      class="border-line bg-panel relative cursor-text rounded-lg border px-6 py-5"
+      class={[
+        'bg-panel relative cursor-text rounded-2xl border-2 px-10 py-8 transition-shadow',
+        focused ? 'border-accent shadow-[0_0_0_4px_var(--color-accent-soft)]' : 'border-line',
+      ]}
       onclick={() => textarea?.focus()}
     >
       <TypingArea
@@ -254,7 +352,7 @@
 
       {#if status === 'paused' || !focused}
         <div
-          class="bg-panel/85 absolute inset-0 flex items-center justify-center rounded-lg text-sm font-medium"
+          class="bg-panel/85 absolute inset-0 flex items-center justify-center rounded-2xl text-sm font-semibold"
         >
           {status === 'paused' ? $_('typing.paused') : $_('typing.clickToFocus')}
         </div>
@@ -272,14 +370,24 @@
         onblur={() => (focused = false)}></textarea>
     </div>
 
-    {#if status === 'ready'}
-      <p class="text-muted text-sm">{$_('typing.startHint')}</p>
-    {:else if status !== 'finishing'}
-      <div>
-        <button class="text-muted text-sm underline" onclick={() => void finish()}>
+    <div class="text-muted flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+      <span><kbd class="kbd">Échap</kbd> {$_('typing.keys.pause')}</span>
+      <span><kbd class="kbd">Ctrl R</kbd> {$_('typing.keys.restart')}</span>
+      <span><kbd class="kbd">Ctrl ↵</kbd> {$_('typing.keys.next')}</span>
+      {#if status === 'ready'}
+        <span>{$_('typing.startHint')}</span>
+      {:else if status !== 'finishing'}
+        <button class="underline" onclick={() => void finish()}>
           {$_('typing.actions.finish')}
         </button>
-      </div>
+      {/if}
+      <span class="ms-auto text-xs">
+        {$_('typing.display', { values: { lines: opts.visibleLines, size: opts.fontSize } })}
+      </span>
+    </div>
+
+    {#if opts.showKeyboard}
+      <VirtualKeyboard next={live.next} />
     {/if}
   {/if}
 </div>

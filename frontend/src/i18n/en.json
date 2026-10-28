@@ -4,6 +4,13 @@
     "tagline": "Typing and spelling",
     "notFound": "This page does not exist.",
     "backHome": "Back to home",
-    "mainNav": "Main navigation"
+    "mainNav": "Main navigation",
+    "you": "You",
+    "profile": "Profile and settings",
+    "badge": "{n} pending",
+    "languages": {
+      "fr": "Français",
+      "en": "English"
+    }
   }
 }

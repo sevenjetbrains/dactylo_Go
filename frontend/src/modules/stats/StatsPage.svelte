@@ -44,13 +44,10 @@
   const keyLabel = (k: string) => (k === ' ' ? '␣' : k);
 </script>
 
-<section class="mx-auto max-w-5xl px-8 py-10">
+<section class="mx-auto max-w-6xl px-10 py-10">
   <div class="flex flex-wrap items-center justify-between gap-4">
-    <h1 class="text-3xl font-semibold">{$_('stats.title')}</h1>
-    <button
-      class="border-line bg-panel rounded-md border px-3 py-1.5 text-sm font-medium"
-      onclick={exportCsv}
-    >
+    <h1 class="text-4xl font-bold tracking-tight">{$_('stats.title')}</h1>
+    <button class="btn btn-outline" onclick={exportCsv}>
       {$_('stats.export.button')}
     </button>
   </div>
@@ -60,7 +57,7 @@
   {#if data}
     <dl class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4" data-testid="totals">
       {#each [{ k: 'sessions', v: formatNumber(data.totals.sessions, lang) }, { k: 'time', v: formatDuration(data.totals.totalMs) }, { k: 'best', v: formatNumber(data.totals.bestWpm, lang, 1) }, { k: 'streak', v: $_( 'stats.days', { values: { n: data.streak } } ) }] as tile (tile.k)}
-        <div class="border-line bg-panel rounded-lg border p-4">
+        <div class="card p-4">
           <dt class="text-muted text-sm">{$_(`stats.tiles.${tile.k}`)}</dt>
           <dd class="mt-1 text-2xl font-semibold tabular-nums">{tile.v}</dd>
         </div>
@@ -119,7 +116,7 @@
           </details>
         </div>
 
-        <figure class="border-line bg-panel rounded-lg border p-4">
+        <figure class="card p-4">
           <figcaption class="text-sm font-semibold">{$_('stats.bigrams.title')}</figcaption>
           {#if data.bigrams.length === 0}
             <p class="text-muted mt-2 text-sm">{$_('stats.bigrams.empty')}</p>

@@ -1,5 +1,5 @@
 {
-  "menu": "Révisions",
+  "menu": "Révision",
   "title": "Révisions",
   "subtitle": "Les mots mal écrits ou tapés lentement reviennent à intervalles croissants, jusqu'à être maîtrisés.",
   "dueToday": "{n, plural, =0 {Aucun mot à réviser aujourd'hui} one {# mot à réviser aujourd'hui} other {# mots à réviser aujourd'hui}}",

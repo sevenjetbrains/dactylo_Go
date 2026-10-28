@@ -39,6 +39,8 @@ func New(s *store.Store, bus *events.Bus) (*App, error) {
 		NewPracticeService(s, bus, profileID),
 		NewReviewService(s, bus, profileID),
 		NewStatsService(s, profileID, dialogPicker{a}),
+		NewHomeService(s, profileID),
+		NewProfileService(s, profileID),
 		// Nouveaux services de modules : une ligne ici.
 	}
 	return a, nil

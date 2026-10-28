@@ -11,14 +11,15 @@
     "language": "Langue",
     "save": "Enregistrer",
     "update": "Enregistrer les modifications",
-    "empty": "Le texte est vide."
+    "empty": "Le texte est vide.",
+    "tagsShort": "Étiquettes"
   },
   "editHeading": "Modifier « {title} »",
   "cancel": "Annuler",
   "search": "Rechercher",
   "searchPlaceholder": "Titre, étiquette ou mot du texte",
   "tag": "Étiquette",
-  "allTags": "Toutes",
+  "allTags": "Tous",
   "sort": "Trier par",
   "sorts": {
     "recent": "Plus récents",
@@ -75,10 +76,43 @@
       "removePageNumbers": "Retirer les numéros de page",
       "removeRepeatedLines": "Retirer les en-têtes et pieds de page répétés",
       "joinHyphenated": "Recoller les mots coupés (exem-ple)",
-      "normalizeApostrophes": "Apostrophes courbes (’) → droites (')"
+      "normalizeApostrophes": "Apostrophes courbes (’) → droites (')",
+      "removeEdges": "Supprimer en-têtes et n° de page",
+      "normalize": "Normaliser espaces et apostrophes"
     },
     "clean": "Nettoyer et prévisualiser",
     "back": "Retour",
-    "reviewHint": "Relisez et corrigez le texte si besoin avant de l'enregistrer."
+    "reviewHint": "Relisez et corrigez le texte si besoin avant de l'enregistrer.",
+    "pagesCount": "{n, plural, one {# page} other {# pages}}",
+    "textFound": "texte détecté",
+    "noText": "aucun texte détecté (PDF scanné ?)",
+    "pagesLabel": "Pages",
+    "range": "Plage",
+    "rangeLabel": "Pages à importer (ex. 3-5), sur {total}",
+    "lines": "Choisir les lignes (début et fin)",
+    "totalLines": "sur {n} lignes",
+    "preview": "Aperçu modifiable",
+    "edit": "Modifier le texte",
+    "reset": "Revenir au texte nettoyé",
+    "joinedHint": "Surligné en vert : mot recollé après une césure",
+    "save": "Enregistrer {pages, plural, one {# page} other {# pages}} · {exercises, plural, one {# exercice} other {# exercices}}"
+  },
+  "count": "{n, plural, =0 {Aucun texte} one {# texte} other {# textes}}",
+  "close": "Fermer",
+  "imported": "Importés",
+  "open": "Ouvrir",
+  "more": "Plus d'actions pour « {title} »",
+  "exercises": "{n, plural, one {# exercice} other {# exercices}}",
+  "pagesShort": "Pages {pages}",
+  "split": {
+    "label": "Découper en exercices",
+    "default": "Réglage général",
+    "none": "Texte entier",
+    "paragraph": "Par paragraphe",
+    "lines": "Par lignes",
+    "size": {
+      "paragraph": "Paragraphes par exercice",
+      "lines": "Lignes par exercice"
+    }
   }
 }

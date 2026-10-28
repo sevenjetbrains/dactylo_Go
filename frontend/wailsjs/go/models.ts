@@ -1,5 +1,29 @@
 export namespace app {
 	
+	export class ContinueCard {
+	    textId: number;
+	    title: string;
+	    tags: string[];
+	    exercise: number;
+	    exercises: number;
+	    excerpt: string;
+	    progress: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new ContinueCard(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.textId = source["textId"];
+	        this.title = source["title"];
+	        this.tags = source["tags"];
+	        this.exercise = source["exercise"];
+	        this.exercises = source["exercises"];
+	        this.excerpt = source["excerpt"];
+	        this.progress = source["progress"];
+	    }
+	}
 	export class Dashboard {
 	    points: store.SessionPoint[];
 	    totals: store.Totals;
@@ -37,6 +61,22 @@ export namespace app {
 		    }
 		    return a;
 		}
+	}
+	export class DueCard {
+	    count: number;
+	    words: string[];
+	    minutes: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new DueCard(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.count = source["count"];
+	        this.words = source["words"];
+	        this.minutes = source["minutes"];
+	    }
 	}
 	export class ExercisePlan {
 	    segments: text.Segment[];
@@ -89,6 +129,70 @@ export namespace app {
 	        this.path = source["path"];
 	        this.sessions = source["sessions"];
 	    }
+	}
+	export class Trend {
+	    value: number;
+	    delta: number;
+	    hasDelta: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Trend(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.value = source["value"];
+	        this.delta = source["delta"];
+	        this.hasDelta = source["hasDelta"];
+	    }
+	}
+	export class Overview {
+	    profile: store.Profile;
+	    due: DueCard;
+	    continue?: ContinueCard;
+	    speed: Trend;
+	    accuracy: Trend;
+	    streak: number;
+	    bestStreak: number;
+	    weekMs: number;
+	    weekSessions: number;
+	    recent: store.SessionPoint[];
+	
+	    static createFrom(source: any = {}) {
+	        return new Overview(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.profile = this.convertValues(source["profile"], store.Profile);
+	        this.due = this.convertValues(source["due"], DueCard);
+	        this.continue = this.convertValues(source["continue"], ContinueCard);
+	        this.speed = this.convertValues(source["speed"], Trend);
+	        this.accuracy = this.convertValues(source["accuracy"], Trend);
+	        this.streak = source["streak"];
+	        this.bestStreak = source["bestStreak"];
+	        this.weekMs = source["weekMs"];
+	        this.weekSessions = source["weekSessions"];
+	        this.recent = this.convertValues(source["recent"], store.SessionPoint);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class PDFFile {
 	    cancelled: boolean;
@@ -222,6 +326,8 @@ export namespace app {
 	    source: string;
 	    sourceFile: string;
 	    pages: string;
+	    split: string;
+	    splitSize: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new TextInput(source);
@@ -236,6 +342,8 @@ export namespace app {
 	        this.source = source["source"];
 	        this.sourceFile = source["sourceFile"];
 	        this.pages = source["pages"];
+	        this.split = source["split"];
+	        this.splitSize = source["splitSize"];
 	    }
 	}
 	export class TextList {
@@ -275,7 +383,10 @@ export namespace app {
 	export class TextQuery {
 	    search: string;
 	    tag: string;
+	    source: string;
 	    sort: string;
+	    defaultSplit: string;
+	    defaultSize: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new TextQuery(source);
@@ -285,7 +396,10 @@ export namespace app {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.search = source["search"];
 	        this.tag = source["tag"];
+	        this.source = source["source"];
 	        this.sort = source["sort"];
+	        this.defaultSplit = source["defaultSplit"];
+	        this.defaultSize = source["defaultSize"];
 	    }
 	}
 
@@ -403,6 +517,22 @@ export namespace store {
 	        this.accuracy = source["accuracy"];
 	    }
 	}
+	export class Profile {
+	    id: number;
+	    name: string;
+	    keyboardLayout: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Profile(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.keyboardLayout = source["keyboardLayout"];
+	    }
+	}
 	export class SessionPoint {
 	    id: number;
 	    endedAt: string;
@@ -443,6 +573,8 @@ export namespace store {
 	    pages: string;
 	    tags: string[];
 	    createdAt: string;
+	    split: string;
+	    splitSize: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new Text(source);
@@ -459,6 +591,8 @@ export namespace store {
 	        this.pages = source["pages"];
 	        this.tags = source["tags"];
 	        this.createdAt = source["createdAt"];
+	        this.split = source["split"];
+	        this.splitSize = source["splitSize"];
 	    }
 	}
 	export class TextSummary {
@@ -474,6 +608,9 @@ export namespace store {
 	    createdAt: string;
 	    bestWpm?: number;
 	    position: number;
+	    split: string;
+	    splitSize: number;
+	    exercises: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new TextSummary(source);
@@ -493,6 +630,9 @@ export namespace store {
 	        this.createdAt = source["createdAt"];
 	        this.bestWpm = source["bestWpm"];
 	        this.position = source["position"];
+	        this.split = source["split"];
+	        this.splitSize = source["splitSize"];
+	        this.exercises = source["exercises"];
 	    }
 	}
 	export class Totals {
@@ -584,6 +724,22 @@ export namespace text {
 	        this.removeRepeatedLines = source["removeRepeatedLines"];
 	        this.joinHyphenated = source["joinHyphenated"];
 	        this.normalizeApostrophes = source["normalizeApostrophes"];
+	    }
+	}
+	export class CleanReport {
+	    text: string;
+	    joined: string[];
+	    removedLines: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new CleanReport(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.text = source["text"];
+	        this.joined = source["joined"];
+	        this.removedLines = source["removedLines"];
 	    }
 	}
 	export class ImportPage {

@@ -91,8 +91,10 @@
 </div>
 
 <style>
+  /* maquette « Mode Copie » : à taper en gris, tapé en encre, erreur en
+     rouge soulignée d'une vague, curseur en bloc bleu clair */
   .ch-todo {
-    color: var(--color-muted);
+    color: color-mix(in srgb, var(--color-muted) 80%, transparent);
   }
   .ch-ok {
     color: var(--color-ink);
@@ -100,18 +102,21 @@
   .ch-fixed {
     color: var(--color-ink);
     text-decoration: underline dotted var(--color-error);
-    text-underline-offset: 0.25em;
+    text-underline-offset: 0.3em;
   }
   .ch-err {
     color: var(--color-error);
-    background: color-mix(in srgb, var(--color-error) 15%, transparent);
-    border-radius: 2px;
+    background: var(--color-error-soft);
+    text-decoration: underline wavy var(--color-error);
+    text-underline-offset: 0.25em;
+    border-radius: 3px;
   }
   .ch-nl {
     opacity: 0.45;
   }
   .ch-cursor {
-    box-shadow: inset 0 -0.14em 0 var(--color-accent);
-    color: var(--color-ink);
+    background: var(--color-accent-soft);
+    box-shadow: inset 2px 0 0 var(--color-accent);
+    border-radius: 3px;
   }
 </style>

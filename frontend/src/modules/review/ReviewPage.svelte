@@ -83,7 +83,7 @@
   }
 </script>
 
-<section class="mx-auto max-w-5xl px-8 py-10">
+<section class="mx-auto max-w-6xl px-10 py-10">
   {#if exercise}
     {#await exercise then ex}
       {#key `${ex.content}-${round}`}
@@ -99,7 +99,7 @@
       <a href="#/review" class="text-accent underline">{$_('review.backToList')}</a>
     {/await}
   {:else}
-    <h1 class="text-3xl font-semibold">{$_('review.title')}</h1>
+    <h1 class="text-4xl font-bold tracking-tight">{$_('review.title')}</h1>
     <p class="text-muted mt-2">{$_('review.subtitle')}</p>
 
     {#if error}<p role="alert" class="text-error mt-4 text-sm">{error}</p>{/if}
@@ -118,7 +118,7 @@
         </div>
         <label class="flex flex-col gap-1 text-sm">
           <span class="text-muted">{$_('review.kind')}</span>
-          <select class="border-line bg-surface rounded-md border px-3 py-1.5" bind:value={kind}>
+          <select class="field" bind:value={kind}>
             {#each KINDS as k (k)}
               <option value={k}>{$_(`review.kinds.${k}`)}</option>
             {/each}
@@ -128,17 +128,11 @@
         {#if kind === 'repeated'}
           <label class="flex flex-col gap-1 text-sm">
             <span class="text-muted">{$_('review.repeat')}</span>
-            <input
-              type="number"
-              min="1"
-              max="20"
-              class="border-line bg-surface w-20 rounded-md border px-3 py-1.5"
-              bind:value={repeat}
-            />
+            <input type="number" min="1" max="20" class="field w-20" bind:value={repeat} />
           </label>
         {/if}
         <button
-          class="bg-accent text-accent-ink rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
+          class="btn btn-primary"
           onclick={start}
           disabled={summary.due + summary.learning === 0}
         >
@@ -168,13 +162,9 @@
       <form class="flex items-end gap-2" onsubmit={add}>
         <label class="flex flex-col gap-1 text-sm">
           <span class="text-muted">{$_('review.addLabel')}</span>
-          <input
-            class="border-line bg-panel w-48 rounded-md border px-3 py-1.5"
-            bind:value={newWord}
-            required
-          />
+          <input class="field w-48" bind:value={newWord} required />
         </label>
-        <button type="submit" class="border-line bg-panel rounded-md border px-3 py-1.5 text-sm">
+        <button type="submit" class="btn btn-outline">
           {$_('review.add')}
         </button>
       </form>

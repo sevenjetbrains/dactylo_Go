@@ -1,9 +1,20 @@
 {
   "menu": "Réglages",
   "title": "Réglages",
-  "appearance": "Apparence",
+  "appearance": "Profil et apparence",
   "theme": "Thème",
-  "themes": { "system": "Système", "light": "Clair", "dark": "Sombre" },
+  "themes": {
+    "system": "Système",
+    "light": "Clair",
+    "dark": "Sombre"
+  },
   "language": "Langue de l'interface",
-  "languages": { "fr": "Français", "en": "English" }
+  "languages": {
+    "fr": "Français",
+    "en": "English"
+  },
+  "name": "Votre prénom",
+  "namePlaceholder": "Affiché sur l'accueil",
+  "save": "Enregistrer",
+  "saved": "Enregistré"
 }

@@ -62,6 +62,27 @@ func TestWordAttemptsCorrectWrongAndSlow(t *testing.T) {
 	}
 }
 
+// Dactylo très rapide : 10 ms par frappe, un mot à 20 ms. Deux fois plus
+// lent en relatif, mais 10 ms d'écart seulement : ce n'est pas un mot lent.
+func TestWordAttemptsSmallGapIsNotSlow(t *testing.T) {
+	txt := []rune("un deux trois quatre")
+	var ks []Keystroke
+	ts := int64(0)
+	for i, r := range txt {
+		step := int64(10)
+		if i >= 8 && i < 13 { // « trois »
+			step = 20
+		}
+		ts += step
+		ks = append(ks, Keystroke{Seq: i, Position: i, Typed: string(r), TimeMs: ts})
+	}
+	for _, a := range WordAttempts(txt, Score(txt, ks, MatchOptions{}), DefaultSlowThreshold) {
+		if a.Slow {
+			t.Errorf("%q marqué lent (%.0f ms/car.)", a.Word, a.MsPerChar)
+		}
+	}
+}
+
 func TestWordAttemptsPartialAndBackspace(t *testing.T) {
 	txt := []rune("un deux trois")
 	ks := timed(0, 0, 0, 100, "un dx")

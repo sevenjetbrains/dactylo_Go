@@ -37,10 +37,19 @@ var (
 	digitsRe     = regexp.MustCompile(`\d+`)
 )
 
+// CleanReport est le texte nettoyé et le compte rendu du nettoyage
+// (affiché dans l'aperçu de l'import).
+type CleanReport struct {
+	Text         string   `json:"text"`
+	Joined       []string `json:"joined"`       // mots recollés après une césure
+	RemovedLines int      `json:"removedLines"` // numéros de page, en-têtes, pieds de page
+}
+
 // CleanImported transforme des pages extraites en texte à taper : lignes
 // recollées en paragraphes (séparés par une ligne vide), césures
 // supprimées, numéros de page et lignes répétées retirés.
-func CleanImported(pages []ImportPage, opts CleanOptions) string {
+func CleanImported(pages []ImportPage, opts CleanOptions) CleanReport {
+	var report CleanReport
 	cleaned := make([][]string, len(pages))
 	for i, p := range pages {
 		lines := make([]string, 0, len(p.Lines))
@@ -59,19 +68,24 @@ func CleanImported(pages []ImportPage, opts CleanOptions) string {
 			forEachEdge(cleaned[i], func(j int) {
 				if pageNumberRe.MatchString(cleaned[i][j]) {
 					cleaned[i][j] = ""
+					report.RemovedLines++
 				}
 			})
 		}
 	}
 	if opts.RemoveRepeatedLines && len(cleaned) >= 2 {
-		removeRepeated(cleaned)
+		report.RemovedLines += removeRepeated(cleaned)
 	}
 
 	var all []string
 	for _, lines := range cleaned {
 		all = append(all, lines...)
 	}
-	return joinParagraphs(all, opts.JoinHyphenated)
+	report.Text, report.Joined = joinParagraphs(all, opts.JoinHyphenated)
+	if report.Joined == nil {
+		report.Joined = []string{}
+	}
+	return report
 }
 
 // forEachEdge appelle fn sur les premières et dernières lignes non vides.
@@ -104,7 +118,7 @@ func forEachEdge(lines []string, fn func(i int)) {
 
 // removeRepeated retire les lignes de bord présentes sur au moins la moitié
 // des pages (titre courant, nom d'auteur, « Chapitre 3 – p. 12 »...).
-func removeRepeated(pages [][]string) {
+func removeRepeated(pages [][]string) (removed int) {
 	key := func(s string) string {
 		return strings.TrimSpace(digitsRe.ReplaceAllString(SearchKey(s), "#"))
 	}
@@ -125,14 +139,18 @@ func removeRepeated(pages [][]string) {
 		forEachEdge(lines, func(j int) {
 			if count[key(lines[j])] >= threshold {
 				lines[j] = ""
+				removed++
 			}
 		})
 	}
+	return removed
 }
 
 // joinParagraphs recolle les lignes. Une ligne vide, ou une ligne courte
-// terminée par une ponctuation forte, termine le paragraphe.
-func joinParagraphs(lines []string, joinHyphenated bool) string {
+// terminée par une ponctuation forte, termine le paragraphe. Renvoie aussi
+// les mots recollés après une césure.
+func joinParagraphs(lines []string, joinHyphenated bool) (string, []string) {
+	var joined []string
 	short := shortLineThreshold(lines)
 	var paragraphs []string
 	var cur strings.Builder
@@ -157,6 +175,7 @@ func joinParagraphs(lines []string, joinHyphenated bool) string {
 				s := strings.TrimSuffix(strings.TrimSuffix(prev, "-"), "\u00ad")
 				cur.Reset()
 				cur.WriteString(s)
+				joined = append(joined, joinedWord(s, l))
 			} else {
 				cur.WriteByte(' ')
 			}
@@ -167,7 +186,14 @@ func joinParagraphs(lines []string, joinHyphenated bool) string {
 		}
 	}
 	flush()
-	return strings.Join(paragraphs, "\n\n")
+	return strings.Join(paragraphs, "\n\n"), joined
+}
+
+// joinedWord reconstitue le mot recollé : fin de la ligne + début de la suivante.
+func joinedWord(before, after string) string {
+	head := before[strings.LastIndexByte(before, ' ')+1:]
+	tail, _, _ := strings.Cut(after, " ")
+	return strings.TrimFunc(head+tail, func(r rune) bool { return !unicode.IsLetter(r) && r != '-' && r != '\'' })
 }
 
 // shortLineThreshold : une ligne plus courte que 75 % de la longueur

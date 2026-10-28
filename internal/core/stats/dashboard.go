@@ -28,6 +28,35 @@ func Streak(days []time.Time, today time.Time) int {
 	return n
 }
 
+// BestStreak renvoie la plus longue série de jours consécutifs.
+func BestStreak(days []time.Time, loc *time.Location) int {
+	set := map[string]bool{}
+	for _, d := range days {
+		set[d.In(loc).Format(time.DateOnly)] = true
+	}
+	best := 0
+	for day := range set {
+		t, _ := time.ParseInLocation(time.DateOnly, day, loc)
+		if set[t.AddDate(0, 0, -1).Format(time.DateOnly)] {
+			continue // pas le début d'une série
+		}
+		n := 0
+		for set[t.Format(time.DateOnly)] {
+			n++
+			t = t.AddDate(0, 0, 1)
+		}
+		best = max(best, n)
+	}
+	return best
+}
+
+// WeekStart renvoie lundi 0 h (heure locale) de la semaine de t.
+func WeekStart(t time.Time) time.Time {
+	offset := (int(t.Weekday()) + 6) % 7 // lundi = 0
+	y, m, d := t.AddDate(0, 0, -offset).Date()
+	return time.Date(y, m, d, 0, 0, 0, 0, t.Location())
+}
+
 // KeyStat mesure une touche (un caractère attendu, en minuscule).
 type KeyStat struct {
 	Key       string  `json:"key"`

@@ -2,6 +2,10 @@
 
 ## Référence
 - Spécifications : docs/cahier-des-charges.md (exigences F-xx et NF-xx).
+- Maquettes : docs/design/*.png (accueil, Copie, bibliothèque et import PDF,
+  Dictée et sa correction). Tout nouvel écran suit leur style : jetons et
+  classes `.card`, `.btn-*`, `.field`, `.eyebrow` de `frontend/src/style.css`
+  (voir docs/adr/0007-maquettes.md).
 - Toute décision d'architecture nouvelle = un fichier dans docs/adr/.
 
 ## Pile

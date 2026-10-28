@@ -14,12 +14,30 @@ func TestCleanImportedFullBook(t *testing.T) {
 		page(4, "LE TOUR DU MONDE", "Un second para\u00adgraphe commence ici et", "il se poursuit sans s’arrêter.", "- 4 -"),
 		page(5, "LE TOUR DU MONDE", "Dernière page,   avec  des espaces.", "Page 5 / 12"),
 	}
-	got := CleanImported(pages, DefaultCleanOptions)
+	report := CleanImported(pages, DefaultCleanOptions)
+	got := report.Text
 	want := "Il était une fois un exemple de texte qui continue sur plusieurs lignes du livre.\n\n" +
 		"Un second para\u00adgraphe commence ici et il se poursuit sans s'arrêter.\n\n" +
 		"Dernière page, avec des espaces."
 	if got != want {
 		t.Errorf("CleanImported =\n%q\nwant\n%q", got, want)
+	}
+	// 3 en-têtes répétés + 3 numéros de page ; un mot recollé
+	if report.RemovedLines != 6 || len(report.Joined) != 1 || report.Joined[0] != "exemple" {
+		t.Errorf("compte rendu = %d lignes retirées, recollés %q", report.RemovedLines, report.Joined)
+	}
+}
+
+func TestJoinedWord(t *testing.T) {
+	cases := [][3]string{
+		{"un exem", "ple de", "exemple"},
+		{"«porte", "monnaie», dit-il", "portemonnaie"},
+		{"seul", "mot", "seulmot"},
+	}
+	for _, c := range cases {
+		if got := joinedWord(c[0], c[1]); got != c[2] {
+			t.Errorf("joinedWord(%q, %q) = %q, want %q", c[0], c[1], got, c[2])
+		}
 	}
 }
 
@@ -28,7 +46,7 @@ func TestCleanImportedOptionsOff(t *testing.T) {
 		page(1, "En-tête", "Mot coupé exem-", "ple.", "1"),
 		page(2, "En-tête", "Suite l’ami.", "2"),
 	}
-	got := CleanImported(pages, CleanOptions{})
+	got := CleanImported(pages, CleanOptions{}).Text
 	for _, keep := range []string{"En-tête", "exem- ple", "l’ami", "1", "2"} {
 		if !strings.Contains(got, keep) {
 			t.Errorf("%q absent de %q (nettoyage désactivé)", keep, got)
@@ -41,17 +59,18 @@ func TestCleanImportedKeepsLegitimateLines(t *testing.T) {
 	// milieu de page n'est pas un numéro de page ; un tiret suivi d'une
 	// majuscule n'est pas une césure.
 	pages := []ImportPage{page(1, "Titre", "Il avait", "1815", "ans, peut-", "Être pas.", "Fin")}
-	got := CleanImported(pages, DefaultCleanOptions)
+	report := CleanImported(pages, DefaultCleanOptions)
+	got := report.Text
 	if !strings.Contains(got, "1815") || !strings.Contains(got, "peut- Être") || !strings.HasPrefix(got, "Titre") {
 		t.Errorf("lignes légitimes supprimées : %q", got)
 	}
 }
 
 func TestCleanImportedEmpty(t *testing.T) {
-	if got := CleanImported(nil, DefaultCleanOptions); got != "" {
+	if got := CleanImported(nil, DefaultCleanOptions).Text; got != "" {
 		t.Errorf("vide = %q", got)
 	}
-	if got := CleanImported([]ImportPage{page(1, "", "  ")}, DefaultCleanOptions); got != "" {
+	if got := CleanImported([]ImportPage{page(1, "", "  ")}, DefaultCleanOptions).Text; got != "" {
 		t.Errorf("pages blanches (PDF scanné) = %q", got)
 	}
 }

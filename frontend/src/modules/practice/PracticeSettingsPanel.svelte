@@ -3,7 +3,7 @@
   import { typingSettings as s } from '$shared/typing/settings.svelte';
 </script>
 
-<fieldset class="border-line bg-panel rounded-lg border p-5">
+<fieldset class="card p-5">
   <legend class="px-1 font-semibold">{$_('practice.settings.title')}</legend>
 
   <div class="mt-2 grid gap-5 sm:grid-cols-2">
@@ -23,10 +23,7 @@
 
     <label class="flex flex-col gap-2 text-sm">
       <span class="text-muted">{$_('practice.settings.linePosition')}</span>
-      <select
-        class="border-line bg-panel rounded-md border px-3 py-1.5"
-        bind:value={s.linePosition}
-      >
+      <select class="field" bind:value={s.linePosition}>
         <option value="top">{$_('practice.settings.top')}</option>
         <option value="center">{$_('practice.settings.center')}</option>
       </select>
@@ -34,7 +31,7 @@
 
     <label class="flex flex-col gap-2 text-sm">
       <span class="text-muted">{$_('practice.settings.correction')}</span>
-      <select class="border-line bg-panel rounded-md border px-3 py-1.5" bind:value={s.correction}>
+      <select class="field" bind:value={s.correction}>
         <option value="free">{$_('practice.settings.free')}</option>
         <option value="blocking">{$_('practice.settings.blocking')}</option>
       </select>
@@ -43,6 +40,11 @@
     <label class="flex items-center gap-2 text-sm">
       <input type="checkbox" bind:checked={s.allowBackspace} />
       {$_('practice.settings.allowBackspace')}
+    </label>
+
+    <label class="flex items-center gap-2 text-sm">
+      <input type="checkbox" bind:checked={s.showKeyboard} />
+      {$_('practice.settings.showKeyboard')}
     </label>
 
     <label class="flex items-center gap-2 text-sm">

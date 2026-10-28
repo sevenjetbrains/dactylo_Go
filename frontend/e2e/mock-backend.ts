@@ -39,6 +39,9 @@ export function installMockBackend(args: {
     length: [...t.content].length,
     preview: t.content.slice(0, 120),
     position: 0,
+    exercises: 1,
+    split: '',
+    splitSize: 0,
   });
 
   (window as unknown as { go: unknown }).go = {
@@ -107,8 +110,34 @@ export function installMockBackend(args: {
         OpenPDF: async () => ({ cancelled: false, name: 'livre.pdf', data: args.pdf ?? '' }),
         CleanImport: async (pages: { number: number; lines: string[] }[], opts: unknown) => {
           log('CleanImport', { pages, opts });
-          return pages.flatMap((p) => p.lines).join(' ');
+          return {
+            text: pages
+              .flatMap((p) => p.lines)
+              .join(' ')
+              .replace('exem- ple', 'exemple'),
+            joined: ['exemple'],
+            removedLines: 4,
+          };
         },
+        CountExercises: async () => 3,
+      },
+      ProfileService: {
+        Get: async () => ({ id: 1, name: 'Moi', keyboardLayout: 'azerty' }),
+        Rename: async (name: string) => ({ id: 1, name, keyboardLayout: 'azerty' }),
+      },
+      HomeService: {
+        Overview: async () => ({
+          profile: { id: 1, name: 'Moi', keyboardLayout: 'azerty' },
+          due: { count: 0, words: [], minutes: 0 },
+          continue: null,
+          speed: { value: 0, delta: 0, hasDelta: false },
+          accuracy: { value: 0, delta: 0, hasDelta: false },
+          streak: 0,
+          bestStreak: 0,
+          weekMs: 0,
+          weekSessions: 0,
+          recent: [],
+        }),
       },
       ReviewService: {
         Summary: async () => ({ due: 0, learning: 0, mastered: 0 }),

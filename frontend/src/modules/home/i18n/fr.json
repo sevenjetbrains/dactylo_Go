@@ -1,24 +1,59 @@
 {
   "menu": "Accueil",
-  "title": "Bienvenue",
-  "subtitle": "Entraînez votre vitesse de frappe et votre orthographe, entièrement hors-ligne.",
+  "hello": "Bonjour {name}.",
+  "helloAnon": "Bonjour.",
+  "paste": "Coller un texte",
+  "importPdf": "Importer un PDF",
   "soon": "Bientôt",
+  "due": {
+    "eyebrow": "Révision du jour",
+    "title": "{n, plural, one {# mot à réviser aujourd'hui} other {# mots à réviser aujourd'hui}}",
+    "cta": "Réviser maintenant",
+    "none": "Aucun mot à réviser aujourd'hui",
+    "noneHint": "Les mots mal écrits pendant vos sessions reviendront ici le lendemain.",
+    "list": "Voir mes mots difficiles"
+  },
+  "continue": {
+    "eyebrow": "Reprendre la copie",
+    "exercise": "exercice {n} sur {total}",
+    "progress": "Progression",
+    "cta": "Continuer",
+    "none": "Aucune copie en cours",
+    "noneHint": "Choisissez un texte de la bibliothèque : votre progression sera mémorisée.",
+    "start": "Commencer une copie"
+  },
+  "dictation": {
+    "eyebrow": "Dictée",
+    "title": "Mode Dictée",
+    "desc": "L'application lit le texte, vous l'écrivez sans le voir, puis la correction classe vos fautes.",
+    "cta": "Lancer la dictée"
+  },
+  "kpi": {
+    "speed": "Vitesse moyenne",
+    "speedDelta": "{d} sur 10 sessions",
+    "accuracy": "Précision",
+    "streak": "Série",
+    "days": "{n, plural, one {jour} other {jours}}",
+    "record": "Record : {n, plural, one {# jour} other {# jours}}",
+    "week": "Cette semaine",
+    "sessions": "{n, plural, =0 {Aucune session} one {# session} other {# sessions}}"
+  },
+  "recent": {
+    "title": "Sessions récentes",
+    "all": "Tout voir",
+    "none": "Vos sessions apparaîtront ici.",
+    "date": "Date",
+    "text": "Texte",
+    "mode": "Mode",
+    "accuracy": "Précision",
+    "today": "Aujourd'hui, {time}",
+    "yesterday": "Hier, {time}"
+  },
   "modes": {
-    "copy": {
-      "title": "Copie",
-      "desc": "Recopiez un texte, corrigé caractère par caractère."
-    },
-    "dictation": {
-      "title": "Dictée",
-      "desc": "Écoutez le texte et écrivez-le sans le voir."
-    },
-    "review": {
-      "title": "Révisions",
-      "desc": "Retravaillez les mots qui vous posent problème."
-    }
+    "copy": "Copie",
+    "dictation": "Dictée",
+    "review": "Révision"
   },
   "system": "Version {version} · {platform} · schéma de données v{schema}",
-  "systemError": "Base de données indisponible : {error}",
-  "due": "{n, plural, one {# mot à réviser aujourd'hui} other {# mots à réviser aujourd'hui}}",
-  "reviewNow": "Réviser maintenant"
+  "systemError": "Base de données indisponible : {error}"
 }

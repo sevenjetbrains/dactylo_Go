@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import { Summary } from '$wails/go/app/ReviewService';
+import { Overview } from '$wails/go/app/HomeService';
 import HomePage from './HomePage.svelte';
 
 vi.mock('$wails/go/app/SystemService', () => ({
@@ -11,26 +11,72 @@ vi.mock('$wails/go/app/SystemService', () => ({
     schemaVersion: 1,
   }),
 }));
+vi.mock('$wails/go/app/HomeService', () => ({ Overview: vi.fn() }));
+vi.mock('$wails/go/app/ProfileService', () => ({ Get: vi.fn(), Rename: vi.fn() }));
 
-vi.mock('$wails/go/app/ReviewService', () => ({
-  Summary: vi.fn(),
-}));
+const empty = {
+  profile: { id: 1, name: 'Moi', keyboardLayout: 'azerty' },
+  due: { count: 0, words: [], minutes: 0 },
+  continue: null,
+  speed: { value: 0, delta: 0, hasDelta: false },
+  accuracy: { value: 0, delta: 0, hasDelta: false },
+  streak: 0,
+  bestStreak: 0,
+  weekMs: 0,
+  weekSessions: 0,
+  recent: [],
+};
 
 describe('HomePage', () => {
-  it("affiche l'accueil et les informations système", async () => {
-    vi.mocked(Summary).mockResolvedValue({ due: 0, learning: 0, mastered: 0 });
+  it('accueil vide', async () => {
+    vi.mocked(Overview).mockResolvedValue(empty as never);
     render(HomePage);
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Bienvenue');
-    expect(screen.getAllByRole('listitem')).toHaveLength(3);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Bonjour.');
+    expect(await screen.findByText("Aucun mot à réviser aujourd'hui")).toBeInTheDocument();
+    expect(screen.getByText('Aucune copie en cours')).toBeInTheDocument();
     expect(await screen.findByText(/Version 9\.9\.9/)).toHaveTextContent('schéma de données v1');
     expect(screen.queryByTestId('due-banner')).toBeNull();
   });
 
-  it('propose les mots à réviser aujourd’hui (F-43)', async () => {
-    vi.mocked(Summary).mockResolvedValue({ due: 12, learning: 15, mastered: 3 });
+  it('révision du jour, reprise et indicateurs (F-43)', async () => {
+    vi.mocked(Overview).mockResolvedValue({
+      ...empty,
+      due: {
+        count: 12,
+        words: ['accueillir', 'parallèle', 'néanmoins', 'œuvre', 'vieillard'],
+        minutes: 5,
+      },
+      continue: {
+        textId: 7,
+        title: 'Le Tour du monde en 80 jours',
+        tags: ['Jules Verne'],
+        exercise: 3,
+        exercises: 8,
+        excerpt: 'était habitée par Phileas Fogg',
+        progress: 0.38,
+      },
+      speed: { value: 48, delta: 3, hasDelta: true },
+      accuracy: { value: 96.4, delta: 0.8, hasDelta: true },
+      streak: 9,
+      bestStreak: 14,
+      weekMs: 135 * 60000,
+      weekSessions: 11,
+    } as never);
     render(HomePage);
     const banner = await screen.findByTestId('due-banner');
-    expect(banner).toHaveTextContent('12 mots à réviser aujourd’hui'.replace('’', "'"));
     expect(banner).toHaveAttribute('href', '#/review?session=shuffled');
+    expect(screen.getByTestId('due-card')).toHaveTextContent("12 mots à réviser aujourd'hui");
+    expect(screen.getByTestId('due-card')).toHaveTextContent('+ 7');
+    expect(screen.getByText('Jules Verne · exercice 3 sur 8')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Continuer' })).toHaveAttribute(
+      'href',
+      '#/practice?text=7',
+    );
+    const kpis = screen.getByTestId('kpis');
+    expect(kpis).toHaveTextContent('+3 sur 10 sessions');
+    expect(kpis).toHaveTextContent('96,4');
+    expect(kpis).toHaveTextContent('Record : 14 jours');
+    expect(kpis).toHaveTextContent('2 h 15');
+    expect(kpis).toHaveTextContent('11 sessions');
   });
 });

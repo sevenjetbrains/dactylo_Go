@@ -1,20 +1,40 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/plus-jakarta-sans/wght.css';
+@import '@fontsource-variable/jetbrains-mono/wght.css';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Jetons de couleur d'après les maquettes (docs/design/). Les polices sont
+   embarquées : l'application reste entièrement hors-ligne (NF-03). */
 @theme {
-  --font-sans: 'Segoe UI', system-ui, -apple-system, 'Noto Sans', sans-serif;
-  --font-mono: 'Cascadia Mono', 'Consolas', 'DejaVu Sans Mono', ui-monospace, monospace;
+  --font-sans: 'Plus Jakarta Sans Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'Cascadia Mono', 'Consolas', ui-monospace, monospace;
 
-  --color-surface: #fafaf9;
-  --color-panel: #ffffff;
-  --color-ink: #1c1917;
-  --color-muted: #57534e;
-  --color-line: #e7e5e4;
-  --color-accent: #2563eb;
+  --color-surface: #f3f4f8; /* fond de page */
+  --color-panel: #ffffff; /* cartes */
+  --color-sunken: #f6f7fb; /* champs, zones en creux */
+  --color-ink: #141a33;
+  --color-muted: #646a82;
+  --color-line: #e3e6ee;
+  --color-accent: #2f4fe6; /* actions principales */
   --color-accent-ink: #ffffff;
+  --color-accent-soft: #eaeefd; /* boutons secondaires, puces */
+  --color-warm: #fbb13c; /* révision du jour */
+  --color-warm-ink: #1b1f3b;
   --color-ok: #15803d;
-  --color-error: #b91c1c;
+  --color-ok-soft: #e7f6ec;
+  --color-error: #d92d20;
+  --color-error-soft: #fdecea;
+  --color-amber-soft: #fff3dc;
+  --color-amber-ink: #8a5300;
+
+  /* barre latérale et cartes « vedette » : bleu nuit dans les deux thèmes */
+  --color-nav: #141b3d;
+  --color-nav-raised: #232b55;
+  --color-nav-ink: #c3c8e2;
+  --color-nav-strong: #ffffff;
+
+  --radius-card: 1rem;
 }
 
 /* Graphiques : série unique (bleu) et rampe séquentielle à une teinte,
@@ -31,6 +51,17 @@
   --viz-seq-6: #0d366b;
   --viz-seq-ink-light: #0b0b0b; /* texte sur les pas 0 à 2 */
   --viz-seq-ink-dark: #ffffff; /* texte sur les pas 3 à 6 */
+
+  /* doigts du clavier virtuel (F-08) */
+  --finger-l5: #8b5cf6;
+  --finger-l4: #3b82f6;
+  --finger-l3: #14b8a6;
+  --finger-l2: #22c55e;
+  --finger-r2: #eab308;
+  --finger-r3: #f97316;
+  --finger-r4: #ec4899;
+  --finger-r5: #ef4444;
+  --finger-thumb: #94a3b8;
 }
 .dark {
   --viz-series-1: #3987e5;
@@ -47,15 +78,25 @@
 
 @layer base {
   .dark {
-    --color-surface: #141210;
-    --color-panel: #1f1c19;
-    --color-ink: #f5f5f4;
-    --color-muted: #a8a29e;
-    --color-line: #34302c;
-    --color-accent: #60a5fa;
-    --color-accent-ink: #0b1220;
+    --color-surface: #0d1124;
+    --color-panel: #161b33;
+    --color-sunken: #11152a;
+    --color-ink: #eef0f8;
+    --color-muted: #a3a9c4;
+    --color-line: #283052;
+    --color-accent: #6b86ff;
+    --color-accent-ink: #0b1020;
+    --color-accent-soft: #1f2752;
+    --color-warm: #fbb13c;
+    --color-warm-ink: #1b1f3b;
     --color-ok: #4ade80;
+    --color-ok-soft: #12301f;
     --color-error: #f87171;
+    --color-error-soft: #3a1717;
+    --color-amber-soft: #3a2a0c;
+    --color-amber-ink: #fbd38d;
+    --color-nav: #090c1c;
+    --color-nav-raised: #1a2148;
   }
 
   html,
@@ -69,10 +110,88 @@
     color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'ss01';
   }
 
   :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* carte standard des maquettes */
+  .card {
+    background: var(--color-panel);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+  }
+  /* sur-titre en capitales (« COPIE · EXERCICE 3 SUR 8 ») */
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    padding: 0.625rem 1.125rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    white-space: nowrap;
+    transition:
+      background-color 120ms,
+      border-color 120ms;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+  }
+  .btn-primary {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+  .btn-outline {
+    background: var(--color-panel);
+    border: 1px solid var(--color-line);
+    color: var(--color-ink);
+  }
+  .btn-outline:hover {
+    border-color: var(--color-accent);
+  }
+  .btn-soft {
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+  }
+  .btn-warm {
+    background: var(--color-warm);
+    color: var(--color-warm-ink);
+  }
+  .field {
+    background: var(--color-panel);
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.875rem;
+  }
+  .kbd {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    border: 1px solid var(--color-line);
+    border-bottom-width: 2px;
+    border-radius: 0.375rem;
+    padding: 0.05rem 0.4rem;
+    background: var(--color-panel);
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.375rem;
+    padding: 0.1rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
   }
 }

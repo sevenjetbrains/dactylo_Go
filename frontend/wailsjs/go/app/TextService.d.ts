@@ -4,7 +4,9 @@ import {text} from '../models';
 import {app} from '../models';
 import {store} from '../models';
 
-export function CleanImport(arg1:Array<text.ImportPage>,arg2:text.CleanOptions):Promise<string>;
+export function CleanImport(arg1:Array<text.ImportPage>,arg2:text.CleanOptions):Promise<text.CleanReport>;
+
+export function CountExercises(arg1:string,arg2:string,arg3:number):Promise<number>;
 
 export function CreateText(arg1:app.TextInput):Promise<number>;
 

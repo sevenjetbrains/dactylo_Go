@@ -29,6 +29,24 @@ func TestStreak(t *testing.T) {
 	}
 }
 
+func TestBestStreakAndWeekStart(t *testing.T) {
+	loc := time.Local
+	day := func(m, d int) time.Time { return time.Date(2026, time.Month(m), d, 20, 0, 0, 0, loc) }
+	days := []time.Time{day(10, 1), day(10, 2), day(10, 3), day(10, 3), day(10, 10), day(10, 30), day(10, 31), day(11, 1), day(11, 2)}
+	if got := BestStreak(days, loc); got != 4 { // 30 oct. → 2 nov., à cheval sur deux mois
+		t.Errorf("BestStreak = %d, want 4", got)
+	}
+	if BestStreak(nil, loc) != 0 {
+		t.Error("sans session")
+	}
+	// mardi 27 oct. 2026 → lundi 26 oct. ; dimanche 1er nov. → lundi 26 oct.
+	for _, d := range []time.Time{day(10, 27), day(10, 26), day(11, 1)} {
+		if ws := WeekStart(d); ws.Format("2006-01-02 15:04") != "2026-10-26 00:00" {
+			t.Errorf("WeekStart(%s) = %s", d.Format(time.DateOnly), ws)
+		}
+	}
+}
+
 func TestKeyStatsAndBigrams(t *testing.T) {
 	text := []rune("quand quoi Que\nqu")
 	var ks []typing.Keystroke

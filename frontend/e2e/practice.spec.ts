@@ -10,11 +10,11 @@ async function open(page: Page, hash: string, texts = [{ title: 'Essai', content
 
 test('accueil et navigation', async ({ page }) => {
   await open(page, '/');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Bienvenue');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Bonjour.');
   await expect(page.getByTestId('system-info')).toContainText(/schéma de données v[0-9]+/);
   await page.screenshot({ path: 'test-results/screens/home.png' });
 
-  await page.getByRole('link', { name: /Copie/ }).first().click();
+  await page.getByRole('navigation').getByRole('link', { name: 'Copie' }).click();
   await expect(page.getByRole('heading', { name: 'Mode Copie' })).toBeVisible();
   await page.screenshot({ path: 'test-results/screens/practice-picker.png' });
 });
@@ -103,8 +103,8 @@ test('bibliothèque : coller un texte', async ({ page }) => {
   await page.getByLabel('Texte', { exact: true }).fill('Un texte collé pour l’exercice.');
   await page.getByLabel('Titre (facultatif)').fill('Collé');
   await page.getByRole('button', { name: 'Enregistrer' }).click();
-  await expect(page.getByText('Mes textes (1)')).toBeVisible();
+  await expect(page.getByText('1 texte', { exact: true })).toBeVisible();
   await page.screenshot({ path: 'test-results/screens/library.png' });
-  await page.getByRole('link', { name: "S'entraîner" }).click();
+  await page.getByRole('link', { name: 'Ouvrir' }).click();
   await expect(page.getByRole('heading', { name: 'Collé' })).toBeVisible();
 });

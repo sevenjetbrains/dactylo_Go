@@ -3,8 +3,8 @@
   import { registry } from '$app/modules';
 </script>
 
-<section class="mx-auto max-w-2xl px-8 py-12">
-  <h1 class="text-3xl font-semibold">{$_('settings.title')}</h1>
+<section class="mx-auto max-w-3xl px-10 py-10">
+  <h1 class="text-4xl font-bold tracking-tight">{$_('settings.title')}</h1>
 
   <!-- Chaque module peut fournir un panneau via settingsPanel. -->
   <div class="mt-8 flex flex-col gap-6">

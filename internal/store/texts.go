@@ -22,6 +22,8 @@ type Text struct {
 	Pages      string   `json:"pages"`      // pages importées, ex. « 3-5 »
 	Tags       []string `json:"tags"`
 	CreatedAt  string   `json:"createdAt"`
+	Split      string   `json:"split"`     // découpage propre au texte ("" = réglage général)
+	SplitSize  int      `json:"splitSize"` // paragraphes ou lignes par exercice
 }
 
 // TextSummary est une ligne de liste (sans le contenu complet).
@@ -38,6 +40,9 @@ type TextSummary struct {
 	CreatedAt  string   `json:"createdAt"`
 	BestWPM    *float64 `json:"bestWpm"`  // meilleur MPM net du profil sur ce texte
 	Position   int      `json:"position"` // progression mémorisée (F-24)
+	Split      string   `json:"split"`
+	SplitSize  int      `json:"splitSize"`
+	Exercises  int      `json:"exercises"` // calculé par le service
 
 	// Contenu complet, pour la recherche ; jamais envoyé à l'interface.
 	Content string `json:"-"`
@@ -50,9 +55,9 @@ func (s *Store) CreateText(ctx context.Context, t Text) (int64, error) {
 		return 0, err
 	}
 	res, err := s.DB.ExecContext(ctx,
-		`INSERT INTO texts (title, content, language, source, source_file, pages, tags)
-		 VALUES (?, ?, ?, ?, NULLIF(?, ''), NULLIF(?, ''), ?)`,
-		t.Title, t.Content, t.Language, t.Source, t.SourceFile, t.Pages, tags)
+		`INSERT INTO texts (title, content, language, source, source_file, pages, tags, split, split_size)
+		 VALUES (?, ?, ?, ?, NULLIF(?, ''), NULLIF(?, ''), ?, NULLIF(?, ''), NULLIF(?, 0))`,
+		t.Title, t.Content, t.Language, t.Source, t.SourceFile, t.Pages, tags, t.Split, t.SplitSize)
 	if err != nil {
 		return 0, fmt.Errorf("enregistrement du texte : %w", err)
 	}
@@ -66,8 +71,8 @@ func (s *Store) UpdateText(ctx context.Context, t Text) error {
 		return err
 	}
 	res, err := s.DB.ExecContext(ctx,
-		"UPDATE texts SET title = ?, content = ?, language = ?, tags = ? WHERE id = ?",
-		t.Title, t.Content, t.Language, tags, t.ID)
+		"UPDATE texts SET title = ?, content = ?, language = ?, tags = ?, split = NULLIF(?, ''), split_size = NULLIF(?, 0) WHERE id = ?",
+		t.Title, t.Content, t.Language, tags, t.Split, t.SplitSize, t.ID)
 	if err != nil {
 		return fmt.Errorf("modification du texte : %w", err)
 	}
@@ -96,9 +101,11 @@ func (s *Store) GetText(ctx context.Context, id int64) (Text, error) {
 	var t Text
 	var tags string
 	err := s.DB.QueryRowContext(ctx, `
-		SELECT id, title, content, language, source, COALESCE(source_file, ''), COALESCE(pages, ''), tags, created_at
+		SELECT id, title, content, language, source, COALESCE(source_file, ''), COALESCE(pages, ''), tags, created_at,
+		       COALESCE(split, ''), COALESCE(split_size, 0)
 		FROM texts WHERE id = ?`, id).
-		Scan(&t.ID, &t.Title, &t.Content, &t.Language, &t.Source, &t.SourceFile, &t.Pages, &tags, &t.CreatedAt)
+		Scan(&t.ID, &t.Title, &t.Content, &t.Language, &t.Source, &t.SourceFile, &t.Pages, &tags, &t.CreatedAt,
+			&t.Split, &t.SplitSize)
 	if errors.Is(err, sql.ErrNoRows) {
 		return Text{}, ErrNotFound
 	}
@@ -118,7 +125,8 @@ func (s *Store) ListTexts(ctx context.Context, profileID int64) ([]TextSummary, 
 		       (SELECT MAX(wpm_net) FROM sessions s
 		         WHERE s.text_id = t.id AND s.profile_id = ? AND s.ended_at IS NOT NULL),
 		       COALESCE((SELECT position FROM text_progress p
-		         WHERE p.text_id = t.id AND p.profile_id = ?), 0)
+		         WHERE p.text_id = t.id AND p.profile_id = ?), 0),
+		       COALESCE(t.split, ''), COALESCE(t.split_size, 0)
 		FROM texts t ORDER BY t.created_at DESC, t.id DESC`, profileID, profileID)
 	if err != nil {
 		return nil, err
@@ -131,7 +139,7 @@ func (s *Store) ListTexts(ctx context.Context, profileID int64) ([]TextSummary, 
 		var tags string
 		var best sql.NullFloat64
 		if err := rows.Scan(&t.ID, &t.Title, &t.Language, &t.Source, &t.SourceFile, &t.Pages, &tags,
-			&t.Length, &t.Preview, &t.CreatedAt, &t.Content, &best, &t.Position); err != nil {
+			&t.Length, &t.Preview, &t.CreatedAt, &t.Content, &best, &t.Position, &t.Split, &t.SplitSize); err != nil {
 			return nil, err
 		}
 		t.Tags = decodeTags(tags)

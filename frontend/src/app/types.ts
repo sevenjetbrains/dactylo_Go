@@ -30,4 +30,6 @@ export interface ModuleDefinition {
   settingsPanel?: Component;
   /** Traductions propres au module, fusionnées au démarrage. */
   messages?: Partial<Record<Locale, Dictionary>>;
+  /** Pastille du menu (ex. mots à réviser) ; 0 = masquée. Rafraîchie à chaque navigation. */
+  badge?: () => Promise<number>;
 }

@@ -1,4 +1,5 @@
 import type { ModuleDefinition } from '$app/types';
+import { Summary } from '$wails/go/app/ReviewService';
 import ReviewPage from './ReviewPage.svelte';
 import fr from './i18n/fr.json';
 import en from './i18n/en.json';
@@ -12,4 +13,6 @@ export default {
   order: 30,
   page: ReviewPage,
   messages: { fr, en },
+  // pastille : mots à réviser aujourd'hui
+  badge: async () => (await Summary()).due,
 } satisfies ModuleDefinition;

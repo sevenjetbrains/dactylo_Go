@@ -65,7 +65,8 @@ func TestListTextsSearchFilterSort(t *testing.T) {
 	}
 
 	list, _ := f.texts.ListTexts(TextQuery{})
-	if strings.Join(list.Tags[:2], ",") != "animaux,École" && !strings.Contains(strings.Join(list.Tags, ","), "animaux") {
+	// les plus utilisées d'abord : poésie (4 textes intégrés), puis école (2)
+	if len(list.Tags) < 2 || list.Tags[0] != "poésie" || text.SearchKey(list.Tags[1]) != "ecole" {
 		t.Errorf("étiquettes = %v", list.Tags)
 	}
 	if list.Total != len(list.Texts) {
@@ -146,7 +147,7 @@ func TestPDFImportFlow(t *testing.T) {
 	cleaned := f.texts.CleanImport([]text.ImportPage{
 		{Number: 3, Lines: []string{"Titre courant", "Un mot coupé en fin de li-", "gne.", "3"}},
 		{Number: 4, Lines: []string{"Titre courant", "Suite du texte.", "4"}},
-	}, text.DefaultCleanOptions)
+	}, text.DefaultCleanOptions).Text
 	if cleaned != "Un mot coupé en fin de ligne.\n\nSuite du texte." {
 		t.Fatalf("nettoyage = %q", cleaned)
 	}

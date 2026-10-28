@@ -13,6 +13,11 @@ import (
 // lentement que la moyenne de la session (F-40, seuil réglable).
 const DefaultSlowThreshold = 1.5
 
+// MinSlowGapMs : un mot n'est lent que s'il dépasse aussi la moyenne d'au
+// moins 80 ms par caractère. Sans ce plancher, une hésitation de quelques
+// millisecondes chez un dactylo rapide suffirait à marquer un mot « lent ».
+const MinSlowGapMs = 80
+
 // WordAttempt est un mot entièrement tapé pendant une session.
 type WordAttempt struct {
 	Word       string  `json:"word"`  // forme normalisée (minuscules, sans ponctuation)
@@ -149,6 +154,7 @@ func markSlow(attempts []WordAttempt, threshold float64) {
 	}
 	avg := sum / float64(n)
 	for i := range attempts {
-		attempts[i].Slow = attempts[i].Correct && attempts[i].MsPerChar > threshold*avg
+		a := attempts[i]
+		attempts[i].Slow = a.Correct && a.MsPerChar > threshold*avg && a.MsPerChar-avg >= MinSlowGapMs
 	}
 }

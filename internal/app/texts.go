@@ -32,13 +32,19 @@ type TextInput struct {
 	Source     string   `json:"source"`     // paste (défaut) ou pdf
 	SourceFile string   `json:"sourceFile"` // pdf : nom du fichier
 	Pages      string   `json:"pages"`      // pdf : pages importées
+	Split      string   `json:"split"`      // découpage propre au texte ("" = réglage général)
+	SplitSize  int      `json:"splitSize"`
 }
 
 // TextQuery filtre et trie la bibliothèque (F-23).
 type TextQuery struct {
 	Search string `json:"search"`
 	Tag    string `json:"tag"`
-	Sort   string `json:"sort"` // recent (défaut), oldest, title, length, score
+	Source string `json:"source"` // paste, pdf, builtin ("" = tous)
+	Sort   string `json:"sort"`   // recent (défaut), oldest, title, length, score
+	// Découpage général, pour compter les exercices des textes qui n'en ont pas.
+	DefaultSplit string `json:"defaultSplit"`
+	DefaultSize  int    `json:"defaultSize"`
 }
 
 // TextList est le résultat d'une recherche, avec toutes les étiquettes
@@ -141,17 +147,27 @@ func (t *TextService) ListTexts(q TextQuery) (TextList, error) {
 		return TextList{}, err
 	}
 	tagSet := map[string]string{}
+	tagCount := map[string]int{}
 	out := make([]store.TextSummary, 0, len(all))
 	for _, s := range all {
 		for _, tag := range s.Tags {
 			tagSet[text.SearchKey(tag)] = tag
+			tagCount[text.SearchKey(tag)]++
 		}
 		if q.Tag != "" && !hasTag(s.Tags, q.Tag) {
+			continue
+		}
+		if q.Source != "" && s.Source != q.Source {
 			continue
 		}
 		if q.Search != "" && !text.Contains(s.Title+"\n"+strings.Join(s.Tags, " ")+"\n"+s.Content, q.Search) {
 			continue
 		}
+		split, size := s.Split, s.SplitSize
+		if split == "" {
+			split, size = q.DefaultSplit, q.DefaultSize
+		}
+		s.Exercises = len(text.Segments(s.Content, split, size))
 		out = append(out, s)
 	}
 	sortTexts(out, q.Sort)
@@ -160,7 +176,14 @@ func (t *TextService) ListTexts(q TextQuery) (TextList, error) {
 	for _, tag := range tagSet {
 		tags = append(tags, tag)
 	}
-	sort.Slice(tags, func(i, j int) bool { return text.SearchKey(tags[i]) < text.SearchKey(tags[j]) })
+	// les plus utilisées d'abord (puces de filtre), puis par ordre alphabétique
+	sort.Slice(tags, func(i, j int) bool {
+		ki, kj := text.SearchKey(tags[i]), text.SearchKey(tags[j])
+		if tagCount[ki] != tagCount[kj] {
+			return tagCount[ki] > tagCount[kj]
+		}
+		return ki < kj
+	})
 	return TextList{Texts: out, Tags: tags, Total: len(all)}, nil
 }
 
@@ -201,9 +224,16 @@ func (t *TextService) OpenPDF(dialogTitle string) (PDFFile, error) {
 	return PDFFile{Name: filepath.Base(path), Data: data}, nil
 }
 
-// CleanImport nettoie les lignes extraites d'un PDF (F-22).
-func (t *TextService) CleanImport(pages []text.ImportPage, opts text.CleanOptions) string {
+// CleanImport nettoie les lignes extraites d'un PDF (F-22) et rend compte
+// des mots recollés et des lignes retirées.
+func (t *TextService) CleanImport(pages []text.ImportPage, opts text.CleanOptions) text.CleanReport {
 	return text.CleanImported(pages, opts)
+}
+
+// CountExercises compte les exercices d'un texte pour un découpage donné
+// (aperçu de l'import).
+func (t *TextService) CountExercises(content, split string, size int) int {
+	return len(text.Segments(text.CleanForPractice(content), split, size))
 }
 
 // Exercises découpe un texte en exercices et indique où reprendre.
@@ -216,6 +246,9 @@ func (t *TextService) Exercises(textID int64, split string, size int) (ExerciseP
 	pos, err := t.store.GetProgress(ctx, t.profileID, textID)
 	if err != nil {
 		return ExercisePlan{}, err
+	}
+	if tx.Split != "" { // découpage choisi pour ce texte
+		split, size = tx.Split, tx.SplitSize
 	}
 	segs := text.Segments(tx.Content, split, size)
 	if segs == nil {
@@ -261,9 +294,15 @@ func toRecord(in TextInput) (store.Text, error) {
 			tags = append(tags, tag)
 		}
 	}
+	switch in.Split {
+	case "", text.SplitNone, text.SplitParagraph, text.SplitLines:
+	default:
+		return store.Text{}, fmt.Errorf("découpage inconnu : %q", in.Split)
+	}
 	return store.Text{
 		Title: title, Content: content, Language: in.Language, Tags: tags,
 		Source: source, SourceFile: strings.TrimSpace(in.SourceFile), Pages: strings.TrimSpace(in.Pages),
+		Split: in.Split, SplitSize: min(max(in.SplitSize, 0), 100),
 	}, nil
 }
 

@@ -29,7 +29,7 @@ test('phase 3 : mots difficiles, révision, statistiques', async ({ page }) => {
   await page.getByRole('button', { name: 'Enregistrer' }).click();
   // attendre la liste rafraîchie et viser la ligne du texte collé
   const item = page.locator('li', { hasText: 'Le maître et l’élève' });
-  await item.getByRole('link', { name: "S'entraîner" }).click();
+  await item.getByRole('link', { name: 'Ouvrir' }).click();
   await expect(page.getByRole('heading', { name: 'Le maître et l’élève' })).toBeVisible();
   await expect(page.getByLabel('Zone de frappe')).toBeFocused();
   await typeText(
@@ -60,8 +60,8 @@ test('phase 3 : mots difficiles, révision, statistiques', async ({ page }) => {
   await expect(page.getByTestId('due-count')).toHaveText("1 mot à réviser aujourd'hui");
 
   await page.goto('/#/');
+  await expect(page.getByTestId('due-card')).toContainText("1 mot à réviser aujourd'hui");
   const banner = page.getByTestId('due-banner');
-  await expect(banner).toContainText("1 mot à réviser aujourd'hui");
   await page.screenshot({ path: `${SHOTS}/p3-2-accueil.png` });
   await banner.click();
 
@@ -85,4 +85,16 @@ test('phase 3 : mots difficiles, révision, statistiques', async ({ page }) => {
   console.log('TOTAUX :', (await page.getByTestId('totals').innerText()).replace(/\n/g, ' | '));
   console.log('BIGRAMMES :', (await page.getByTestId('bigrams').innerText()).replace(/\n/g, ' | '));
   await page.screenshot({ path: `${SHOTS}/p3-4-stats.png`, fullPage: true });
+
+  // Accueil rempli (maquette « Accueil »)
+  await page.goto('/#/settings');
+  await page.getByLabel('Votre prénom').fill('Boualem');
+  await page.getByRole('button', { name: 'Enregistrer' }).click();
+  await page.goto('/#/');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Bonjour Boualem.');
+  await expect(page.getByText('Sessions récentes')).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/p3-5-accueil.png`, fullPage: true });
+  await page.goto('/#/library');
+  await expect(page.locator('.eyebrow', { hasText: /\d+ textes/ })).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/p3-6-bibliotheque.png`, fullPage: true });
 });

@@ -4,76 +4,88 @@ import { BOOK, SCANNED } from './fixtures/make-pdf';
 
 type Calls = Record<string, { pages: { number: number; lines: string[] }[] }[]>;
 
-async function openLibrary(page: Page, pdf: string) {
+async function openImport(page: Page, pdf: string) {
   await page.addInitScript(installMockBackend, { texts: [], pdf });
-  await page.goto('/#/library');
-  await page.getByRole('button', { name: 'Importer un PDF' }).click();
+  await page.goto('/#/library?new=pdf'); // bouton « Importer un PDF » de l'accueil
   await page.getByRole('button', { name: 'Choisir un fichier PDF…' }).click();
 }
 
-test('import PDF : pages 3 à 5, sélection de lignes, nettoyage, exercice (F-21, F-22)', async ({
+const lastClean = (page: Page) =>
+  page.evaluate(() => {
+    const calls = (window as unknown as { __calls: Calls }).__calls.CleanImport!;
+    return calls[calls.length - 1]!.pages;
+  });
+
+test('import PDF : plage 3-5, miniatures, nettoyage, enregistrement (F-21, F-22)', async ({
   page,
 }) => {
-  await openLibrary(page, BOOK);
+  await openImport(page, BOOK);
 
-  // Étape « pages » : aperçu et plage
-  await expect(page.getByText('Page 1 / 5')).toBeVisible();
-  await page.getByRole('button', { name: 'Page suivante' }).click();
-  await expect(page.getByText('Page 2 / 5')).toBeVisible();
+  await expect(page.getByText('livre.pdf')).toBeVisible();
+  await expect(page.getByText('5 pages · texte détecté')).toBeVisible();
+  const thumbs = page.getByTestId('thumbs').getByRole('button');
+  await expect(thumbs).toHaveCount(5);
+  await expect(thumbs.nth(2)).toHaveAttribute('aria-pressed', 'true'); // 1-3 par défaut
+
+  // plage invalide puis 3-5 ; les miniatures suivent
   const range = page.getByLabel(/Pages à importer/);
   await range.fill('9');
   await expect(page.getByText('Plage invalide')).toBeVisible();
   await range.fill('3-5');
-  await page.screenshot({ path: 'test-results/screens/pdf-pages.png' });
-  await page.getByRole('button', { name: 'Extraire le texte' }).click();
+  await expect(thumbs.nth(0)).toHaveAttribute('aria-pressed', 'false');
+  await expect(thumbs.nth(4)).toHaveAttribute('aria-pressed', 'true');
 
-  // Étape « lignes » : texte réellement extrait par pdfjs
-  const lines = page.getByTestId('pdf-lines');
-  await expect(lines).toContainText('— page 3 —');
-  await expect(lines).toContainText('Voici un exem-');
-  await expect(lines).toContainText('été, à, ça');
-  await expect(lines).not.toContainText('— page 2 —');
-  await expect(page.getByText('15 ligne(s) sélectionnée(s) sur 15')).toBeVisible();
-  // ne garder que les lignes 2 à 14 (sans le premier en-tête ni le dernier pied de page)
+  // texte réellement extrait par pdfjs, envoyé au nettoyage page par page
+  await expect.poll(async () => (await lastClean(page)).map((p) => p.number)).toEqual([3, 4, 5]);
+  const sent = await lastClean(page);
+  expect(sent[0]!.lines).toContain('Voici un exem-');
+  expect(sent[1]!.lines).toContain('Texte de la page 4, avec des accents : été, à, ça.');
+
+  // compteurs et aperçu surligné
+  await expect(page.getByText('Recoller les mots coupés (exem-ple) (1)')).toBeVisible();
+  await expect(page.getByText('Supprimer en-têtes et n° de page (4)')).toBeVisible();
+  await expect(page.getByTestId('pdf-preview').locator('mark')).toHaveText('exemple');
+  await page.screenshot({ path: 'test-results/screens/pdf-panel.png', fullPage: true });
+
+  // choix des lignes (F-21) : lignes 2 à 14
+  await page.getByText('Choisir les lignes (début et fin)').click();
   await page.getByLabel('Première ligne').fill('2');
-  await page.getByLabel('Nombre de lignes').fill('13');
-  await page.getByLabel('Nombre de lignes').press('Tab');
-  await expect(page.getByText('13 ligne(s) sélectionnée(s) sur 15')).toBeVisible();
-  await page.screenshot({ path: 'test-results/screens/pdf-lines.png' });
-  await page.getByRole('button', { name: 'Nettoyer et prévisualiser' }).click();
+  await page.getByLabel('Dernière ligne').fill('14');
+  await page.getByLabel('Dernière ligne').press('Tab');
+  await expect.poll(async () => (await lastClean(page)).flatMap((p) => p.lines).length).toBe(13);
 
-  const calls = await page.evaluate(() => (window as unknown as { __calls: Calls }).__calls);
-  const sent = calls.CleanImport![0]!.pages;
-  expect(sent.map((p) => p.number)).toEqual([3, 4, 5]);
-  expect(sent[0]!.lines[0]).toBe('Page 3 : début du chapitre.');
-  expect(sent.at(-1)!.lines.at(-1)).toBe('Fin de la page.');
-  expect(sent.flatMap((p) => p.lines)).toHaveLength(13);
+  // aperçu modifiable
+  await page.getByRole('button', { name: 'Modifier le texte' }).click();
+  await page.getByLabel('Aperçu modifiable').fill('Texte corrigé à la main.');
+  await page.getByLabel('Titre (facultatif)').fill('Mon livre');
 
-  // Étape « vérifier » : aperçu modifiable puis enregistrement
-  await expect(page.getByLabel('Titre (facultatif)')).toHaveValue('livre (p. 3-5)');
-  await expect(page.getByLabel('Texte', { exact: true })).toHaveValue(/Voici un exem- ple/);
-  await page.screenshot({ path: 'test-results/screens/pdf-review.png' });
-  await page.getByRole('button', { name: 'Enregistrer' }).click();
-
-  await expect(page.getByText('PDF : livre.pdf, p. 3-5')).toBeVisible();
+  await page.getByRole('button', { name: 'Enregistrer 3 pages · 3 exercices' }).click();
   const created = await page.evaluate(
     () =>
-      (window as unknown as { __calls: Record<string, { source: string; pages: string }[]> })
-        .__calls.CreateText![0],
+      (
+        window as unknown as {
+          __calls: Record<string, { source: string; pages: string; content: string }[]>;
+        }
+      ).__calls.CreateText![0],
   );
-  expect(created).toMatchObject({ source: 'pdf', pages: '3-5', sourceFile: 'livre.pdf' });
-
-  await page.getByRole('link', { name: "S'entraîner" }).click();
-  await expect(page.getByRole('heading', { name: 'livre (p. 3-5)' })).toBeVisible();
+  expect(created).toMatchObject({
+    source: 'pdf',
+    pages: '3-5',
+    sourceFile: 'livre.pdf',
+    content: 'Texte corrigé à la main.',
+    split: 'paragraph',
+  });
+  await expect(page.getByText('Mon livre')).toBeVisible();
+  await page.screenshot({ path: 'test-results/screens/library-list.png', fullPage: true });
 });
 
 test('PDF scanné : message clair', async ({ page }) => {
-  await openLibrary(page, SCANNED);
-  await page.getByRole('button', { name: 'Extraire le texte' }).click();
+  await openImport(page, SCANNED);
+  await expect(page.getByText('aucun texte détecté (PDF scanné ?)')).toBeVisible();
   await expect(page.getByRole('alert')).toContainText('probablement scanné');
 });
 
-test('bibliothèque : modifier, dupliquer, rechercher, supprimer (F-23)', async ({ page }) => {
+test('bibliothèque : filtres, modifier, dupliquer, supprimer (F-23)', async ({ page }) => {
   await page.addInitScript(installMockBackend, {
     texts: [
       { title: 'Alpha', content: 'Premier texte.' },
@@ -81,16 +93,20 @@ test('bibliothèque : modifier, dupliquer, rechercher, supprimer (F-23)', async 
     ],
   });
   await page.goto('/#/library');
-  await expect(page.getByText('Mes textes (2)')).toBeVisible();
+  await expect(page.getByText('2 textes', { exact: true })).toBeVisible();
 
+  const openMenu = (title: string) => page.getByLabel(`Plus d'actions pour « ${title} »`).click();
+
+  await openMenu('Alpha');
   await page.getByRole('button', { name: 'Modifier « Alpha »' }).click();
   await page.getByLabel('Titre (facultatif)').fill('Alpha modifié');
   await page.getByRole('button', { name: 'Enregistrer les modifications' }).click();
   await expect(page.getByText('Alpha modifié')).toBeVisible();
 
+  await openMenu('Bravo');
   await page.getByRole('button', { name: 'Dupliquer « Bravo »' }).click();
   await expect(page.getByText('Bravo (copie)')).toBeVisible();
-  await expect(page.getByText('Mes textes (3)')).toBeVisible();
+  await expect(page.getByText('3 textes', { exact: true })).toBeVisible();
 
   await page.getByLabel('Rechercher').fill('chat');
   await expect(page.getByText('2 texte(s) sur 3')).toBeVisible();
@@ -98,8 +114,8 @@ test('bibliothèque : modifier, dupliquer, rechercher, supprimer (F-23)', async 
   await expect(page.getByText('Aucun texte ne correspond')).toBeVisible();
   await page.getByLabel('Rechercher').fill('');
 
+  await openMenu('Bravo (copie)');
   await page.getByRole('button', { name: 'Supprimer « Bravo (copie) »' }).click();
   await page.getByRole('button', { name: 'Confirmer la suppression de « Bravo (copie) »' }).click();
-  await expect(page.getByText('Mes textes (2)')).toBeVisible();
-  await page.screenshot({ path: 'test-results/screens/library-list.png' });
+  await expect(page.getByText('2 textes', { exact: true })).toBeVisible();
 });

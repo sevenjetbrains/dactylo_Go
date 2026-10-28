@@ -7,10 +7,11 @@
   "saveError": "Could not save: {error}",
   "live": {
     "wpm": "WPM",
-    "accuracy": "Accuracy",
-    "elapsed": "Time",
-    "remaining": "Remaining",
-    "progress": "Progress"
+    "accuracy": "% accuracy",
+    "elapsed": "elapsed",
+    "remaining": "left",
+    "progress": "Progress",
+    "errors": "{n, plural, one {error} other {errors}}"
   },
   "result": {
     "title": "Session complete",
@@ -39,5 +40,42 @@
     "restart": "Restart",
     "next": "Next",
     "finish": "Finish now"
+  },
+  "toolbar": {
+    "sessionType": "Session type",
+    "presets": {
+      "text": "Whole text",
+      "time1": "1 min",
+      "time2": "2 min",
+      "time5": "5 min",
+      "words100": "100 words"
+    },
+    "correction": "Correction",
+    "free": "Free",
+    "blocking": "Blocking",
+    "pause": "Pause",
+    "resume": "Resume"
+  },
+  "keys": {
+    "pause": "pause",
+    "restart": "restart",
+    "next": "next text"
+  },
+  "display": "Visible lines: {lines} · font {size} px",
+  "keyboard": {
+    "label": "Virtual keyboard",
+    "space": "Space",
+    "next": "Next key:",
+    "fingers": {
+      "l5": "left little finger",
+      "l4": "left ring finger",
+      "l3": "left middle finger",
+      "l2": "left index",
+      "r2": "right index",
+      "r3": "right middle finger",
+      "r4": "right ring finger",
+      "r5": "right little finger",
+      "thumb": "thumb"
+    }
   }
 }

@@ -7,10 +7,11 @@
   "saveError": "Enregistrement impossible : {error}",
   "live": {
     "wpm": "MPM",
-    "accuracy": "Précision",
-    "elapsed": "Temps",
-    "remaining": "Restant",
-    "progress": "Progression"
+    "accuracy": "% précision",
+    "elapsed": "écoulé",
+    "remaining": "restant",
+    "progress": "Progression",
+    "errors": "{n, plural, one {erreur} other {erreurs}}"
   },
   "result": {
     "title": "Session terminée",
@@ -39,5 +40,42 @@
     "restart": "Recommencer",
     "next": "Suivant",
     "finish": "Terminer maintenant"
+  },
+  "toolbar": {
+    "sessionType": "Type de session",
+    "presets": {
+      "text": "Texte entier",
+      "time1": "1 min",
+      "time2": "2 min",
+      "time5": "5 min",
+      "words100": "100 mots"
+    },
+    "correction": "Correction",
+    "free": "Libre",
+    "blocking": "Bloquante",
+    "pause": "Pause",
+    "resume": "Reprendre"
+  },
+  "keys": {
+    "pause": "pause",
+    "restart": "recommencer",
+    "next": "texte suivant"
+  },
+  "display": "Lignes visibles : {lines} · police {size} px",
+  "keyboard": {
+    "label": "Clavier virtuel",
+    "space": "Espace",
+    "next": "Touche suivante :",
+    "fingers": {
+      "l5": "auriculaire gauche",
+      "l4": "annulaire gauche",
+      "l3": "majeur gauche",
+      "l2": "index gauche",
+      "r2": "index droit",
+      "r3": "majeur droit",
+      "r4": "annulaire droit",
+      "r5": "auriculaire droit",
+      "thumb": "pouce"
+    }
   }
 }

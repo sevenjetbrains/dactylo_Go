@@ -11,7 +11,8 @@
     "language": "Language",
     "save": "Save",
     "update": "Save changes",
-    "empty": "The text is empty."
+    "empty": "The text is empty.",
+    "tagsShort": "Tags"
   },
   "editHeading": "Edit “{title}”",
   "cancel": "Cancel",
@@ -75,10 +76,43 @@
       "removePageNumbers": "Remove page numbers",
       "removeRepeatedLines": "Remove repeated headers and footers",
       "joinHyphenated": "Rejoin hyphenated words (exam-ple)",
-      "normalizeApostrophes": "Curly apostrophes (’) → straight (')"
+      "normalizeApostrophes": "Curly apostrophes (’) → straight (')",
+      "removeEdges": "Remove headers and page numbers",
+      "normalize": "Normalise spaces and apostrophes"
     },
     "clean": "Clean and preview",
     "back": "Back",
-    "reviewHint": "Read through and fix the text if needed before saving."
+    "reviewHint": "Read through and fix the text if needed before saving.",
+    "pagesCount": "{n, plural, one {# page} other {# pages}}",
+    "textFound": "text found",
+    "noText": "no text found (scanned PDF?)",
+    "pagesLabel": "Pages",
+    "range": "Range",
+    "rangeLabel": "Pages to import (e.g. 3-5), out of {total}",
+    "lines": "Choose lines (first and last)",
+    "totalLines": "of {n} lines",
+    "preview": "Editable preview",
+    "edit": "Edit the text",
+    "reset": "Back to the cleaned text",
+    "joinedHint": "Highlighted in green: word rejoined after a hyphenation",
+    "save": "Save {pages, plural, one {# page} other {# pages}} · {exercises, plural, one {# exercise} other {# exercises}}"
+  },
+  "count": "{n, plural, =0 {No texts} one {# text} other {# texts}}",
+  "close": "Close",
+  "imported": "Imported",
+  "open": "Open",
+  "more": "More actions for “{title}”",
+  "exercises": "{n, plural, one {# exercise} other {# exercises}}",
+  "pagesShort": "Pages {pages}",
+  "split": {
+    "label": "Split into exercises",
+    "default": "General setting",
+    "none": "Whole text",
+    "paragraph": "By paragraph",
+    "lines": "By lines",
+    "size": {
+      "paragraph": "Paragraphs per exercise",
+      "lines": "Lines per exercise"
+    }
   }
 }

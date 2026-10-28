@@ -8,6 +8,13 @@ export function formatDuration(ms: number): string {
   return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
 }
 
+/** Durée longue : « 2 h 15 », « 45 min ». */
+export function formatHours(ms: number): string {
+  const min = Math.round(Math.max(0, ms) / 60000);
+  if (min < 60) return `${min} min`;
+  return `${Math.floor(min / 60)} h ${String(min % 60).padStart(2, '0')}`;
+}
+
 /** Date locale AAAA-MM-JJ (même convention que les révisions côté Go). */
 export function localDay(d: Date): string {
   const p = (n: number) => String(n).padStart(2, '0');
