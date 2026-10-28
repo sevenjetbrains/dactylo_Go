@@ -7,6 +7,7 @@
   import { formatHours, formatNumber, localDay, parseDay } from '$shared/format';
   import { displayName, profile } from '$shared/profile.svelte';
   import { typingSettings } from '$shared/typing/settings.svelte';
+  import { dictationSettings } from '$shared/dictation/settings.svelte';
 
   const ICON_KEYBOARD = 'M3 6h18v12H3zM7 10h.01M11 10h.01M15 10h.01M7 14h10';
   const ICON_SPEAKER = 'M11 5 6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14';
@@ -139,18 +140,46 @@
         {/if}
       </article>
 
-      <!-- Dictée : Phase 4 -->
-      <article class="card flex flex-col p-7">
+      <!-- Dictée : texte proposé et réglages de lecture -->
+      <article class="card flex flex-col p-7" data-testid="dictation-card">
         <p class="eyebrow flex items-center gap-2">
           <Icon d={ICON_SPEAKER} size={16} />
           {$_('home.dictation.eyebrow')}
         </p>
-        <h2 class="mt-4 text-xl font-bold">{$_('home.dictation.title')}</h2>
-        <p class="text-muted mt-2 text-sm">{$_('home.dictation.desc')}</p>
-        <span class="badge bg-line text-muted mt-4 self-start">{$_('home.soon')}</span>
-        <button class="btn btn-outline mt-auto self-start" disabled>
-          {$_('home.dictation.cta')}
-        </button>
+        {#if o.dictation}
+          {@const d = o.dictation}
+          <h2 class="mt-4 text-xl font-bold">{d.title}</h2>
+          <p class="text-muted mt-1 text-sm">
+            {[...d.tags, $_('home.dictation.words', { values: { n: d.words } })].join(' · ')}
+          </p>
+          <ul class="mt-4 flex flex-wrap gap-2">
+            <li class="badge bg-accent-soft text-accent">
+              {dictationSettings.chunking === 'group'
+                ? $_('home.dictation.group', { values: { n: dictationSettings.groupSize } })
+                : $_(`home.dictation.chunks.${dictationSettings.chunking}`)}
+            </li>
+            <li class="badge bg-accent-soft text-accent">
+              {$_('home.dictation.rate', {
+                values: { r: formatNumber(dictationSettings.rate, lang, 1) },
+              })}
+            </li>
+            {#if dictationSettings.speakPunctuation}
+              <li class="badge bg-accent-soft text-accent">{$_('home.dictation.punctuation')}</li>
+            {/if}
+          </ul>
+          <a
+            href={`#/dictation?text=${d.textId}`}
+            class="btn btn-outline text-accent border-accent mt-auto self-start"
+          >
+            {$_('home.dictation.cta')}
+          </a>
+        {:else}
+          <h2 class="mt-4 text-xl font-bold">{$_('home.dictation.title')}</h2>
+          <p class="text-muted mt-2 text-sm">{$_('home.dictation.desc')}</p>
+          <a href="#/dictation" class="btn btn-outline mt-auto self-start"
+            >{$_('home.dictation.cta')}</a
+          >
+        {/if}
       </article>
     </div>
 

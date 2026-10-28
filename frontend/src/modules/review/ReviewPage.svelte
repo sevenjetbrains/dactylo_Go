@@ -3,6 +3,7 @@
   import {
     AddWord,
     BuildExercise,
+    BuildExerciseFor,
     ListWords,
     MarkMastered,
     RemoveWord,
@@ -21,6 +22,8 @@
   // #/review?session=<type>&repeat=N : séance de révision ; sinon la liste.
   const sessionKind = $derived(router.query.get('session') as Kind | null);
   const repeatParam = $derived(Number(router.query.get('repeat')) || 3);
+  // &words=a|b|c : mots choisis (« S'entraîner sur ces mots » après une dictée)
+  const wordsParam = $derived(router.query.get('words')?.split('|').filter(Boolean) ?? []);
 
   let kind: Kind = $state('shuffled');
   let repeat = $state(3);
@@ -51,7 +54,10 @@
   // Exercice généré à chaque entrée en séance (et à chaque « Suivant »).
   const exercise = $derived.by(() => {
     void round;
-    return sessionKind ? BuildExercise(sessionKind, repeatParam) : null;
+    if (!sessionKind) return null;
+    return wordsParam.length > 0
+      ? BuildExerciseFor(wordsParam, sessionKind, repeatParam)
+      : BuildExercise(sessionKind, repeatParam);
   });
 
   function start() {

@@ -34,7 +34,8 @@
     "extra_letter": "extra letter",
     "transposition": "swapped letters",
     "substitution": "wrong letter",
-    "omitted_word": "missing word"
+    "omitted_word": "missing word",
+    "extra_word": "extra word"
   },
   "actions": {
     "restart": "Restart",

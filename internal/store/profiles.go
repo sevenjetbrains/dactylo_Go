@@ -52,6 +52,27 @@ func (s *Store) LastProgress(ctx context.Context, profileID int64) (Text, int, b
 	return t, pos, err == nil, err
 }
 
+// LastTextForMode renvoie le texte de la dernière session terminée dans ce
+// mode, ou à défaut le texte le plus récent (ok = false si la bibliothèque est vide).
+func (s *Store) LastTextForMode(ctx context.Context, profileID int64, mode string) (Text, bool, error) {
+	var id int64
+	err := s.DB.QueryRowContext(ctx, `
+		SELECT text_id FROM sessions
+		WHERE profile_id = ? AND mode = ? AND ended_at IS NOT NULL AND text_id IS NOT NULL
+		ORDER BY ended_at DESC LIMIT 1`, profileID, mode).Scan(&id)
+	if errors.Is(err, sql.ErrNoRows) {
+		err = s.DB.QueryRowContext(ctx, "SELECT id FROM texts ORDER BY created_at DESC, id DESC LIMIT 1").Scan(&id)
+	}
+	if errors.Is(err, sql.ErrNoRows) {
+		return Text{}, false, nil
+	}
+	if err != nil {
+		return Text{}, false, err
+	}
+	t, err := s.GetText(ctx, id)
+	return t, err == nil, err
+}
+
 // EnsureDefaultProfile renvoie l'id du premier profil, en le créant s'il
 // n'en existe aucun. Les profils multiples arrivent en Phase 5 (F-50).
 func (s *Store) EnsureDefaultProfile(ctx context.Context) (int64, error) {

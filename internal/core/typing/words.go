@@ -48,6 +48,7 @@ const (
 	ErrTransposition = "transposition"
 	ErrSubstitution  = "substitution"
 	ErrOmittedWord   = "omitted_word"
+	ErrExtraWord     = "extra_word" // dictée : mot tapé sans équivalent attendu
 )
 
 // WordError décrit un mot mal tapé.
@@ -120,14 +121,15 @@ func Classify(expected, typed string) string {
 	switch {
 	case typed == "":
 		return ErrOmittedWord
+	case expected == "":
+		return ErrExtraWord
 	case strings.EqualFold(expected, typed):
 		return ErrCase
 	case strings.EqualFold(text.StripAccents(expected), text.StripAccents(typed)):
 		return ErrAccent
-	case CoreWord(expected) != expected || CoreWord(typed) != typed:
-		if CoreWord(expected) == CoreWord(typed) {
-			return ErrPunctuation
-		}
+	case lettersOnly(expected) == lettersOnly(typed):
+		// « chat, » / « chat. », « soixante-quinze » / « soixante quinze »
+		return ErrPunctuation
 	}
 	e, t := []rune(expected), []rune(typed)
 	switch {
@@ -139,6 +141,17 @@ func Classify(expected, typed string) string {
 		return ErrTransposition
 	}
 	return ErrSubstitution
+}
+
+// lettersOnly garde lettres et chiffres (ponctuation, tirets et espaces retirés).
+func lettersOnly(s string) string {
+	var b strings.Builder
+	for _, r := range s {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
 }
 
 // isOneDeletion indique si short s'obtient en retirant une rune de long.

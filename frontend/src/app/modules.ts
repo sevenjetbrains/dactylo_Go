@@ -7,5 +7,14 @@ import practice from '$modules/practice/module';
 import library from '$modules/library/module';
 import review from '$modules/review/module';
 import stats from '$modules/stats/module';
+import dictation from '$modules/dictation/module';
 
-export const registry = createRegistry([home, practice, library, review, stats, settings]);
+export const registry = createRegistry([
+  home,
+  practice,
+  dictation,
+  library,
+  review,
+  stats,
+  settings,
+]);

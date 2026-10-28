@@ -26,7 +26,16 @@
     "eyebrow": "Dictation",
     "title": "Dictation mode",
     "desc": "The app reads the text aloud, you write it without seeing it, then the correction sorts your mistakes.",
-    "cta": "Start dictation"
+    "cta": "Start dictation",
+    "words": "{n, plural, one {# word} other {# words}}",
+    "group": "Groups of {n} words",
+    "chunks": {
+      "word": "Word by word",
+      "sentence": "Sentence by sentence",
+      "paragraph": "By paragraph"
+    },
+    "rate": "Speed {r}×",
+    "punctuation": "Punctuation read"
   },
   "kpi": {
     "speed": "Average speed",

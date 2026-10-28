@@ -7,10 +7,14 @@ export function AddWord(arg1:string):Promise<void>;
 
 export function BuildExercise(arg1:string,arg2:number):Promise<app.ReviewExercise>;
 
+export function BuildExerciseFor(arg1:Array<string>,arg2:string,arg3:number):Promise<app.ReviewExercise>;
+
 export function ListWords(arg1:string):Promise<Array<store.Word>>;
 
 export function MarkMastered(arg1:number):Promise<void>;
 
 export function RemoveWord(arg1:number):Promise<void>;
+
+export function RemoveWordByKey(arg1:string):Promise<void>;
 
 export function Summary():Promise<app.ReviewSummary>;

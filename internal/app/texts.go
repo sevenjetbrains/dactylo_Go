@@ -168,6 +168,7 @@ func (t *TextService) ListTexts(q TextQuery) (TextList, error) {
 			split, size = q.DefaultSplit, q.DefaultSize
 		}
 		s.Exercises = len(text.Segments(s.Content, split, size))
+		s.Words = len(strings.Fields(s.Content))
 		out = append(out, s)
 	}
 	sortTexts(out, q.Sort)

@@ -174,6 +174,43 @@ func (r *ReviewService) RemoveWord(id int64) error {
 	return r.store.DeleteWord(context.Background(), r.profileID, id)
 }
 
+// RemoveWordByKey retire un mot désigné par son texte (écran de correction
+// de la dictée : « Retirer »). Un mot absent n'est pas une erreur.
+func (r *ReviewService) RemoveWordByKey(word string) error {
+	ctx := context.Background()
+	w, ok, err := r.store.GetWord(ctx, r.profileID, typing.NormalizeWord(word))
+	if err != nil || !ok {
+		return err
+	}
+	return r.store.DeleteWord(ctx, r.profileID, w.ID)
+}
+
+// BuildExerciseFor génère un exercice sur des mots choisis (« S'entraîner
+// sur ces 5 mots »), même s'ils ne sont pas encore à réviser.
+func (r *ReviewService) BuildExerciseFor(words []string, kind string, repeat int) (ReviewExercise, error) {
+	shown := make([]string, 0, len(words))
+	for _, w := range words {
+		if s := typing.StripElision(typing.CoreWord(w)); typing.NormalizeWord(s) != "" {
+			shown = append(shown, s)
+		}
+	}
+	if len(shown) == 0 {
+		return ReviewExercise{}, errors.New("aucun mot à travailler")
+	}
+	req := exercise.Request{Kind: kind, Words: shown, Repeat: repeat}
+	if kind == exercise.KindSentences {
+		texts, err := r.store.ListTexts(context.Background(), r.profileID)
+		if err != nil {
+			return ReviewExercise{}, err
+		}
+		for _, t := range texts {
+			req.Library = append(req.Library, t.Content)
+		}
+	}
+	ex := r.generator.Generate(req, r.rng)
+	return ReviewExercise{Kind: ex.Kind, Content: ex.Content, Words: shown}, nil
+}
+
 // MarkMastered déclare un mot maîtrisé (F-45) ; une nouvelle faute le
 // remettra en révision.
 func (r *ReviewService) MarkMastered(id int64) error {

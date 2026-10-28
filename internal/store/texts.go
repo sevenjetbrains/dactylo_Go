@@ -43,6 +43,7 @@ type TextSummary struct {
 	Split      string   `json:"split"`
 	SplitSize  int      `json:"splitSize"`
 	Exercises  int      `json:"exercises"` // calculé par le service
+	Words      int      `json:"words"`     // calculé par le service
 
 	// Contenu complet, pour la recherche ; jamais envoyé à l'interface.
 	Content string `json:"-"`

@@ -62,6 +62,108 @@ export namespace app {
 		    return a;
 		}
 	}
+	export class DictationCard {
+	    textId: number;
+	    title: string;
+	    tags: string[];
+	    words: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new DictationCard(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.textId = source["textId"];
+	        this.title = source["title"];
+	        this.tags = source["tags"];
+	        this.words = source["words"];
+	    }
+	}
+	export class DictationPlan {
+	    textId: number;
+	    title: string;
+	    start: number;
+	    end: number;
+	    words: number;
+	    chunks: dictation.Chunk[];
+	
+	    static createFrom(source: any = {}) {
+	        return new DictationPlan(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.textId = source["textId"];
+	        this.title = source["title"];
+	        this.start = source["start"];
+	        this.end = source["end"];
+	        this.words = source["words"];
+	        this.chunks = this.convertValues(source["chunks"], dictation.Chunk);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class DictationResult {
+	    sessionId: number;
+	    textId: number;
+	    report: dictation.Report;
+	    wpm: number;
+	    durationMs: number;
+	    repetitions: number;
+	    mistakes: typing.WordError[];
+	    average: store.DictationAverages;
+	
+	    static createFrom(source: any = {}) {
+	        return new DictationResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sessionId = source["sessionId"];
+	        this.textId = source["textId"];
+	        this.report = this.convertValues(source["report"], dictation.Report);
+	        this.wpm = source["wpm"];
+	        this.durationMs = source["durationMs"];
+	        this.repetitions = source["repetitions"];
+	        this.mistakes = this.convertValues(source["mistakes"], typing.WordError);
+	        this.average = this.convertValues(source["average"], store.DictationAverages);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class DueCard {
 	    count: number;
 	    words: string[];
@@ -130,6 +232,24 @@ export namespace app {
 	        this.sessions = source["sessions"];
 	    }
 	}
+	export class FinishDictation {
+	    sessionId: number;
+	    typed: string;
+	    durationMs: number;
+	    repetitions: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new FinishDictation(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sessionId = source["sessionId"];
+	        this.typed = source["typed"];
+	        this.durationMs = source["durationMs"];
+	        this.repetitions = source["repetitions"];
+	    }
+	}
 	export class Trend {
 	    value: number;
 	    delta: number;
@@ -150,6 +270,7 @@ export namespace app {
 	    profile: store.Profile;
 	    due: DueCard;
 	    continue?: ContinueCard;
+	    dictation?: DictationCard;
 	    speed: Trend;
 	    accuracy: Trend;
 	    streak: number;
@@ -167,6 +288,7 @@ export namespace app {
 	        this.profile = this.convertValues(source["profile"], store.Profile);
 	        this.due = this.convertValues(source["due"], DueCard);
 	        this.continue = this.convertValues(source["continue"], ContinueCard);
+	        this.dictation = this.convertValues(source["dictation"], DictationCard);
 	        this.speed = this.convertValues(source["speed"], Trend);
 	        this.accuracy = this.convertValues(source["accuracy"], Trend);
 	        this.streak = source["streak"];
@@ -208,6 +330,28 @@ export namespace app {
 	        this.cancelled = source["cancelled"];
 	        this.name = source["name"];
 	        this.data = source["data"];
+	    }
+	}
+	export class PrepareRequest {
+	    textId: number;
+	    start: number;
+	    end: number;
+	    chunking: string;
+	    groupSize: number;
+	    speakPunctuation: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new PrepareRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.textId = source["textId"];
+	        this.start = source["start"];
+	        this.end = source["end"];
+	        this.chunking = source["chunking"];
+	        this.groupSize = source["groupSize"];
+	        this.speakPunctuation = source["speakPunctuation"];
 	    }
 	}
 	export class ReviewExercise {
@@ -405,6 +549,87 @@ export namespace app {
 
 }
 
+export namespace dictation {
+	
+	export class Chunk {
+	    index: number;
+	    text: string;
+	    spoken: string;
+	    words: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Chunk(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.index = source["index"];
+	        this.text = source["text"];
+	        this.spoken = source["spoken"];
+	        this.words = source["words"];
+	    }
+	}
+	export class Op {
+	    expected: string;
+	    typed: string;
+	    correct: boolean;
+	    type: string;
+	    position: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Op(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.expected = source["expected"];
+	        this.typed = source["typed"];
+	        this.correct = source["correct"];
+	        this.type = source["type"];
+	        this.position = source["position"];
+	    }
+	}
+	export class Report {
+	    ops: Op[];
+	    words: number;
+	    faults: number;
+	    accuracy: number;
+	    byType: Record<string, number>;
+	
+	    static createFrom(source: any = {}) {
+	        return new Report(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.ops = this.convertValues(source["ops"], Op);
+	        this.words = source["words"];
+	        this.faults = source["faults"];
+	        this.accuracy = source["accuracy"];
+	        this.byType = source["byType"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+}
+
 export namespace srs {
 	
 	export class Card {
@@ -517,6 +742,58 @@ export namespace store {
 	        this.accuracy = source["accuracy"];
 	    }
 	}
+	export class DictationAverages {
+	    sessions: number;
+	    accuracy: number;
+	    faults: number;
+	    wpm: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new DictationAverages(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sessions = source["sessions"];
+	        this.accuracy = source["accuracy"];
+	        this.faults = source["faults"];
+	        this.wpm = source["wpm"];
+	    }
+	}
+	export class DictationProfile {
+	    id: number;
+	    name: string;
+	    voice: string;
+	    rate: number;
+	    pitch: number;
+	    volume: number;
+	    chunking: string;
+	    groupSize: number;
+	    pauseMs: number;
+	    speakPunctuation: boolean;
+	    advance: string;
+	    maxRepeats: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new DictationProfile(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.voice = source["voice"];
+	        this.rate = source["rate"];
+	        this.pitch = source["pitch"];
+	        this.volume = source["volume"];
+	        this.chunking = source["chunking"];
+	        this.groupSize = source["groupSize"];
+	        this.pauseMs = source["pauseMs"];
+	        this.speakPunctuation = source["speakPunctuation"];
+	        this.advance = source["advance"];
+	        this.maxRepeats = source["maxRepeats"];
+	    }
+	}
 	export class Profile {
 	    id: number;
 	    name: string;
@@ -611,6 +888,7 @@ export namespace store {
 	    split: string;
 	    splitSize: number;
 	    exercises: number;
+	    words: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new TextSummary(source);
@@ -633,6 +911,7 @@ export namespace store {
 	        this.split = source["split"];
 	        this.splitSize = source["splitSize"];
 	        this.exercises = source["exercises"];
+	        this.words = source["words"];
 	    }
 	}
 	export class Totals {

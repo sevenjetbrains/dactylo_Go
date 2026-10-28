@@ -34,7 +34,8 @@
     "extra_letter": "lettre en trop",
     "transposition": "inversion",
     "substitution": "lettre erronée",
-    "omitted_word": "mot oublié"
+    "omitted_word": "mot oublié",
+    "extra_word": "mot en trop"
   },
   "actions": {
     "restart": "Recommencer",

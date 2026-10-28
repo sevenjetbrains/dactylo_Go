@@ -10,6 +10,10 @@ export function BuildExercise(arg1, arg2) {
   return window['go']['app']['ReviewService']['BuildExercise'](arg1, arg2);
 }
 
+export function BuildExerciseFor(arg1, arg2, arg3) {
+  return window['go']['app']['ReviewService']['BuildExerciseFor'](arg1, arg2, arg3);
+}
+
 export function ListWords(arg1) {
   return window['go']['app']['ReviewService']['ListWords'](arg1);
 }
@@ -20,6 +24,10 @@ export function MarkMastered(arg1) {
 
 export function RemoveWord(arg1) {
   return window['go']['app']['ReviewService']['RemoveWord'](arg1);
+}
+
+export function RemoveWordByKey(arg1) {
+  return window['go']['app']['ReviewService']['RemoveWordByKey'](arg1);
 }
 
 export function Summary() {

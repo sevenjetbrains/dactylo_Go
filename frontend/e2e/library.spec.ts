@@ -12,8 +12,9 @@ async function openImport(page: Page, pdf: string) {
 
 const lastClean = (page: Page) =>
   page.evaluate(() => {
-    const calls = (window as unknown as { __calls: Calls }).__calls.CleanImport!;
-    return calls[calls.length - 1]!.pages;
+    // pas encore d'appel (nettoyage différé de 250 ms) : liste vide, expect.poll réessaie
+    const calls = (window as unknown as { __calls: Calls }).__calls.CleanImport ?? [];
+    return calls.at(-1)?.pages ?? [];
   });
 
 test('import PDF : plage 3-5, miniatures, nettoyage, enregistrement (F-21, F-22)', async ({

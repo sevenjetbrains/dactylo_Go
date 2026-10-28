@@ -26,7 +26,16 @@
     "eyebrow": "Dictée",
     "title": "Mode Dictée",
     "desc": "L'application lit le texte, vous l'écrivez sans le voir, puis la correction classe vos fautes.",
-    "cta": "Lancer la dictée"
+    "cta": "Lancer la dictée",
+    "words": "{n, plural, one {# mot} other {# mots}}",
+    "group": "Groupes de {n} mots",
+    "chunks": {
+      "word": "Mot par mot",
+      "sentence": "Phrase par phrase",
+      "paragraph": "Par paragraphe"
+    },
+    "rate": "Vitesse {r}×",
+    "punctuation": "Ponctuation lue"
   },
   "kpi": {
     "speed": "Vitesse moyenne",

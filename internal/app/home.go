@@ -37,6 +37,14 @@ type ContinueCard struct {
 	Progress  float64  `json:"progress"`  // 0 à 1
 }
 
+// DictationCard est la carte « Dictée » : texte proposé.
+type DictationCard struct {
+	TextID int64    `json:"textId"`
+	Title  string   `json:"title"`
+	Tags   []string `json:"tags"`
+	Words  int      `json:"words"`
+}
+
 // Trend est une moyenne sur les 10 dernières sessions et son écart avec les
 // 10 précédentes (Delta = 0 sans historique suffisant).
 type Trend struct {
@@ -50,6 +58,7 @@ type Overview struct {
 	Profile      store.Profile        `json:"profile"`
 	Due          DueCard              `json:"due"`
 	Continue     *ContinueCard        `json:"continue"`
+	Dictation    *DictationCard       `json:"dictation"`
 	Speed        Trend                `json:"speed"`
 	Accuracy     Trend                `json:"accuracy"`
 	Streak       int                  `json:"streak"`
@@ -97,6 +106,11 @@ func (h *HomeService) Overview(split string, size int) (Overview, error) {
 
 	if o.Continue, err = h.continueCard(ctx, split, size); err != nil {
 		return o, err
+	}
+	if t, ok, err := h.store.LastTextForMode(ctx, h.profileID, ModeDictation); err != nil {
+		return o, err
+	} else if ok {
+		o.Dictation = &DictationCard{TextID: t.ID, Title: t.Title, Tags: t.Tags, Words: len(strings.Fields(t.Content))}
 	}
 
 	points, err := h.store.SessionPoints(ctx, h.profileID, 20)
