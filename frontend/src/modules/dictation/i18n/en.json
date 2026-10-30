@@ -88,9 +88,15 @@
     "byType": "Mistakes by type",
     "added": "Words added to your review",
     "tomorrow": "Review due tomorrow",
-    "cols": { "expected": "Expected", "typed": "Typed", "type": "Type", "action": "Action" },
+    "cols": {
+      "expected": "Expected",
+      "typed": "Typed",
+      "type": "Type",
+      "action": "Action"
+    },
     "remove": "Remove",
     "removeLabel": "Remove “{word}” from review",
     "removed": "Removed"
-  }
+  },
+  "leave": "Your dictation in progress will be lost: the typed text has not been checked yet."
 }

@@ -24,6 +24,7 @@
   import Icon from '$shared/Icon.svelte';
   import VirtualKeyboard from '$shared/keyboard/VirtualKeyboard.svelte';
   import { profile } from '$shared/profile.svelte';
+  import { router } from '$app/router.svelte';
   import { DURATIONS } from './settings.svelte';
 
   let {
@@ -69,6 +70,8 @@
 
   let clock = new Clock();
   let sessionId: Promise<number> | null = null;
+  // Session déjà abandonnée (Ctrl+Entrée) : quitter la page ne demande rien.
+  let abandoned = false;
   let chain: Promise<void> = Promise.resolve();
   let textarea: HTMLTextAreaElement | undefined = $state();
 
@@ -233,6 +236,7 @@
   /** Quitte la session en cours : elle ne sera pas proposée à la reprise. */
   function abandon() {
     if (!sessionId || status === 'done' || status === 'finishing') return;
+    abandoned = true;
     const id = sessionId;
     void flush()
       .then(async () => Abandon(await id))
@@ -246,6 +250,7 @@
     engine = makeEngine();
     clock = new Clock();
     sessionId = null;
+    abandoned = false;
     chain = Promise.resolve();
     result = null;
     error = '';
@@ -290,7 +295,18 @@
     return detach;
   }
 
+  /**
+   * Garde de navigation : quitter une session commencée demande confirmation.
+   * Le chrono est mis en pause pendant la question.
+   */
+  function leaveGuard(): string | null {
+    if (abandoned || (status !== 'typing' && status !== 'paused')) return null;
+    if (status === 'typing') togglePause();
+    return textId === 0 ? $_('typing.leave.review') : $_('typing.leave.copy');
+  }
+
   onMount(() => {
+    const unguard = router.guard(leaveGuard);
     const batchTimer = setInterval(() => void flush(), BATCH_MS);
     const tickTimer = setInterval(() => {
       if (status !== 'typing') return;
@@ -298,6 +314,7 @@
       if (limitMs !== undefined && elapsed >= limitMs) void finish();
     }, TICK_MS);
     return () => {
+      unguard();
       clearInterval(batchTimer);
       clearInterval(tickTimer);
     };
@@ -373,6 +390,16 @@
       >
         <Icon d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5" size={18} />
       </button>
+      <!-- Clavier virtuel (F-08) : simple affichage, changé sans recommencer. -->
+      <button
+        class={['btn h-11 w-11 p-0', typingSettings.showKeyboard ? 'btn-soft' : 'btn-outline']}
+        onclick={() => (typingSettings.showKeyboard = !typingSettings.showKeyboard)}
+        aria-pressed={typingSettings.showKeyboard}
+        aria-label={$_('typing.toolbar.keyboard')}
+        title={$_('typing.toolbar.keyboard')}
+      >
+        <Icon d="M3 6h18v12H3zM7 10h1M11 10h1M15 10h1M7 14h10" size={18} />
+      </button>
     </div>
 
     {#if opts.showLiveBar}
@@ -439,7 +466,7 @@
       </span>
     </div>
 
-    {#if opts.showKeyboard}
+    {#if typingSettings.showKeyboard}
       <VirtualKeyboard next={live.next} layout={profile.keyboardLayout} />
     {/if}
   {/if}

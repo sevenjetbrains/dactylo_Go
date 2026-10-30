@@ -16,6 +16,11 @@
       "azerty": "AZERTY",
       "qwerty": "QWERTY",
       "bepo": "BÉPO"
+    },
+    "leave": {
+      "title": "Leave the session?",
+      "stay": "Keep typing",
+      "leave": "Leave"
     }
   }
 }

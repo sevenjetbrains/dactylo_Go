@@ -77,6 +77,57 @@ test('Échap met en pause, Ctrl+R recommence', async ({ page }) => {
   await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
 });
 
+test('clavier virtuel masqué ou affiché depuis la session (F-08)', async ({ page }) => {
+  await open(page, '/practice?text=1');
+  const toggle = page.getByRole('button', { name: 'Afficher le clavier virtuel' });
+  const keyboard = page.getByLabel('Clavier virtuel', { exact: true });
+  await expect(keyboard).toBeVisible();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+
+  await page.keyboard.type('Le');
+  await toggle.click();
+  await expect(keyboard).toBeHidden();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  // la session continue sans recommencer
+  await expect(page.getByRole('progressbar')).not.toHaveAttribute('aria-valuenow', '0');
+
+  // le choix est gardé pour les sessions suivantes
+  await page.reload();
+  await expect(page.getByLabel('Zone de frappe')).toBeFocused();
+  await expect(keyboard).toBeHidden();
+  await toggle.click();
+  await expect(keyboard).toBeVisible();
+});
+
+test('quitter une session en cours demande confirmation', async ({ page }) => {
+  await open(page, '/practice?text=1');
+  const menu = page.getByRole('navigation', { name: 'Navigation principale' });
+  const dialog = page.getByRole('alertdialog', { name: 'Quitter la session ?' });
+
+  // avant la première frappe : rien à confirmer
+  await menu.getByRole('link', { name: 'Statistiques' }).click();
+  await expect(dialog).toBeHidden();
+  await page.goto('/#/practice?text=1');
+
+  await page.keyboard.type('Le');
+  await menu.getByRole('link', { name: 'Dictée' }).click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText("reprendre depuis l'accueil");
+  await page.screenshot({ path: 'test-results/screens/practice-leave.png' });
+
+  // Continuer : on reste sur la session, mise en pause
+  await dialog.getByRole('button', { name: 'Continuer la session' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page).toHaveURL(/#\/practice\?text=1$/);
+  await expect(page.getByText('En pause')).toBeVisible();
+
+  // Quitter : la page change
+  await menu.getByRole('link', { name: 'Dictée' }).click();
+  await dialog.getByRole('button', { name: 'Quitter' }).click();
+  await expect(page).toHaveURL(/#\/dictation$/);
+  await expect(page.getByRole('heading', { name: 'Mode Dictée' })).toBeVisible();
+});
+
 test('texte de 10 000 mots : frappe fluide (NF-01)', async ({ page }) => {
   const long = Array.from({ length: 10_000 }, (_, i) => ['le', 'chat', 'être', 'là'][i % 4]).join(
     ' ',
@@ -131,6 +182,8 @@ test('reprise d’une session interrompue (NF-06)', async ({ page }) => {
     .toBe(8);
 
   await page.evaluate(() => (window.location.hash = '#/practice?resume=1'));
+  // quitter la session en cours demande confirmation
+  await page.getByRole('button', { name: 'Quitter' }).click();
   await expect(page.getByTestId('session-resumed')).toBeVisible();
   await expect(page.getByText('En pause')).toBeVisible();
   await page.getByLabel('Zone de frappe').focus();

@@ -55,7 +55,8 @@
     "free": "Free",
     "blocking": "Blocking",
     "pause": "Pause",
-    "resume": "Resume"
+    "resume": "Resume",
+    "keyboard": "Show the virtual keyboard"
   },
   "keys": {
     "pause": "pause",
@@ -78,5 +79,9 @@
       "r5": "right little finger",
       "thumb": "thumb"
     }
+  },
+  "leave": {
+    "copy": "Your session is saved: you can resume it from the home page.",
+    "review": "This review exercise will not be finished or counted in your statistics."
   }
 }

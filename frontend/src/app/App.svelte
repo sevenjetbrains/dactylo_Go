@@ -94,3 +94,33 @@
     {/if}
   </main>
 </div>
+
+{#if router.pending}
+  <!-- Confirmation avant de quitter une session en cours. Les touches ne
+       remontent pas jusqu'à la session (Échap y met en pause). -->
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/50 p-6">
+    <div
+      class="card w-full max-w-md p-6 shadow-xl"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="leave-title"
+      aria-describedby="leave-message"
+      tabindex="-1"
+      onkeydown={(e) => {
+        e.stopPropagation();
+        if (e.key === 'Escape') router.stay();
+      }}
+    >
+      <h2 id="leave-title" class="text-lg font-bold">{$_('app.leave.title')}</h2>
+      <p id="leave-message" class="text-muted mt-2 text-sm">{router.pending.message}</p>
+      <div class="mt-6 flex justify-end gap-2">
+        <button class="btn btn-outline" onclick={() => router.leave()}>
+          {$_('app.leave.leave')}
+        </button>
+        <button class="btn btn-primary" {@attach (el) => el.focus()} onclick={() => router.stay()}>
+          {$_('app.leave.stay')}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}

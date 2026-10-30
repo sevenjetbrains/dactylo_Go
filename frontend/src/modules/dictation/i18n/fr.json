@@ -88,9 +88,15 @@
     "byType": "Fautes par type",
     "added": "Mots ajoutés à vos révisions",
     "tomorrow": "Révision prévue demain",
-    "cols": { "expected": "Attendu", "typed": "Tapé", "type": "Type", "action": "Action" },
+    "cols": {
+      "expected": "Attendu",
+      "typed": "Tapé",
+      "type": "Type",
+      "action": "Action"
+    },
     "remove": "Retirer",
     "removeLabel": "Retirer « {word} » des révisions",
     "removed": "Retiré"
-  }
+  },
+  "leave": "Votre dictée en cours sera perdue : le texte tapé n'est pas encore corrigé."
 }

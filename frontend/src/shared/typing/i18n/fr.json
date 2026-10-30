@@ -55,7 +55,8 @@
     "free": "Libre",
     "blocking": "Bloquante",
     "pause": "Pause",
-    "resume": "Reprendre"
+    "resume": "Reprendre",
+    "keyboard": "Afficher le clavier virtuel"
   },
   "keys": {
     "pause": "pause",
@@ -78,5 +79,9 @@
       "r5": "auriculaire droit",
       "thumb": "pouce"
     }
+  },
+  "leave": {
+    "copy": "Votre session reste enregistrée : vous pourrez la reprendre depuis l'accueil.",
+    "review": "Cet exercice de révision ne sera pas terminé ni compté dans vos statistiques."
   }
 }

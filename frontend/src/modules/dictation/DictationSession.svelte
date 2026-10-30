@@ -7,6 +7,7 @@
   import { _ } from 'svelte-i18n';
   import { Finish, Prepare, Start } from '$wails/go/app/DictationService';
   import type { app } from '$wails/go/models';
+  import { router } from '$app/router.svelte';
   import Icon from '$shared/Icon.svelte';
   import { speech } from '$shared/speech/engine';
   import { DictationPlayer } from './player.svelte';
@@ -119,7 +120,18 @@
     }
   }
 
-  onDestroy(() => player?.stop());
+  /** Garde de navigation : quitter une dictée commencée demande confirmation. */
+  function leaveGuard(): string | null {
+    if (result || (!started && !typed.trim())) return null;
+    if (player?.status === 'speaking' || player?.status === 'waiting') player.toggle();
+    return $_('dictation.leave');
+  }
+  const unguard = router.guard(leaveGuard);
+
+  onDestroy(() => {
+    unguard();
+    player?.stop();
+  });
 
   const statusKey = $derived(
     !player || player.status === 'idle'
