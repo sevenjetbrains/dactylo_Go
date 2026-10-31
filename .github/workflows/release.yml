@@ -51,7 +51,11 @@ jobs:
 
       - name: NSIS
         if: startsWith(matrix.os, 'windows')
-        run: choco install nsis -y --no-progress
+        # choco ne met pas makensis dans le PATH des étapes suivantes
+        shell: bash
+        run: |
+          choco install nsis -y --no-progress
+          echo "C:\Program Files (x86)\NSIS" >> "$GITHUB_PATH"
 
       - name: wails build
         shell: bash
