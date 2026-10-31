@@ -98,5 +98,6 @@
     "removeLabel": "Remove “{word}” from review",
     "removed": "Removed"
   },
-  "leave": "Your dictation in progress will be lost: the typed text has not been checked yet."
+  "leave": "Your dictation in progress will be lost: the typed text has not been checked yet.",
+  "searchText": "Search a text"
 }

@@ -5,7 +5,7 @@
   import ProfilesPanel from './ProfilesPanel.svelte';
 </script>
 
-<section class="mx-auto max-w-3xl px-10 py-10">
+<section class="mx-auto max-w-3xl px-6 py-8 lg:px-10 lg:py-10">
   <h1 class="text-4xl font-bold tracking-tight">{$_('settings.title')}</h1>
 
   <!-- Chaque module peut fournir un panneau via settingsPanel. -->

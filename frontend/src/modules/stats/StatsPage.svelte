@@ -51,7 +51,7 @@
   const keyLabel = (k: string) => (k === ' ' ? '␣' : k);
 </script>
 
-<section class="mx-auto max-w-6xl px-10 py-10">
+<section class="mx-auto max-w-6xl px-6 py-8 lg:px-10 lg:py-10">
   <div class="flex flex-wrap items-center justify-between gap-4">
     <h1 class="text-4xl font-bold tracking-tight">{$_('stats.title')}</h1>
     <button class="btn btn-outline" onclick={exportCsv}>

@@ -59,7 +59,7 @@
   };
 </script>
 
-<section class="mx-auto max-w-6xl px-10 py-10">
+<section class="mx-auto max-w-6xl px-6 py-8 lg:px-10 lg:py-10">
   <header class="flex flex-wrap items-end justify-between gap-4">
     <div>
       <p class="text-muted text-sm font-medium first-letter:uppercase">

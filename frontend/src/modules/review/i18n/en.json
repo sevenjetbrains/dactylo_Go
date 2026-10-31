@@ -48,5 +48,6 @@
   "markMastered": "Mastered",
   "markMasteredLabel": "Mark “{word}” as mastered",
   "remove": "Remove",
-  "removeLabel": "Remove “{word}” from the list"
+  "removeLabel": "Remove “{word}” from the list",
+  "search": "Search a word or typed form"
 }

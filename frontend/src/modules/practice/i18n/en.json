@@ -65,5 +65,6 @@
     "notice": "Session resumed where it stopped. Type to continue.",
     "eyebrow": "Copy · resumed",
     "failed": "This session can no longer be resumed."
-  }
+  },
+  "searchText": "Search a text"
 }

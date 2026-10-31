@@ -48,5 +48,6 @@
   "markMastered": "Maîtrisé",
   "markMasteredLabel": "Marquer « {word} » comme maîtrisé",
   "remove": "Retirer",
-  "removeLabel": "Retirer « {word} » de la liste"
+  "removeLabel": "Retirer « {word} » de la liste",
+  "search": "Rechercher un mot ou une forme tapée"
 }

@@ -416,7 +416,7 @@
     <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
     <div
       class={[
-        'bg-panel relative cursor-text rounded-2xl border-2 px-10 py-8 transition-shadow',
+        'bg-panel relative cursor-text rounded-2xl border-2 px-6 py-6 transition-shadow lg:px-10 lg:py-8',
         focused ? 'border-accent shadow-[0_0_0_4px_var(--color-accent-soft)]' : 'border-line',
       ]}
       onclick={() => textarea?.focus()}

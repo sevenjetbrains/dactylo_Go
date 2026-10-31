@@ -16,6 +16,8 @@
   import { router } from '$app/router.svelte';
   import Icon from '$shared/Icon.svelte';
   import { formatNumber } from '$shared/format';
+  import { paginate } from '$shared/list';
+  import Pagination from '$shared/Pagination.svelte';
   import { typingSettings } from '$shared/typing/settings.svelte';
   import PdfImport from './PdfImport.svelte';
   import TextForm from './TextForm.svelte';
@@ -36,6 +38,13 @@
   let panel: Panel = $state(initialPanel());
   let confirmDelete: number | null = $state(null);
   let highlight: number | null = $state(null);
+  // Liste longue : pages de PAGE_SIZE textes, première page à chaque recherche.
+  const PAGE_SIZE = 20;
+  let page = $state(0);
+  // TypeScript réduit `list` à null à cet endroit : type donné explicitement
+  const shown = $derived(
+    paginate<store.TextSummary>(list ? (list as app.TextList).texts : [], page, PAGE_SIZE),
+  );
 
   const lang = $derived($locale ?? 'fr');
 
@@ -65,6 +74,7 @@
   // Recherche à la frappe, avec un court délai.
   $effect(() => {
     void [search, filter, sort];
+    page = 0;
     const t = setTimeout(refresh, 150);
     return () => clearTimeout(t);
   });
@@ -125,7 +135,7 @@
   }
 </script>
 
-<section class="mx-auto flex max-w-6xl gap-6 px-10 py-10">
+<section class="mx-auto flex max-w-6xl gap-6 px-6 py-8 lg:px-10 lg:py-10">
   <div class="min-w-0 flex-1">
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
@@ -203,7 +213,7 @@
       </p>
     {:else if list}
       <ul class="mt-5 flex flex-col gap-3">
-        {#each list.texts as t (t.id)}
+        {#each shown.items as t (t.id)}
           <li
             class={[
               'card flex items-center gap-4 px-5 py-4',
@@ -276,6 +286,11 @@
           </li>
         {/each}
       </ul>
+      <Pagination
+        bind:page={() => shown.page, (p) => (page = p)}
+        pages={shown.pages}
+        total={shown.total}
+      />
     {/if}
   </div>
 

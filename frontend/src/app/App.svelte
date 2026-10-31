@@ -31,14 +31,21 @@
 <div class="flex h-full">
   <nav
     aria-label={$_('app.mainNav')}
-    class="bg-nav text-nav-ink flex w-60 shrink-0 flex-col gap-1 px-4 py-6"
+    class="bg-nav text-nav-ink flex w-60 shrink-0 flex-col gap-1 overflow-y-auto px-4 py-6 max-lg:w-18 max-lg:px-2.5"
   >
-    <a href="#/" class="mb-6 flex items-center gap-3 px-2" aria-label={$_('app.name')}>
+    <!-- Fenêtre étroite (< 1024 px) : menu réduit aux icônes, libellés en infobulle. -->
+    <a
+      href="#/"
+      class="mb-6 flex items-center gap-3 px-2 max-lg:justify-center max-lg:px-0"
+      aria-label={$_('app.name')}
+    >
       <span
         class="bg-accent grid h-9 w-9 place-items-center rounded-lg font-mono text-sm font-bold text-white"
         aria-hidden="true">D_</span
       >
-      <span class="text-nav-strong text-xl font-bold tracking-tight">{$_('app.name')}</span>
+      <span class="text-nav-strong text-xl font-bold tracking-tight max-lg:sr-only"
+        >{$_('app.name')}</span
+      >
     </a>
 
     {#each registry.menu as m (m.id)}
@@ -46,16 +53,17 @@
       <a
         href={'#' + m.route}
         aria-current={current ? 'page' : undefined}
+        title={$_(m.labelKey)}
         class={[
-          'flex items-center gap-3 rounded-xl px-3 py-2.5 text-[0.95rem] font-semibold transition-colors',
+          'relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[0.95rem] font-semibold transition-colors max-lg:justify-center',
           current ? 'bg-nav-raised text-nav-strong' : 'hover:text-nav-strong hover:bg-white/5',
         ]}
       >
         <Icon d={m.icon} />
-        <span class="flex-1">{$_(m.labelKey)}</span>
+        <span class="flex-1 max-lg:sr-only">{$_(m.labelKey)}</span>
         {#if badges[m.id]}
           <span
-            class="bg-warm text-warm-ink min-w-6 rounded-full px-1.5 text-center text-xs font-bold"
+            class="bg-warm text-warm-ink min-w-6 rounded-full px-1.5 text-center text-xs font-bold max-lg:absolute max-lg:-top-1 max-lg:-right-1 max-lg:min-w-5 max-lg:px-1 max-lg:text-[0.65rem]"
             aria-label={$_('app.badge', { values: { n: badges[m.id] } })}>{badges[m.id]}</span
           >
         {/if}
@@ -64,14 +72,15 @@
 
     <a
       href="#/settings"
-      class="bg-nav-raised/60 mt-auto flex items-center gap-3 rounded-xl px-3 py-3"
+      class="bg-nav-raised/60 mt-auto flex items-center gap-3 rounded-xl px-3 py-3 max-lg:justify-center max-lg:px-0"
       aria-label={$_('app.profile')}
+      title={name || $_('app.you')}
     >
       <span
         class="bg-warm text-warm-ink grid h-9 w-9 shrink-0 place-items-center rounded-full font-bold"
         aria-hidden="true">{initial}</span
       >
-      <span class="min-w-0">
+      <span class="min-w-0 max-lg:sr-only">
         <span class="text-nav-strong block truncate text-sm font-bold">
           {name || $_('app.you')}
         </span>
@@ -82,7 +91,8 @@
     </a>
   </nav>
 
-  <main class="min-w-0 flex-1 overflow-y-auto">
+  <!-- relative : les éléments positionnés restent dans la zone défilante -->
+  <main class="relative min-w-0 flex-1 overflow-y-auto">
     {#if active}
       {@const Page = active.page}
       <Page />

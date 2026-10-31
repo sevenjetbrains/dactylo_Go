@@ -21,6 +21,15 @@
       "title": "Leave the session?",
       "stay": "Keep typing",
       "leave": "Leave"
-    }
+    },
+    "pagination": {
+      "label": "List pages",
+      "position": "Page {page} of {pages} · {total} results",
+      "previous": "Previous",
+      "next": "Next",
+      "goTo": "Go to page {page}"
+    },
+    "search": "Search",
+    "noMatch": "No results for “{query}”."
   }
 }

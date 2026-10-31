@@ -17,6 +17,8 @@
   import { router } from '$app/router.svelte';
   import TypingSession from '$shared/typing/TypingSession.svelte';
   import { localDay, parseDay } from '$shared/format';
+  import { matches, paginate } from '$shared/list';
+  import Pagination from '$shared/Pagination.svelte';
 
   const KINDS = ['shuffled', 'repeated', 'sentences'] as const;
   type Kind = (typeof KINDS)[number];
@@ -37,6 +39,12 @@
   let newWord = $state('');
   let error = $state('');
   let round = $state(0);
+  // Liste longue : recherche et pages de PAGE_SIZE mots.
+  const PAGE_SIZE = 25;
+  let query = $state('');
+  let page = $state(0);
+  const found = $derived(words.filter((w) => matches(query, w.shown, ...w.forms)));
+  const shown = $derived(paginate(found, page, PAGE_SIZE));
 
   const lang = $derived($locale ?? 'fr');
   const today = localDay(new Date());
@@ -98,7 +106,7 @@
   }
 </script>
 
-<section class="mx-auto max-w-6xl px-10 py-10">
+<section class="mx-auto max-w-6xl px-6 py-8 lg:px-10 lg:py-10">
   {#if exercise}
     {#await exercise then ex}
       {#key `${ex.content}-${round}`}
@@ -168,7 +176,10 @@
                 ? 'bg-accent text-accent-ink font-medium'
                 : 'text-muted hover:bg-line/60',
             ]}
-            onclick={() => (filter = f)}
+            onclick={() => {
+              filter = f;
+              page = 0;
+            }}
           >
             {$_(`review.filters.${f}`)}
           </button>
@@ -185,29 +196,47 @@
       </form>
     </div>
 
+    {#if words.length > PAGE_SIZE}
+      <label class="mt-4 block">
+        <span class="sr-only">{$_('review.search')}</span>
+        <input
+          type="search"
+          class="field w-full max-w-sm"
+          placeholder={$_('review.search')}
+          bind:value={query}
+          oninput={() => (page = 0)}
+        />
+      </label>
+    {/if}
+
     {#if words.length === 0}
       <p class="text-muted mt-6">{$_(`review.empty.${filter}`)}</p>
+    {:else if found.length === 0}
+      <p class="text-muted mt-6">{$_('app.noMatch', { values: { query } })}</p>
     {:else}
-      <div class="border-line mt-4 overflow-x-auto rounded-lg border">
+      <!-- relative : les libellés invisibles (sr-only) restent dans la zone défilante -->
+      <div class="border-line relative mt-4 overflow-x-auto rounded-lg border">
         <table class="bg-panel w-full text-sm">
           <thead class="text-muted text-left text-xs">
             <tr class="border-line border-b">
               <th class="px-3 py-2 font-medium">{$_('review.cols.word')}</th>
-              <th class="px-3 py-2 text-right font-medium">{$_('review.cols.encounters')}</th>
+              <th class="px-3 py-2 text-right font-medium max-xl:hidden"
+                >{$_('review.cols.encounters')}</th
+              >
               <th class="px-3 py-2 text-right font-medium">{$_('review.cols.errors')}</th>
               <th class="px-3 py-2 font-medium">{$_('review.cols.forms')}</th>
-              <th class="px-3 py-2 font-medium">{$_('review.cols.mistake')}</th>
-              <th class="px-3 py-2 font-medium">{$_('review.cols.lastError')}</th>
+              <th class="px-3 py-2 font-medium max-lg:hidden">{$_('review.cols.mistake')}</th>
+              <th class="px-3 py-2 font-medium max-xl:hidden">{$_('review.cols.lastError')}</th>
               <th class="px-3 py-2 font-medium">{$_('review.cols.mastery')}</th>
               <th class="px-3 py-2 font-medium">{$_('review.cols.next')}</th>
               <th class="px-3 py-2"><span class="sr-only">{$_('review.cols.actions')}</span></th>
             </tr>
           </thead>
           <tbody>
-            {#each words as w (w.id)}
+            {#each shown.items as w (w.id)}
               <tr class="border-line border-b last:border-0">
                 <td class="px-3 py-2 font-mono font-semibold">{w.shown}</td>
-                <td class="px-3 py-2 text-right tabular-nums">{w.encounters}</td>
+                <td class="px-3 py-2 text-right tabular-nums max-xl:hidden">{w.encounters}</td>
                 <td class="px-3 py-2 text-right tabular-nums">{w.errors}</td>
                 <td class="px-3 py-2">
                   {#each w.forms as f (f)}
@@ -216,14 +245,16 @@
                     <span class="text-muted">{w.errors === 0 ? $_('review.slowOnly') : '—'}</span>
                   {/each}
                 </td>
-                <td class="text-muted px-3 py-2">
+                <td class="text-muted px-3 py-2 whitespace-nowrap max-lg:hidden">
                   {w.dominantError ? $_(`typing.errorTypes.${w.dominantError}`) : '—'}
                 </td>
-                <td class="text-muted px-3 py-2 whitespace-nowrap">{formatDate(w.lastErrorAt)}</td>
+                <td class="text-muted px-3 py-2 whitespace-nowrap max-xl:hidden"
+                  >{formatDate(w.lastErrorAt)}</td
+                >
                 <td class="px-3 py-2">
                   <div class="flex items-center gap-2">
                     <div
-                      class="bg-line h-1.5 w-16 overflow-hidden rounded-full"
+                      class="bg-line h-1.5 w-12 overflow-hidden rounded-full"
                       role="meter"
                       aria-valuemin={0}
                       aria-valuemax={100}
@@ -241,9 +272,10 @@
                   {w.mastery >= 1 ? $_('review.masteredLabel') : formatDate(w.nextReview)}
                 </td>
                 <td class="px-3 py-2 whitespace-nowrap">
+                  <!-- actions empilées : colonne étroite -->
                   {#if w.mastery < 1}
                     <button
-                      class="text-accent me-3 text-xs underline"
+                      class="text-accent block text-xs underline"
                       onclick={() => act(MarkMastered, w.id)}
                       aria-label={$_('review.markMasteredLabel', { values: { word: w.shown } })}
                     >
@@ -251,7 +283,7 @@
                     </button>
                   {/if}
                   <button
-                    class="text-muted text-xs underline"
+                    class="text-muted block text-xs underline"
                     onclick={() => act(RemoveWord, w.id)}
                     aria-label={$_('review.removeLabel', { values: { word: w.shown } })}
                   >
@@ -263,6 +295,11 @@
           </tbody>
         </table>
       </div>
+      <Pagination
+        bind:page={() => shown.page, (p) => (page = p)}
+        pages={shown.pages}
+        total={shown.total}
+      />
     {/if}
   {/if}
 </section>

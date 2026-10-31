@@ -6,6 +6,7 @@
   import { GetText, ListTexts } from '$wails/go/app/TextService';
   import { router } from '$app/router.svelte';
   import { typingSettings } from '$shared/typing/settings.svelte';
+  import SearchList from '$shared/SearchList.svelte';
   import DictationSession from './DictationSession.svelte';
   import DictationSettingsCard from './DictationSettingsCard.svelte';
 
@@ -27,7 +28,7 @@
   let round = $state(0);
 </script>
 
-<section class="mx-auto max-w-6xl px-10 py-10">
+<section class="mx-auto max-w-6xl px-6 py-8 lg:px-10 lg:py-10">
   {#if text}
     {#await text then t}
       {#key `${t.id}-${round}`}
@@ -48,8 +49,13 @@
           {#if !list || list.texts.length === 0}
             <p class="text-muted">{$_('dictation.noTexts')}</p>
           {:else}
-            <ul class="flex flex-col gap-3">
-              {#each list.texts as t (t.id)}
+            <SearchList
+              items={list.texts}
+              fields={(t) => [t.title, ...t.tags]}
+              key={(t) => t.id}
+              label={$_('dictation.searchText')}
+            >
+              {#snippet row(t)}
                 <li class="card flex items-center gap-4 px-5 py-4">
                   <div class="min-w-0 flex-1">
                     <p class="truncate font-bold">{t.title}</p>
@@ -61,8 +67,8 @@
                     {$_('dictation.start')}
                   </a>
                 </li>
-              {/each}
-            </ul>
+              {/snippet}
+            </SearchList>
           {/if}
         {/await}
       </div>

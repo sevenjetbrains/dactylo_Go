@@ -3,6 +3,8 @@
 export function installMockBackend(args: {
   texts: { title: string; content: string }[];
   pdf?: string;
+  /** Mots difficiles renvoyés par ReviewService.ListWords. */
+  words?: string[];
 }): void {
   type Ks = { seq: number; position: number; typed: string; timeMs: number };
   type Txt = {
@@ -148,8 +150,21 @@ export function installMockBackend(args: {
         }),
       },
       ReviewService: {
-        Summary: async () => ({ due: 0, learning: 0, mastered: 0 }),
-        ListWords: async () => [],
+        Summary: async () => ({ due: args.words?.length ?? 0, learning: 0, mastered: 0 }),
+        ListWords: async () =>
+          (args.words ?? []).map((w, i) => ({
+            id: i + 1,
+            word: w.toLowerCase(),
+            shown: w,
+            encounters: 3,
+            errors: 2,
+            mastery: 0.2,
+            nextReview: '2026-10-27T10:00:00.000Z',
+            lastErrorAt: '2026-10-26T10:00:00.000Z',
+            card: {},
+            forms: [],
+            dominantError: 'accent',
+          })),
       },
       StatsService: {
         Dashboard: async () => ({

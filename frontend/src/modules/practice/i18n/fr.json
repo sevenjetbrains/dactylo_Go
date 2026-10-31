@@ -65,5 +65,6 @@
     "notice": "Session reprise là où elle s’était arrêtée. Tapez pour continuer.",
     "eyebrow": "Copie · reprise",
     "failed": "Cette session ne peut plus être reprise."
-  }
+  },
+  "searchText": "Rechercher un texte"
 }

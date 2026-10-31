@@ -98,5 +98,6 @@
     "removeLabel": "Retirer « {word} » des révisions",
     "removed": "Retiré"
   },
-  "leave": "Votre dictée en cours sera perdue : le texte tapé n'est pas encore corrigé."
+  "leave": "Votre dictée en cours sera perdue : le texte tapé n'est pas encore corrigé.",
+  "searchText": "Rechercher un texte"
 }

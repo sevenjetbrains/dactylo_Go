@@ -13,6 +13,7 @@
     type ExerciseSplit,
     type SessionType,
   } from '$shared/typing/settings.svelte';
+  import SearchList from '$shared/SearchList.svelte';
   import TypingSession from '$shared/typing/TypingSession.svelte';
 
   const textId = $derived(Number(router.query.get('text')) || 0);
@@ -93,7 +94,7 @@
   }
 </script>
 
-<section class="mx-auto max-w-6xl px-10 py-10">
+<section class="mx-auto max-w-6xl px-6 py-8 lg:px-10 lg:py-10">
   {#if resumed}
     {#await resumed then r}
       <p class="text-muted mb-4 text-sm" data-testid="session-resumed">
@@ -243,8 +244,13 @@
           <a href="#/library" class="text-accent underline">{$_('practice.addText')}</a>
         </p>
       {:else}
-        <ul class="flex flex-col gap-2">
-          {#each list.texts as t (t.id)}
+        <SearchList
+          items={list.texts}
+          fields={(t) => [t.title, t.preview]}
+          key={(t) => t.id}
+          label={$_('practice.searchText')}
+        >
+          {#snippet row(t)}
             <li>
               <a href={`#/practice?text=${t.id}`} class="card hover:border-accent block px-5 py-4">
                 <span class="font-medium">{t.title}</span>
@@ -254,8 +260,8 @@
                 <span class="text-muted mt-1 block truncate text-sm">{t.preview}</span>
               </a>
             </li>
-          {/each}
-        </ul>
+          {/snippet}
+        </SearchList>
       {/if}
     {:catch e}
       <p role="alert" class="text-error">{String(e)}</p>
