@@ -13,7 +13,7 @@ import (
 )
 
 // Version de l'application (remplacée au build via -ldflags).
-var Version = "0.1.0-dev"
+var Version = "0.1.1-dev"
 
 // App porte les dépendances partagées par les services et le cycle de vie
 // de la fenêtre.

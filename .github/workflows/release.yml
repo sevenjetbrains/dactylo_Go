@@ -62,7 +62,7 @@ jobs:
         run: |
           NSIS=""
           if [[ "$RUNNER_OS" == "Windows" ]]; then NSIS="-nsis"; fi
-          wails build -clean $NSIS -trimpath -ldflags "-s -w" ${WAILS_TAGS:+-tags $WAILS_TAGS}
+          wails build -clean $NSIS -trimpath -ldflags "-s -w -X dactylo/internal/app.Version=${VERSION#v}" ${WAILS_TAGS:+-tags $WAILS_TAGS}
 
       - name: Signature Windows (si certificat)
         if: startsWith(matrix.os, 'windows') && env.HAS_CERT == 'true'
