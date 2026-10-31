@@ -107,9 +107,13 @@ test('quitter une session en cours demande confirmation', async ({ page }) => {
   // avant la première frappe : rien à confirmer
   await menu.getByRole('link', { name: 'Statistiques' }).click();
   await expect(dialog).toBeHidden();
+  await expect(page.getByRole('heading', { name: 'Statistiques' })).toBeVisible();
   await page.goto('/#/practice?text=1');
 
+  // attendre la zone de frappe : sinon les touches partent dans le vide
+  await expect(page.getByLabel('Zone de frappe')).toBeFocused();
   await page.keyboard.type('Le');
+  await expect(page.getByRole('progressbar')).not.toHaveAttribute('aria-valuenow', '0');
   await menu.getByRole('link', { name: 'Dictée' }).click();
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText("reprendre depuis l'accueil");
